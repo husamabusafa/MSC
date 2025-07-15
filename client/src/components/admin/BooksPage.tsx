@@ -6,7 +6,6 @@ import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
 import { ConfirmationModal } from '../common/ConfirmationModal';
-import { FilterPanel, FilterOption } from '../common/FilterPanel';
 import { FileUpload } from '../common/FileUpload';
 import { DataTable } from '../common/DataTable';
 import { LoadingSpinner } from '../common/LoadingSpinner';
@@ -37,7 +36,6 @@ export const BooksPage: React.FC = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
-  const [filters, setFilters] = useState<BooksFilterInput>({});
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -50,7 +48,7 @@ export const BooksPage: React.FC = () => {
 
   // GraphQL queries and mutations
   const { data, loading, error, refetch } = useQuery(GET_BOOKS, {
-    variables: { filters },
+    variables: { filters: {} },
     fetchPolicy: 'cache-and-network'
   });
 
@@ -178,43 +176,6 @@ export const BooksPage: React.FC = () => {
 
   const books = data?.books?.books || [];
 
-  const filterOptions: FilterOption[] = [
-    {
-      key: 'search',
-      label: t('common.search'),
-      type: 'text',
-      placeholder: t('common.searchByTitleOrAuthor')
-    },
-    {
-      key: 'isVisible',
-      label: t('common.visibleOnly'),
-      type: 'boolean'
-    },
-    {
-      key: 'isAvailable',
-      label: t('library.availableOnly'),
-      type: 'boolean'
-    }
-  ];
-
-  const handleFiltersChange = (newFilters: { [key: string]: any }) => {
-    const graphQLFilters: BooksFilterInput = {};
-    
-    if (newFilters.search) {
-      graphQLFilters.search = newFilters.search;
-    }
-    
-    if (newFilters.isVisible === true) {
-      graphQLFilters.isVisible = true;
-    }
-    
-    if (newFilters.isAvailable === true) {
-      graphQLFilters.isAvailable = true;
-    }
-    
-    setFilters(graphQLFilters);
-  };
-
   const columns = [
     {
       key: 'title',
@@ -268,22 +229,62 @@ export const BooksPage: React.FC = () => {
     },
     {
       key: 'isVisible',
-      label: t('common.status'),
+      label: t('library.visibility'),
       render: (book: Book) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {book.isVisible ? (
             <>
               <Eye className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">{t('common.visible')}</span>
+              <span className="text-green-600 dark:text-green-400">{t('library.visible')}</span>
             </>
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-500 dark:text-gray-400">{t('common.hidden')}</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('library.hidden')}</span>
             </>
           )}
         </div>
       )
+    },
+    {
+      key: 'availability',
+      label: t('library.availability'),
+      render: (book: Book) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          book.availableCopies > 0
+            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        }`}>
+          {book.availableCopies > 0 ? t('library.available') : t('library.unavailable')}
+        </span>
+      )
+    }
+  ];
+
+  const filterOptions = [
+    {
+      key: 'isVisible',
+      label: t('library.filterByVisibility'),
+      type: 'select' as const,
+      options: [
+        { value: 'true', label: t('library.visibleBooks') },
+        { value: 'false', label: t('library.hiddenBooks') }
+      ]
+    },
+    {
+      key: 'availability',
+      label: t('library.filterByAvailability'),
+      type: 'select' as const,
+      options: [
+        { value: 'available', label: t('library.availableBooks') },
+        { value: 'unavailable', label: t('library.unavailableBooks') }
+      ]
+    },
+    {
+      key: 'author',
+      label: t('library.filterByAuthor'),
+      type: 'text' as const,
+      placeholder: t('library.filterByAuthor')
     }
   ];
 
@@ -299,7 +300,7 @@ export const BooksPage: React.FC = () => {
             {t('nav.books')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {t('library.manageBooks')}
+            {t('library.libraryManagementDescription')}
           </p>
         </div>
         <Button
@@ -311,47 +312,43 @@ export const BooksPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filters */}
-      <FilterPanel
-        filters={filterOptions}
-        onFiltersChange={handleFiltersChange}
-        className="mb-6"
-      />
-
       {/* Books Table */}
-      <Card padding="sm">
-        <DataTable
-          data={books}
-          columns={columns}
-          actions={(book) => (
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <Button
-                variant="outline"
-                size="sm"
-                icon={Edit}
-                onClick={() => handleEditBook(book)}
-              >
-                {t('common.edit')}
-              </Button>
-              <Button
-                variant="danger"
-                size="sm"
-                icon={Trash2}
-                onClick={() => handleDeleteBook(book)}
-              >
-                {t('common.delete')}
-              </Button>
-            </div>
-          )}
-          emptyMessage="No books found"
-        />
-      </Card>
+      <DataTable
+        data={books}
+        columns={columns}
+        filterOptions={filterOptions}
+        searchable={true}
+        filterable={true}
+        pagination={true}
+        pageSize={10}
+        emptyMessage={t('library.noBooksFound')}
+        actions={(book) => (
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={Edit}
+              onClick={() => handleEditBook(book)}
+            >
+              {t('common.edit')}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              icon={Trash2}
+              onClick={() => handleDeleteBook(book)}
+            >
+              {t('common.delete')}
+            </Button>
+          </div>
+        )}
+      />
 
       {/* Book Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedBook ? 'Edit Book' : 'Add Book'}
+        title={selectedBook ? t('common.editItem') : t('library.addBook')}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -370,7 +367,7 @@ export const BooksPage: React.FC = () => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('common.description')}
+              {t('library.description')}
             </label>
             <textarea
               value={formData.description}
@@ -382,10 +379,10 @@ export const BooksPage: React.FC = () => {
           </div>
           
           <FileUpload
-            label="Cover Image"
+            label={t('library.coverImage')}
             value={formData.coverImage}
             onChange={handleFileUpload}
-            placeholder="Upload a cover image"
+            placeholder={t('library.uploadCover')}
           />
           
           <Input
@@ -406,7 +403,7 @@ export const BooksPage: React.FC = () => {
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label htmlFor="isVisible" className="ml-2 rtl:mr-2 rtl:ml-0 text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t('common.visibleToStudents')}
+              {t('library.visibleToStudents')}
             </label>
           </div>
           

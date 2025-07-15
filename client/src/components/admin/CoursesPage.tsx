@@ -235,7 +235,7 @@ export const CoursesPage: React.FC = () => {
           icon={Plus}
           onClick={handleCreateCourse}
         >
-          Add Course
+          {t('academic.addCourse')}
         </Button>
       </div>
 
