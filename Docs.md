@@ -1,112 +1,242 @@
-Excellent. Based on the comprehensive Business Requirements Document (BRD) and the provided project files, here is a detailed analysis of the project's current state, what remains to be done, and the strategic next steps.
+Okay, transforming the technical documentation into a Business Requirements Document (BRD) means shifting focus from "how it's built" to "what business problem it solves" and "what capabilities it provides."
 
-### **Analysis of Current State**
-
-The project has a very strong foundation. The frontend architecture is modern and well-organized, utilizing React with TypeScript, Vite for the build process, and TailwindCSS for styling.
-
-**What Has Been Done Well:**
-
-*   **Solid Project Structure:** The code is logically organized into `components`, `pages`, `contexts`, `types`, and `data` directories, which is excellent for maintainability and scalability.
-*   **Core Contexts Implemented:** The foundational cross-cutting concerns are in place with `AuthProvider`, `I18nProvider`, and `ThemeProvider`. This correctly separates authentication, internationalization, and UI theming from business logic.
-*   **Comprehensive UI/Component Scaffolding:** A significant number of pages and components have been created. The Admin Panel, in particular, has a complete set of pages for managing every major data entity defined in the BRD (Users, Books, Orders, Courses, etc.).
-*   **Routing is Defined:** The `Router.tsx` file clearly maps out the application's URL structure and correctly implements role-based routing (redirecting to Login, or loading the appropriate Student/Admin page).
-*   **Internationalization (i18n) and Theming:** The platform successfully implements bilingual (English/Arabic) support with RTL and Light/Dark theme switching, meeting a key business requirement from the outset.
-*   **Reusable Common Components:** The creation of `Card`, `Button`, `Input`, `Modal`, `DataTable`, and `LoadingSpinner` provides a consistent and reusable UI toolkit, which will accelerate future development.
-
-**The Major Gap: Mock Data vs. Real Backend**
-
-The most critical point to understand is that the current application is a **high-fidelity frontend prototype.** It is not connected to a real backend. All data is sourced from `src/data/mockData.ts`, and all data manipulation (creating, updating, deleting) is simulated with `console.log` and alerts.
+Here is the Business Requirements Document (BRD) for the Integrated Educational Platform.
 
 ---
 
-### **Remaining Work & Missing Components**
+### **Business Requirements Document (BRD): Integrated Educational Platform**
 
-The remaining work can be categorized into two main areas: **Backend Implementation** and **Frontend Feature Completion**.
-
-#### **1. Missing Pages (UI Scaffolding)**
-
-While the admin side is well-scaffolded, some key student-facing pages that handle dynamic interactions are missing.
-
-| Missing Page File Path                        | Purpose                                                                                | Justification (BRD Section)                                     |
-| :------------------------------------------ | :------------------------------------------------------------------------------------- | :-------------------------------------------------------------- |
-| `src/pages/student/QuizPage.tsx`            | To host the quiz-taking experience for a specific quiz.                                | FR.2.3: Students shall be able to take quizzes.                 |
-| `src/pages/student/FlashcardsPage.tsx`      | To host the flashcard viewing/studying experience for a specific deck.                 | FR.2.2: Students shall be able to access and use flashcard decks. |
-| `src/pages/student/ProfilePage.tsx`         | To allow students to view and manage their profile and settings (e.g., change password). | FR.1.2: Users shall be able to view and update their profile.   |
-| `src/pages/student/OrderHistoryPage.tsx`    | To display a list of a student's past product and book orders.                         | Implied by `library.borrowHistory` and `store.orderHistory`.    |
-| `src/pages/admin/QuizEditorPage.tsx`        | An interface to add/edit/delete questions and answers for a specific quiz.             | FR.3.7: Question & Answer Option Management.                    |
-| `src/pages/admin/FlashcardEditorPage.tsx`   | An interface to add/edit/delete individual flashcards within a specific deck.          | FR.3.5: Flashcard Deck Management (editing cards).              |
-
-#### **2. Missing Components (UI/Logic)**
-
-These are specific components needed to power the pages listed above and fulfill the BRD's functional requirements.
-
-Of course. Here is the rest of the response.
+**Version:** 1.0
+**Date:** July 14, 2025
+**Author:** [Your Name/Team]
 
 ---
 
-| Missing Component File Path | Purpose | Justification (BRD Section) |
-| :--- | :--- | :--- |
-| `src/components/student/QuizTaker.tsx` | Manages the state for an active quiz session: displays one question at a time, tracks answers, calculates the final score. | FR.2.3: Quiz Taking |
-| `src/components/student/FlashcardViewer.tsx` | Displays one flashcard at a time, allowing the student to "flip" the card to see the answer and navigate through the deck. | FR.2.2: Flashcard Access |
-| `src/components/student/ProfileSettings.tsx` | Contains forms for updating user details and changing the password, handling the associated logic and API calls. | FR.1.2: User Profile Management & Settings |
-| `src/components/admin/QuizQuestionEditor.tsx` | A form-based component used within `QuizEditorPage` to manage a single question, its text, images, and its associated answers. | FR.3.7: Question & Answer Option Management |
-| `src/components/admin/FlashcardEditor.tsx` | A form-based component used within `FlashcardEditorPage` to manage the question and answer text for a single flashcard. | FR.3.5: Flashcard Deck Management |
-| `src/api/` (New Directory) | A new directory to hold all API client functions (`api/auth.ts`, `api/courses.ts`, etc.) for making calls to the backend. This is crucial for separating frontend logic from data-fetching logic. | NFR 7.5: Maintainability |
+### **1. Introduction**
+
+This document outlines the business requirements for the "Integrated Educational Platform," a comprehensive digital ecosystem designed for a university faculty. The platform aims to centralize and streamline key academic, library, and commerce functions, providing a highly accessible, user-friendly, and efficient experience for its two primary user groups: Students and Administrators.
+
+The core objective is to enhance the digital learning and administrative environment, foster student engagement, and improve operational efficiency through modern, intuitive technology.
+
+### **2. Business Goals & Objectives**
+
+The primary goals for the Integrated Educational Platform are:
+
+*   **2.1. Enhance Student Learning & Engagement:** Provide students with a centralized, intuitive, and accessible portal for all academic resources (courses, quizzes, flashcards) and supplementary services (library, store).
+*   **2.2. Improve Administrative Efficiency:** Equip faculty administrators with robust tools to efficiently manage users, academic content, library resources, and store operations, reducing manual workload and potential errors.
+*   **2.3. Foster Inclusivity & Accessibility:** Deliver a fully bilingual experience (English & Arabic) with comprehensive internationalization, including Right-to-Left (RTL) language support, and user-configurable theming (Light/Dark mode) for optimal visual comfort.
+*   **2.4. Establish a Modern Digital Foundation:** Implement a scalable, high-performance, and maintainable platform that can evolve with the university's future needs, leveraging modern web technologies.
+*   **2.5. Centralize Faculty Operations:** Consolidate disparate systems and processes into a single, unified platform for improved data consistency and streamlined workflows.
+
+### **3. Scope**
+
+The scope of this project encompasses the development and deployment of a web-based, full-stack application comprising two distinct user interfaces:
+
+*   **Student Panel:** Accessible to all registered students for academic, library, and store interactions.
+*   **Admin Panel:** Securely accessible only to authorized administrators for platform management.
+
+**In-Scope Features:**
+*   User Management (Student & Admin)
+*   Internationalization (English & Arabic, including RTL support)
+*   Theming (Light & Custom High-Contrast Dark Modes)
+*   Academic Content Management (Levels, Courses, Flashcards, Quizzes, Questions, Answers, GPA Subjects)
+*   Al-Jalees Club Library Management (Books, Borrow Requests)
+*   Store Management (Product Categories, Products, Orders)
+*   Core application infrastructure for data management and API services.
+
+**Out-of-Scope (for this initial phase):**
+*   Integration with external university SIS (Student Information Systems) or ERP (Enterprise Resource Planning) systems.
+*   Mobile native applications (the platform will be web-based and responsive).
+*   Advanced analytics beyond basic reporting.
+*   Live chat or real-time communication features.
+
+### **4. Stakeholders**
+
+The key stakeholders for this project include:
+
+*   **University Faculty Management:** Project Sponsors, strategic decision-makers.
+*   **Academic Department Heads:** Define academic content requirements.
+*   **IT Department:** Provide technical infrastructure and support.
+*   **Students:** End-users of the Student Panel.
+*   **Administrators:** End-users of the Admin Panel (e.g., academic coordinators, library staff, store managers).
+*   **Al-Jalees Club Leadership:** Define library-specific requirements.
+*   **Project Team:** Developers, Project Managers, QA.
+
+### **5. User Roles & Profiles**
+
+The platform will cater to two primary user roles:
+
+*   **5.1. Student**
+    *   **Profile:** Registered university student.
+    *   **Needs:** Easy access to course materials, self-assessment tools, library resources, and a simple online store for faculty-related items. Requires an intuitive, engaging, and accessible interface.
+    *   **Key Activities:**
+        *   Register and log in.
+        *   Browse academic levels, courses.
+        *   Access and use flashcard decks.
+        *   Take quizzes and receive immediate feedback.
+        *   View GPA subjects.
+        *   Browse and search library books.
+        *   Request to borrow books.
+        *   Browse and purchase products from the store.
+        *   Manage personal profile settings (e.g., language, theme).
+
+*   **5.2. Administrator**
+    *   **Profile:** Authorized faculty staff responsible for managing platform content and operations.
+    *   **Needs:** A powerful, secure, and efficient dashboard to manage all aspects of the platform's content, users, and transactions. Requires robust data entry, editing, and reporting capabilities.
+    *   **Key Activities:**
+        *   Securely log in.
+        *   Manage user accounts (creation, editing, deactivation, role assignment).
+        *   Manage pre-registered student lists.
+        *   Manage academic content:
+            *   Create, edit, delete academic levels and courses.
+            *   Create, edit, delete flashcard decks.
+            *   Create, edit, delete quizzes, questions, and answer options (including marking correct answers).
+            *   Manage GPA subjects.
+        *   Manage library content:
+            *   Add, edit, delete book records.
+            *   Set book visibility and total copies.
+            *   View and update book borrow requests (status, notes).
+        *   Manage store content:
+            *   Create, edit, delete product categories.
+            *   Add, edit, delete products (including price, images, public visibility, special offer status).
+            *   View and update student orders (status, notes).
+
+### **6. Functional Requirements**
+
+This section details the specific capabilities the platform must deliver.
+
+*   **6.1. Core Platform Functionality:**
+    *   **FR.1.1 User Authentication & Authorization:** The system shall allow users to register (students) and log in (students, admins). It shall enforce role-based access control, ensuring students can only access student-specific features and administrators can only access the Admin Panel and their authorized management functions.
+    *   **FR.1.2 User Profile Management:** Both students and administrators shall be able to view and update their personal profile information.
+    *   **FR.1.3 Internationalization (i18n):** The entire application (both Student and Admin Panels) shall support full internationalization for English and Arabic.
+        *   FR.1.3.1 Users shall be able to dynamically switch between English and Arabic language modes.
+        *   FR.1.3.2 The system shall persist the user's chosen language preference.
+        *   FR.1.3.3 The UI shall automatically adjust to Right-to-Left (RTL) text direction when Arabic is selected.
+        *   FR.1.3.4 All static UI text and dynamic content shall be translatable.
+    *   **FR.1.4 Theming:** The application shall include a dynamic theming system.
+        *   FR.1.4.1 Users shall be able to toggle between a Light mode and a custom Dark mode.
+        *   FR.1.4.2 The Dark mode shall utilize a high-contrast color palette, distinct from generic grayscale, for optimal readability.
+        *   FR.1.4.3 The system shall persist the user's chosen theme preference.
+    *   **FR.1.5 Dual-Panel Interface:** The system shall provide distinct, separately accessible web interfaces for Students and Administrators.
+    *   **FR.1.6 Responsive Design:** Both panels shall be fully responsive, providing an optimal user experience across various device types (desktop, tablet, mobile).
+
+*   **6.2. Academic Management - Student Panel:**
+    *   **FR.2.1 Level & Course Browsing:** Students shall be able to browse available academic levels and view the courses associated with each level.
+    *   **FR.2.2 Flashcard Access:** Students shall be able to access and utilize flashcard decks associated with their courses.
+    *   **FR.2.3 Quiz Taking:** Students shall be able to take quizzes for their courses.
+        *   FR.2.3.1 Quizzes shall present questions with multiple-choice answer options.
+        *   FR.2.3.2 Students shall receive immediate feedback on their answers (correct/incorrect).
+        *   FR.2.3.3 (Optional for future phase if needed: Quiz score tracking, detailed results).
+    *   **FR.2.4 GPA Subjects Viewing:** Students shall be able to view a list of GPA subjects, including their year, name, and credit hours.
+
+*   **6.3. Academic Management - Admin Panel:**
+    *   **FR.3.1 User Management:** Administrators shall be able to:
+        *   Create, view, edit, and deactivate user accounts (students and administrators).
+        *   Assign and change user roles (Student/Admin).
+    *   **FR.3.2 Pre-Registered Student Management:** Administrators shall be able to manage a list of pre-registered students (full name, university ID).
+    *   **FR.3.3 Level Management:** Administrators shall be able to create, view, edit, and delete academic levels.
+    *   **FR.3.4 Course Management:** Administrators shall be able to create, view, edit, and delete courses, associating them with specific levels.
+    *   **FR.3.5 Flashcard Deck Management:** Administrators shall be able to create, view, edit, and delete flashcard decks, associating them with specific courses.
+    *   **FR.3.6 Quiz Management:** Administrators shall be able to create, view, edit, and delete quizzes, associating them with specific courses.
+    *   **FR.3.7 Question & Answer Option Management:** Administrators shall be able to:
+        *   Create, view, edit, and delete questions within a quiz.
+        *   Add images to questions.
+        *   Provide explanations and explanation images for questions.
+        *   Create, view, edit, and delete answer options for each question.
+        *   Designate one or more answer options as correct.
+    *   **FR.3.8 GPA Subject Management:** Administrators shall be able to create, view, edit, and delete GPA subjects, including year name, subject name, and credit hours.
+    *   **FR.3.9 Dynamic Table Component:** The Admin Panel shall utilize a single, reusable, dynamic table component for displaying all tabular data (e.g., users, books, products, orders), configurable via props for columns and data.
+
+*   **6.4. Al-Jalees Club Library Management:**
+    *   **FR.4.1 Book Catalog (Student Panel):** Students shall be able to:
+        *   Browse and search the library's catalog of available books.
+        *   View detailed information for each book (title, author, cover image, description, availability).
+        *   Request to borrow a book.
+    *   **FR.4.2 Book Management (Admin Panel):** Administrators shall be able to:
+        *   Add, view, edit, and delete book records (title, slug, author, cover image, description, total copies).
+        *   Toggle book visibility for students.
+    *   **FR.4.3 Book Order Management (Admin Panel):** Administrators shall be able to:
+        *   View all student book borrowing requests.
+        *   Update the status of a book order (e.g., "Pending," "Approved," "Returned," "Cancelled").
+        *   Add internal notes to book orders.
+
+*   **6.5. Store Management:**
+    *   **FR.5.1 Product Catalog (Student Panel):** Students shall be able to:
+        *   Browse products by category.
+        *   View detailed product information (name, description, image, price, special offer status).
+        *   Add products to an order.
+        *   Submit an order, including student notes.
+    *   **FR.5.2 Product Category Management (Admin Panel):** Administrators shall be able to create, view, edit, and delete product categories.
+    *   **FR.5.3 Product Management (Admin Panel):** Administrators shall be able to:
+        *   Add, view, edit, and delete products (name, slug, description, image, price).
+        *   Toggle product visibility for students.
+        *   Mark products as a "special offer."
+        *   Assign products to a category.
+    *   **FR.5.4 Order Management (Admin Panel):** Administrators shall be able to:
+        *   View all student purchase orders.
+        *   View products within each order.
+        *   Update the status of an order (e.g., "Pending," "Completed," "Cancelled").
+        *   Add internal notes for administrative tracking.
+        *   View student notes on an order.
+
+### **7. Non-Functional Requirements**
+
+*   **7.1. Performance:**
+    *   The platform shall exhibit fast loading times (under 3 seconds for initial page load).
+    *   Data retrieval and updates shall be highly responsive (sub-second response times for typical operations).
+    *   The application shall efficiently handle concurrent users without significant performance degradation.
+*   **7.2. Security:**
+    *   User authentication shall be secure (e.g., password hashing, secure token management).
+    *   Data transmission between client and server shall be encrypted (HTTPS).
+    *   Role-based access control shall strictly enforce permissions for data access and functionality.
+    *   The system shall be protected against common web vulnerabilities (e.g., XSS, CSRF, SQL Injection, through best practices of NestJS/GraphQL/Prisma).
+*   **7.3. Usability:**
+    *   The user interfaces for both Student and Admin Panels shall be intuitive and easy to navigate, requiring minimal training.
+    *   Error messages shall be clear, concise, and actionable.
+    *   Input forms shall include validation and provide clear feedback.
+*   **7.4. Scalability:**
+    *   The architecture shall be designed to accommodate future growth in user numbers, data volume, and additional features without requiring a complete re-architecture.
+*   **7.5. Maintainability:**
+    *   The codebase shall be modular, well-documented, and follow established coding standards to facilitate future enhancements and bug fixes.
+*   **7.6. Reliability & Availability:**
+    *   The platform shall aim for high availability (e.g., 99.5% uptime).
+    *   Robust error handling and logging mechanisms shall be in place.
+*   **7.7. Compatibility:**
+    *   The platform shall be compatible with modern web browsers (latest two versions of Chrome, Firefox, Safari, Edge).
+
+### **8. Assumptions**
+
+*   **8.1. Internet Connectivity:** Users will have stable internet access to use the platform.
+*   **8.2. User Training:** Administrators will receive adequate training on how to use the Admin Panel.
+*   **8.3. Content Availability:** All required academic, library, and store content (text, images) will be provided in a timely manner.
+*   **8.4. Database Integrity:** The SQLite database will be sufficient for the initial phase's data volume and performance requirements.
+*   **8.5. API Consistency:** The GraphQL API will consistently provide the necessary data structures and mutations as defined.
+
+### **9. Constraints**
+
+*   **9.1. Technology Stack:** The core technology stack (Vite + React for frontend, NestJS + Prisma + GraphQL + SQLite for backend) is mandated.
+*   **9.2. Timeline & Budget:** Project must adhere to specified timeline and budget constraints (to be defined separately).
+*   **9.3. Data Privacy:** All data handling must comply with relevant university policies and data privacy regulations.
+
+### **10. Success Metrics**
+
+The success of the Integrated Educational Platform will be measured by:
+
+*   **10.1. User Adoption:**
+    *   Percentage of active students regularly engaging with academic resources (e.g., quiz completions, flashcard usage).
+    *   Number of library book requests.
+    *   Volume of store transactions.
+    *   Percentage of administrators actively using the Admin Panel for content management.
+*   **10.2. User Satisfaction:**
+    *   Positive feedback from student and administrator surveys (e.g., NPS score).
+    *   Reduction in support tickets related to content access or administrative tasks.
+*   **10.3. Operational Efficiency:**
+    *   Reduction in time spent by administrators on managing academic content, library, and store processes.
+    *   Accuracy of data entry and management.
+*   **10.4. Performance & Reliability:**
+    *   Achieving target page load times and API response times.
+    *   Meeting target system uptime.
+*   **10.5. Accessibility & Inclusivity:**
+    *   Positive feedback on bilingual support and theming options.
 
 ---
-
-### **Next Steps: A Phased Approach to Completion**
-
-The project is perfectly positioned to move from a prototype to a fully functional application. The following steps outline a strategic path forward.
-
-#### **Phase 1: Backend Implementation & API Development (Critical Priority)**
-
-This is the most significant and immediate task. The entire frontend is waiting for a live backend to provide and persist data.
-
-**Objective:** Build the NestJS/GraphQL backend that fulfills all data management requirements outlined in the BRD.
-
-**Key Actions:**
-
-1.  **Database Schema Finalization:** Translate the TypeScript types in `src/types/index.ts` into a definitive Prisma schema (`schema.prisma`). This will define the tables, columns, and relationships in the SQLite database.
-2.  **GraphQL Schema Definition:** Define the GraphQL schema (queries, mutations, and types) that the frontend will use to interact with the server. This schema should mirror the operations needed by the UI (e.g., `getUsers`, `createCourse`, `updateBookOrderStatus`).
-3.  **Implement Resolvers:** Write the business logic for each query and mutation in NestJS resolvers. This is where the application's core logic will reside (e.g., checking if a book has available copies before approving a borrow request).
-4.  **Develop Authentication Logic:** Implement the user registration and login logic on the backend, including password hashing (e.g., using `bcrypt`) and secure session/token management (e.g., JWT). The current mock authentication in `AuthContext` will be replaced by API calls to this backend.
-5.  **Build API Endpoints for All Modules:** Systematically create the GraphQL endpoints for every module:
-    *   Users & Pre-registered Students
-    *   Levels, Courses, Flashcards, Quizzes, GPA Subjects
-    *   Books & Book Orders
-    *   Product Categories, Products, & Orders
-
-#### **Phase 2: Frontend & Backend Integration**
-
-**Objective:** Replace all mock data and simulated actions in the React application with live API calls to the newly created backend.
-
-**Key Actions:**
-
-1.  **Create API Client:** Build out the `src/api/` directory with functions that encapsulate all GraphQL queries and mutations. For example, `api/books.ts` would contain a `getBooks()` function that fetches all books from the backend.
-2.  **Refactor Contexts:** Update `AuthContext` to call the real backend endpoints for `login` and `register` instead of using the mock data.
-3.  **Refactor Admin Pages:** Go through every single admin page (`UsersPage.tsx`, `BooksPage.tsx`, etc.) and replace the calls to `getRelatedData()` with the new API client functions.
-    *   The `handleSubmit` and `handleDelete` functions in these pages must be re-wired to execute the corresponding GraphQL mutations.
-    *   Data displayed in the `DataTable` component should come from a `useState` hook that is populated by a `useEffect` hook making an API call.
-4.  **Refactor Student Pages:** Do the same for all student-facing pages (`CoursesPage`, `LibraryPage`, `StorePage`), replacing mock data with live API calls.
-5.  **Build Missing UI Pages:** Develop the missing pages and components identified in the section above (`QuizPage`, `FlashcardsPage`, `ProfilePage`, etc.), building them from the ground up to interact with the backend API.
-
-#### **Phase 3: Testing, Refinement, and Deployment**
-
-**Objective:** Ensure the application is bug-free, performs well, and is ready for production use.
-
-**Key Actions:**
-
-1.  **End-to-End Testing:** Conduct thorough testing of all user flows for both Student and Admin roles. This includes testing registration, login, content creation, editing, deleting, borrowing books, and placing orders.
-2.  **User Acceptance Testing (UAT):** Engage key stakeholders (students and administrators) to use the platform and provide feedback. Use this feedback to make final UI/UX refinements.
-3.  **Performance Optimization:** Analyze application performance. Optimize images, review database queries for efficiency, and ensure the frontend bundle size is reasonable.
-4.  **Deployment:**
-    *   Deploy the NestJS backend to a suitable hosting provider (e.g., Render, Vercel, AWS).
-    *   Deploy the static Vite/React frontend to a CDN-backed hosting service (e.g., Vercel, Netlify).
-    *   Configure environment variables for production (database connection strings, API URLs, secret keys).
-
-### **Conclusion**
-
-The "Integrated Educational Platform" project is in an excellent position. The frontend is well-architected and provides a clear, tangible vision of the final product.
-
-The immediate and most critical path forward is to **focus all resources on building the backend API**. Once the API is functional, the "real" application will come to life as the frontend is integrated with it, transforming the prototype into a powerful, data-driven tool for both students and administrators.
