@@ -1,43 +1,88 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { ConfirmationModal } from '../common/ConfirmationModal';
+import { FilterPanel, FilterOption } from '../common/FilterPanel';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   Users, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   UserCheck,
   UserX,
   Mail,
   Calendar
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { User } from '../../types';
+import { 
+  GET_USERS, 
+  CREATE_USER, 
+  UPDATE_USER, 
+  DELETE_USER,
+  User,
+  CreateUserInput,
+  UpdateUserInput,
+  UsersFilterInput
+} from '../../lib/graphql/users';
 
 export const UsersPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { showSuccess, showError } = useNotification();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [filters, setFilters] = useState<UsersFilterInput>({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'STUDENT' as 'STUDENT' | 'ADMIN',
     universityId: '',
     isActive: true
   });
-  const data = getRelatedData();
 
-  const filteredUsers = data.users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (user.universityId && user.universityId.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesSearch;
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_USERS, {
+    variables: { filters },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const [createUser] = useMutation(CREATE_USER, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error creating user:', error);
+    }
+  });
+
+  const [updateUser] = useMutation(UPDATE_USER, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error updating user:', error);
+    }
+  });
+
+  const [deleteUser] = useMutation(DELETE_USER, {
+    onCompleted: () => {
+      setIsConfirmModalOpen(false);
+      setUserToDelete(null);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error deleting user:', error);
+    }
   });
 
   const handleCreateUser = () => {
@@ -45,6 +90,7 @@ export const UsersPage: React.FC = () => {
     setFormData({
       name: '',
       email: '',
+      password: '',
       role: 'STUDENT',
       universityId: '',
       isActive: true
@@ -57,26 +103,118 @@ export const UsersPage: React.FC = () => {
     setFormData({
       name: user.name,
       email: user.email,
-      role: user.role,
+      password: '', // Don't populate password for security
+      role: user.role as 'STUDENT' | 'ADMIN',
       universityId: user.universityId || '',
       isActive: user.isActive
     });
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    console.log('User saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedUser ? t('users.userUpdated') : t('users.userCreated'));
+    
+    if (selectedUser) {
+      // Update existing user
+      const updateInput: UpdateUserInput = {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        universityId: formData.universityId || undefined,
+        isActive: formData.isActive
+      };
+      
+      // Only include password if it's provided
+      if (formData.password.trim()) {
+        updateInput.password = formData.password;
+      }
+      
+      await updateUser({
+        variables: {
+          id: selectedUser.id,
+          updateUserInput: updateInput
+        }
+      });
+    } else {
+      // Create new user
+      if (!formData.password.trim()) {
+        showError('Password is required for new users');
+        return;
+      }
+      
+      const createInput: CreateUserInput = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        universityId: formData.universityId || undefined,
+        isActive: formData.isActive
+      };
+      
+      await createUser({
+        variables: {
+          createUserInput: createInput
+        }
+      });
+    }
   };
 
   const handleDeleteUser = (user: User) => {
-    if (confirm(t('users.confirmDelete'))) {
-      console.log('Delete user:', user.id);
-      alert(t('users.userDeleted'));
+    setUserToDelete(user);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (userToDelete) {
+      await deleteUser({
+        variables: {
+          id: userToDelete.id
+        }
+      });
     }
+  };
+
+  const users = data?.users?.users || [];
+
+  const filterOptions: FilterOption[] = [
+    {
+      key: 'search',
+      label: t('common.search'),
+      type: 'text',
+      placeholder: t('common.searchByNameOrEmail')
+    },
+    {
+      key: 'role',
+      label: t('users.role'),
+      type: 'select',
+      options: [
+        { value: 'STUDENT', label: t('users.STUDENT') },
+        { value: 'ADMIN', label: t('users.ADMIN') }
+      ]
+    },
+    {
+      key: 'isActive',
+      label: t('users.activeOnly'),
+      type: 'boolean'
+    }
+  ];
+
+  const handleFiltersChange = (newFilters: { [key: string]: any }) => {
+    const graphQLFilters: UsersFilterInput = {};
+    
+    if (newFilters.search) {
+      graphQLFilters.search = newFilters.search;
+    }
+    
+    if (newFilters.role) {
+      graphQLFilters.role = newFilters.role;
+    }
+    
+    if (newFilters.isActive === true) {
+      graphQLFilters.isActive = true;
+    }
+    
+    setFilters(graphQLFilters);
   };
 
   const columns = [
@@ -160,6 +298,9 @@ export const UsersPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -181,20 +322,17 @@ export const UsersPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Search */}
-      <Card>
-        <Input
-          icon={Search}
-          placeholder={`${t('common.search')} users...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Card>
+      {/* Filters */}
+      <FilterPanel
+        filters={filterOptions}
+        onFiltersChange={handleFiltersChange}
+        className="mb-6"
+      />
 
       {/* Users Table */}
       <Card padding="sm">
         <DataTable
-          data={filteredUsers}
+          data={users}
           columns={columns}
           actions={(user) => (
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -242,6 +380,15 @@ export const UsersPage: React.FC = () => {
             required
           />
           
+          <Input
+            type="password"
+            label={selectedUser ? t('auth.newPassword') : t('auth.password')}
+            value={formData.password}
+            onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+            required={!selectedUser}
+            placeholder={selectedUser ? 'Leave empty to keep current password' : ''}
+          />
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('users.role')}
@@ -251,8 +398,8 @@ export const UsersPage: React.FC = () => {
               onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'STUDENT' | 'ADMIN' }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="student">{t('users.student')}</option>
-              <option value="admin">{t('users.admin')}</option>
+              <option value="STUDENT">{t('users.STUDENT')}</option>
+              <option value="ADMIN">{t('users.ADMIN')}</option>
             </select>
           </div>
           
@@ -297,6 +444,17 @@ export const UsersPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmDeleteUser}
+        title={t('users.confirmDelete')}
+        message={t('users.deleteWarning')}
+        confirmText={t('common.delete')}
+        variant="danger"
+      />
     </div>
   );
 };

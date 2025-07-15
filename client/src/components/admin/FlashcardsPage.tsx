@@ -1,28 +1,37 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   Brain, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   Eye,
   EyeOff,
   BookOpen,
   GraduationCap,
   FileText
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { FlashcardDeck } from '../../types';
+import { 
+  GET_FLASHCARD_DECKS, 
+  CREATE_FLASHCARD_DECK, 
+  UPDATE_FLASHCARD_DECK, 
+  DELETE_FLASHCARD_DECK,
+  GET_COURSES,
+  FlashcardDeck,
+  CreateFlashcardDeckInput,
+  UpdateFlashcardDeckInput,
+  Course
+} from '../../lib/graphql/academic';
 
 export const FlashcardsPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
@@ -32,13 +41,52 @@ export const FlashcardsPage: React.FC = () => {
     courseId: '',
     isVisible: true
   });
-  const data = getRelatedData();
 
-  const filteredDecks = data.flashcardDecks.filter(deck => {
-    const matchesSearch = deck.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         deck.description.toLowerCase().includes(searchTerm.toLowerCase());
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_FLASHCARD_DECKS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: coursesData } = useQuery(GET_COURSES);
+
+  const [createFlashcardDeck] = useMutation(CREATE_FLASHCARD_DECK, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+      alert('Flashcard deck created successfully!');
+    },
+    onError: (error) => {
+      alert(`Error creating flashcard deck: ${error.message}`);
+    }
+  });
+
+  const [updateFlashcardDeck] = useMutation(UPDATE_FLASHCARD_DECK, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+      alert('Flashcard deck updated successfully!');
+    },
+    onError: (error) => {
+      alert(`Error updating flashcard deck: ${error.message}`);
+    }
+  });
+
+  const [deleteFlashcardDeck] = useMutation(DELETE_FLASHCARD_DECK, {
+    onCompleted: () => {
+      refetch();
+      alert('Flashcard deck deleted successfully!');
+    },
+    onError: (error) => {
+      alert(`Error deleting flashcard deck: ${error.message}`);
+    }
+  });
+
+  const flashcardDecks = data?.flashcardDecks || [];
+  const courses = coursesData?.courses || [];
+
+  const filteredDecks = flashcardDecks.filter((deck: FlashcardDeck) => {
     const matchesCourse = !selectedCourse || deck.courseId === selectedCourse;
-    return matchesSearch && matchesCourse;
+    return matchesCourse;
   });
 
   const handleCreateDeck = () => {
@@ -63,17 +111,48 @@ export const FlashcardsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Flashcard deck saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedDeck ? t('messages.success.flashcardUpdated') : t('messages.success.flashcardCreated'));
+    
+    if (selectedDeck) {
+      // Update existing deck
+      const updateInput: UpdateFlashcardDeckInput = {
+        name: formData.name,
+        description: formData.description,
+        courseId: formData.courseId,
+        isVisible: formData.isVisible
+      };
+      
+      await updateFlashcardDeck({
+        variables: {
+          id: selectedDeck.id,
+          updateFlashcardDeckInput: updateInput
+        }
+      });
+    } else {
+      // Create new deck
+      const createInput: CreateFlashcardDeckInput = {
+        name: formData.name,
+        description: formData.description,
+        courseId: formData.courseId,
+        isVisible: formData.isVisible
+      };
+      
+      await createFlashcardDeck({
+        variables: {
+          createFlashcardDeckInput: createInput
+        }
+      });
+    }
   };
 
-  const handleDeleteDeck = (deck: FlashcardDeck) => {
-    if (confirm(t('messages.confirmDelete.flashcard'))) {
-      console.log('Delete deck:', deck.id);
-      alert(t('messages.success.flashcardDeleted'));
+  const handleDeleteDeck = async (deck: FlashcardDeck) => {
+    if (confirm(`Are you sure you want to delete "${deck.name}"?`)) {
+      await deleteFlashcardDeck({
+        variables: {
+          id: deck.id
+        }
+      });
     }
   };
 
@@ -110,7 +189,7 @@ export const FlashcardsPage: React.FC = () => {
       render: (deck: FlashcardDeck) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <FileText className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 dark:text-white">{deck.cards.length} {t('common.cards').toLowerCase()}</span>
+          <span className="text-gray-900 dark:text-white">{deck.cards?.length || 0} cards</span>
         </div>
       )
     },
@@ -123,18 +202,18 @@ export const FlashcardsPage: React.FC = () => {
     },
     {
       key: 'isVisible',
-      label: 'Visibility',
+      label: t('common.visibility'),
       render: (deck: FlashcardDeck) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {deck.isVisible ? (
             <>
               <Eye className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">Visible</span>
+              <span className="text-green-600 dark:text-green-400">{t('common.visible')}</span>
             </>
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Hidden</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('common.hidden')}</span>
             </>
           )}
         </div>
@@ -142,8 +221,12 @@ export const FlashcardsPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -162,16 +245,9 @@ export const FlashcardsPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Filters */}
       <Card>
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              icon={Search}
-              placeholder={`${t('common.search')} flashcard decks...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
           <div>
             <select
               value={selectedCourse}
@@ -179,7 +255,7 @@ export const FlashcardsPage: React.FC = () => {
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Courses</option>
-              {data.courses.map(course => (
+              {courses.map((course: Course) => (
                 <option key={course.id} value={course.id}>{course.name}</option>
               ))}
             </select>
@@ -187,6 +263,7 @@ export const FlashcardsPage: React.FC = () => {
         </div>
       </Card>
 
+      {/* Flashcard Decks Table */}
       <Card padding="sm">
         <DataTable
           data={filteredDecks}
@@ -215,6 +292,7 @@ export const FlashcardsPage: React.FC = () => {
         />
       </Card>
 
+      {/* Flashcard Deck Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -241,7 +319,7 @@ export const FlashcardsPage: React.FC = () => {
               required
             >
               <option value="">Select Course</option>
-              {data.courses.map(course => (
+              {courses.map((course: Course) => (
                 <option key={course.id} value={course.id}>{course.name}</option>
               ))}
             </select>

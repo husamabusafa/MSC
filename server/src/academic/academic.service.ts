@@ -358,6 +358,8 @@ export class AcademicService {
         description: createQuizInput.description,
         courseId: createQuizInput.courseId,
         isVisible: createQuizInput.isVisible ?? true,
+        hasDuration: createQuizInput.hasDuration ?? false,
+        durationMinutes: createQuizInput.durationMinutes,
         questions: createQuizInput.questions ? {
           create: createQuizInput.questions.map(question => ({
             text: question.text,
@@ -547,5 +549,152 @@ export class AcademicService {
     }
 
     return this.prisma.gpaSubject.delete({ where: { id } });
+  }
+
+  // =============== QUIZ QUESTION OPERATIONS ===============
+  async getQuizQuestions(quizId: string) {
+    return this.prisma.question.findMany({
+      where: { quizId },
+      orderBy: { order: 'asc' },
+      include: {
+        answers: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+  }
+
+  async getQuizQuestionById(id: string) {
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+      include: {
+        answers: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!question) {
+      throw new NotFoundException(`Quiz question with ID ${id} not found`);
+    }
+
+    return question;
+  }
+
+  async createQuizQuestion(createQuizQuestionInput: CreateQuestionInput & { quizId: string }) {
+    return this.prisma.question.create({
+      data: {
+        text: createQuizQuestionInput.text,
+        image: createQuizQuestionInput.image,
+        explanation: createQuizQuestionInput.explanation,
+        explanationImage: createQuizQuestionInput.explanationImage,
+        order: createQuizQuestionInput.order,
+        quizId: createQuizQuestionInput.quizId,
+        answers: {
+          create: createQuizQuestionInput.answers?.map((answer, index) => ({
+            ...answer,
+            order: index + 1,
+          })) || [],
+        },
+      },
+      include: {
+        answers: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+  }
+
+  async updateQuizQuestion(id: string, updateQuizQuestionInput: CreateQuestionInput) {
+    const question = await this.prisma.question.findUnique({ where: { id } });
+    if (!question) {
+      throw new NotFoundException(`Quiz question with ID ${id} not found`);
+    }
+
+    // Delete existing answers and create new ones
+    await this.prisma.quizAnswer.deleteMany({ where: { questionId: id } });
+
+    return this.prisma.question.update({
+      where: { id },
+      data: {
+        ...updateQuizQuestionInput,
+        answers: {
+          create: updateQuizQuestionInput.answers?.map((answer, index) => ({
+            ...answer,
+            order: index + 1,
+          })) || [],
+        },
+      },
+      include: {
+        answers: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+  }
+
+  async deleteQuizQuestion(id: string) {
+    const question = await this.prisma.question.findUnique({ where: { id } });
+    if (!question) {
+      throw new NotFoundException(`Quiz question with ID ${id} not found`);
+    }
+
+    return this.prisma.question.delete({ where: { id } });
+  }
+
+  // =============== FLASHCARD OPERATIONS ===============
+  async getFlashcards(deckId: string) {
+    return this.prisma.flashcard.findMany({
+      where: { deckId },
+      orderBy: { order: 'asc' },
+    });
+  }
+
+  async getFlashcardById(id: string) {
+    const flashcard = await this.prisma.flashcard.findUnique({
+      where: { id },
+    });
+
+    if (!flashcard) {
+      throw new NotFoundException(`Flashcard with ID ${id} not found`);
+    }
+
+    return flashcard;
+  }
+
+  async createFlashcard(createFlashcardInput: CreateFlashcardInput & { deckId: string }) {
+    return this.prisma.flashcard.create({
+      data: {
+        question: createFlashcardInput.question,
+        answer: createFlashcardInput.answer,
+        order: createFlashcardInput.order,
+        deckId: createFlashcardInput.deckId,
+      },
+    });
+  }
+
+  async updateFlashcard(id: string, updateFlashcardInput: CreateFlashcardInput) {
+    const flashcard = await this.prisma.flashcard.findUnique({ where: { id } });
+    if (!flashcard) {
+      throw new NotFoundException(`Flashcard with ID ${id} not found`);
+    }
+
+    return this.prisma.flashcard.update({
+      where: { id },
+      data: {
+        question: updateFlashcardInput.question,
+        answer: updateFlashcardInput.answer,
+        order: updateFlashcardInput.order,
+      },
+    });
+  }
+
+  async deleteFlashcard(id: string) {
+    const flashcard = await this.prisma.flashcard.findUnique({ where: { id } });
+    if (!flashcard) {
+      throw new NotFoundException(`Flashcard with ID ${id} not found`);
+    }
+
+    return this.prisma.flashcard.delete({ where: { id } });
   }
 } 

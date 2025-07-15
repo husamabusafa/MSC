@@ -1,27 +1,47 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import { useDeleteConfirmation } from '../../hooks/useDeleteConfirmation';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { ConfirmationModal } from '../common/ConfirmationModal';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   GraduationCap, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   Eye,
   EyeOff,
   ArrowUp,
   ArrowDown
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { Level } from '../../types';
+import { 
+  GET_LEVELS, 
+  CREATE_LEVEL, 
+  UPDATE_LEVEL, 
+  DELETE_LEVEL,
+  Level,
+  CreateLevelInput,
+  UpdateLevelInput
+} from '../../lib/graphql/academic';
 
 export const LevelsPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { showSuccess, showError } = useNotification();
+  const { 
+    confirmDelete, 
+    isConfirmOpen, 
+    isLoading: isDeleting, 
+    currentConfirmation,
+    handleConfirm,
+    handleCancel
+  } = useDeleteConfirmation();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [formData, setFormData] = useState({
@@ -30,20 +50,52 @@ export const LevelsPage: React.FC = () => {
     order: 1,
     isVisible: true
   });
-  const data = getRelatedData();
 
-  const filteredLevels = data.levels.filter(level => {
-    const matchesSearch = level.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         level.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  }).sort((a, b) => a.order - b.order);
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_LEVELS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const [createLevel] = useMutation(CREATE_LEVEL, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+      showSuccess(t('levels.created') || 'Level created successfully!');
+    },
+    onError: (error) => {
+      showError(t('levels.createError') || 'Failed to create level', error.message);
+    }
+  });
+
+  const [updateLevel] = useMutation(UPDATE_LEVEL, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+      showSuccess(t('levels.updated') || 'Level updated successfully!');
+    },
+    onError: (error) => {
+      showError(t('levels.updateError') || 'Failed to update level', error.message);
+    }
+  });
+
+  const [deleteLevel] = useMutation(DELETE_LEVEL, {
+    onCompleted: () => {
+      refetch();
+    },
+    onError: (error) => {
+      showError(t('levels.deleteError') || 'Failed to delete level', error.message);
+    }
+  });
+
+  const levels = data?.levels || [];
+  const sortedLevels = [...levels].sort((a, b) => a.order - b.order);
 
   const handleCreateLevel = () => {
     setSelectedLevel(null);
     setFormData({
       name: '',
       description: '',
-      order: data.levels.length + 1,
+      order: levels.length + 1,
       isVisible: true
     });
     setIsModalOpen(true);
@@ -60,24 +112,62 @@ export const LevelsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Level saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedLevel ? t('messages.success.levelUpdated') : t('messages.success.levelCreated'));
+    
+    if (selectedLevel) {
+      // Update existing level
+      const updateInput: UpdateLevelInput = {
+        name: formData.name,
+        description: formData.description,
+        order: formData.order,
+        isVisible: formData.isVisible
+      };
+      
+      await updateLevel({
+        variables: {
+          id: selectedLevel.id,
+          updateLevelInput: updateInput
+        }
+      });
+    } else {
+      // Create new level
+      const createInput: CreateLevelInput = {
+        name: formData.name,
+        description: formData.description,
+        order: formData.order,
+        isVisible: formData.isVisible
+      };
+      
+      await createLevel({
+        variables: {
+          createLevelInput: createInput
+        }
+      });
+    }
   };
 
   const handleDeleteLevel = (level: Level) => {
-    if (confirm(t('messages.confirmDelete.level'))) {
-      console.log('Delete level:', level.id);
-      alert(t('messages.success.levelDeleted'));
-    }
+    confirmDelete({
+      title: t('common.confirmDelete') || 'Confirm Delete',
+      message: `Are you sure you want to delete "${level.name}"? This action cannot be undone.`,
+      confirmText: t('common.delete') || 'Delete',
+      onConfirm: async () => {
+        await deleteLevel({
+          variables: {
+            id: level.id
+          }
+        });
+      },
+      successMessage: t('levels.deleted') || 'Level deleted successfully',
+      errorMessage: t('levels.deleteError') || 'Failed to delete level'
+    });
   };
 
   const columns = [
     {
       key: 'order',
-      label: 'Order',
+      label: t('common.orderColumn'),
       sortable: true,
       width: 'w-20',
       render: (level: Level) => (
@@ -108,18 +198,18 @@ export const LevelsPage: React.FC = () => {
     },
     {
       key: 'isVisible',
-      label: 'Visibility',
+      label: t('common.visibility'),
       render: (level: Level) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {level.isVisible ? (
             <>
               <Eye className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">Visible</span>
+              <span className="text-green-600 dark:text-green-400">{t('common.visible')}</span>
             </>
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Hidden</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('common.hidden')}</span>
             </>
           )}
         </div>
@@ -127,15 +217,19 @@ export const LevelsPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {t('nav.levels')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage academic levels and their order
+            {t('common.levelsManagementDescription')}
           </p>
         </div>
         <Button
@@ -143,22 +237,14 @@ export const LevelsPage: React.FC = () => {
           icon={Plus}
           onClick={handleCreateLevel}
         >
-          Add Level
+          {t('common.addLevel')}
         </Button>
       </div>
 
-      <Card>
-        <Input
-          icon={Search}
-          placeholder={`${t('common.search')} levels...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Card>
-
+      {/* Levels Table */}
       <Card padding="sm">
         <DataTable
-          data={filteredLevels}
+          data={sortedLevels}
           columns={columns}
           actions={(level) => (
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -181,9 +267,23 @@ export const LevelsPage: React.FC = () => {
             </div>
           )}
           emptyMessage="No levels found"
+          searchable={true}
+          filterable={true}
+          filterOptions={[
+            {
+              key: 'isVisible',
+              label: t('common.visibility'),
+              type: 'select',
+              options: [
+                { value: 'true', label: t('common.visible') },
+                { value: 'false', label: t('common.hidden') }
+              ]
+            }
+          ]}
         />
       </Card>
 
+      {/* Level Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -230,7 +330,7 @@ export const LevelsPage: React.FC = () => {
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label htmlFor="isVisible" className="ml-2 rtl:mr-2 rtl:ml-0 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Visible to students
+              {t('common.visibleToStudents')}
             </label>
           </div>
           
@@ -253,6 +353,17 @@ export const LevelsPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={handleCancel}
+        onConfirm={handleConfirm}
+        title={currentConfirmation?.title || ''}
+        message={currentConfirmation?.message || ''}
+        confirmText={currentConfirmation?.confirmText}
+        loading={isDeleting}
+      />
     </div>
   );
 };

@@ -101,13 +101,15 @@ model Flashcard {
 }
 
 model Quiz {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  courseId    String
-  isVisible   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  courseId        String
+  isVisible       Boolean  @default(true)
+  hasDuration     Boolean  @default(false)
+  durationMinutes Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // Relations
   course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)

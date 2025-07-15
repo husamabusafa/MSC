@@ -346,6 +346,12 @@ export class QuizResponse {
   @Field()
   isVisible: boolean;
 
+  @Field({ nullable: true })
+  hasDuration?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  durationMinutes?: number;
+
   @Field()
   createdAt: string;
 
@@ -458,6 +464,17 @@ export class CreateQuizInput {
   @IsOptional()
   isVisible?: boolean;
 
+  @Field({ nullable: true })
+  @IsBoolean()
+  @IsOptional()
+  hasDuration?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  durationMinutes?: number;
+
   @Field(() => [CreateQuestionInput], { nullable: true })
   @IsArray()
   @IsOptional()
@@ -559,6 +576,17 @@ export class UpdateQuizInput {
   @IsBoolean()
   @IsOptional()
   isVisible?: boolean;
+
+  @Field({ nullable: true })
+  @IsBoolean()
+  @IsOptional()
+  hasDuration?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  durationMinutes?: number;
 }
 
 // =============== GPA SUBJECT DTOs ===============

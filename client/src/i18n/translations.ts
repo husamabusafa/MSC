@@ -61,6 +61,13 @@ export const translations = {
       backToCourses: 'Back to Courses',
       backToDashboard: 'Back to Dashboard',
       orderHistory: 'Order History',
+      visibility: 'Visibility',
+      visible: 'Visible',
+      hidden: 'Hidden',
+      visibleToStudents: 'Visible to students',
+      specialOffer: 'Special Offer',
+      orderColumn: 'Order',
+      regular: 'Regular',
       // Form elements
       title: 'Title',
       author: 'Author',
@@ -98,6 +105,7 @@ export const translations = {
       notFound: 'Not Found',
       notFoundDescription: 'The item you\'re looking for doesn\'t exist or has been removed.',
       managementDescription: 'Manage system users and their permissions',
+      levelsManagementDescription: 'Manage academic levels and their order',
       preRegisteredDescription: 'Manage pre-registered students who can create accounts',
       orderHistoryDescription: 'View your book borrowing and product purchase history',
       readyToContinue: 'Ready to continue your learning journey today?',
@@ -151,6 +159,7 @@ export const translations = {
       courses: 'Courses',
       library: 'Library',
       store: 'Store',
+      gpaCalculator: 'GPA Calculator',
       profile: 'Profile',
       settings: 'Settings',
       users: 'Users',
@@ -227,6 +236,24 @@ export const translations = {
       quizzes: 'Quizzes'
     },
     
+    // GPA Subjects
+    gpaSubjects: {
+      subjectCreated: 'GPA subject created successfully',
+      subjectUpdated: 'GPA subject updated successfully',
+      subjectDeleted: 'GPA subject deleted successfully',
+      confirmDelete: 'Are you sure you want to delete this subject?',
+      year: 'Year',
+      subject: 'Subject',
+      creditHours: 'Credit Hours',
+      hours: 'hours',
+      createSubject: 'Create Subject',
+      editSubject: 'Edit Subject',
+      allYears: 'All Years',
+      noSubjectsFound: 'No subjects found',
+      yearName: 'Year Name',
+      subjectName: 'Subject Name'
+    },
+    
     // Library
     library: {
       book: 'Book',
@@ -259,7 +286,14 @@ export const translations = {
       notes: 'Notes',
       borrowNotes: 'Borrow Notes (Optional)',
       alreadyRequested: 'Already Requested',
-      submitRequest: 'Submit Request'
+      submitRequest: 'Submit Request',
+      addBook: 'Add Book',
+      manageBooks: 'Manage library books and their availability',
+      copies: 'Copies',
+      visibility: 'Visibility',
+      visible: 'Visible',
+      hidden: 'Hidden',
+      visibleToStudents: 'Visible to students'
     },
     
     // Store
@@ -480,6 +514,13 @@ export const translations = {
       backToCourses: 'العودة للمقررات',
       backToDashboard: 'العودة للرئيسية',
       orderHistory: 'سجل الطلبات',
+      visibility: 'الرؤية',
+      visible: 'مرئي',
+      hidden: 'مخفي',
+      visibleToStudents: 'مرئي للطلاب',
+      specialOffer: 'عرض خاص',
+      orderColumn: 'الطلب',
+      regular: 'عادي',
       // Form elements
       title: 'العنوان',
       author: 'المؤلف',
@@ -517,6 +558,7 @@ export const translations = {
       notFound: 'غير موجود',
       notFoundDescription: 'العنصر الذي تبحث عنه غير موجود أو تم حذفه.',
       managementDescription: 'إدارة مستخدمي النظام وصلاحياتهم',
+      levelsManagementDescription: 'إدارة المستويات الأكاديمية وترتيبها',
       preRegisteredDescription: 'إدارة الطلاب المسجلين مسبقاً الذين يمكنهم إنشاء حسابات',
       orderHistoryDescription: 'عرض سجل استعارة الكتب وشراء المنتجات',
       readyToContinue: 'مستعد لمواصلة رحلتك التعليمية اليوم؟',
@@ -570,6 +612,7 @@ export const translations = {
       courses: 'المقررات',
       library: 'المكتبة',
       store: 'المتجر',
+      gpaCalculator: 'حاسبة المعدل',
       profile: 'الملف الشخصي',
       settings: 'الإعدادات',
       users: 'المستخدمون',
@@ -642,7 +685,34 @@ export const translations = {
       noQuizzesDescription: 'لا توجد اختبارات متاحة لهذا المقرر بعد.',
       flashcardsTitle: 'البطاقات التعليمية',
       quizzesTitle: 'الاختبارات',
-      quizzes: 'الاختبارات'
+      quizzes: 'الاختبارات',
+      createQuiz: 'إنشاء اختبار',
+      editQuiz: 'تعديل اختبار',
+      manageQuestions: 'إدارة الأسئلة',
+      addQuestion: 'إضافة سؤال',
+      questionText: 'نص السؤال',
+      questionImage: 'صورة السؤال',
+      answers: 'الإجابات',
+      correctAnswer: 'الإجابة الصحيحة',
+      explanationImage: 'صورة توضيحية'
+    },
+    
+    // GPA Subjects
+    gpaSubjects: {
+      subjectCreated: 'تم إنشاء مادة المعدل التراكمي بنجاح',
+      subjectUpdated: 'تم تحديث مادة المعدل التراكمي بنجاح',
+      subjectDeleted: 'تم حذف مادة المعدل التراكمي بنجاح',
+      confirmDelete: 'هل أنت متأكد من حذف هذه المادة؟',
+      year: 'السنة',
+      subject: 'المادة',
+      creditHours: 'الساعات المعتمدة',
+      hours: 'ساعات',
+      createSubject: 'إنشاء مادة',
+      editSubject: 'تعديل مادة',
+      allYears: 'جميع السنوات',
+      noSubjectsFound: 'لم يتم العثور على مواد',
+      yearName: 'اسم السنة',
+      subjectName: 'اسم المادة'
     },
     
     // Library
@@ -677,7 +747,14 @@ export const translations = {
       notes: 'ملاحظات',
       borrowNotes: 'ملاحظات الاستعارة (اختياري)',
       alreadyRequested: 'تم الطلب مسبقاً',
-      submitRequest: 'إرسال الطلب'
+      submitRequest: 'إرسال الطلب',
+      addBook: 'إضافة كتاب',
+      manageBooks: 'إدارة كتب المكتبة وإدارة إمكانية استعارتها',
+      copies: 'النسخ',
+      visibility: 'الرؤية',
+      visible: 'مرئي',
+      hidden: 'مخفي',
+      visibleToStudents: 'مرئي للطلاب'
     },
     
     // Store

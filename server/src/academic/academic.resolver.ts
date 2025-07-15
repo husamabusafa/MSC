@@ -41,7 +41,7 @@ export class AcademicResolver {
   // =============== LEVEL RESOLVERS ===============
   @Query(() => [LevelResponse])
   async levels(): Promise<LevelResponse[]> {
-    const levels = await this.academicService.getLevels();
+    const levels = await this.academicService.getAllLevels();
     return levels.map(level => ({
       ...level,
       createdAt: level.createdAt.toISOString(),
@@ -79,7 +79,7 @@ export class AcademicResolver {
 
   @Query(() => LevelResponse)
   async levelWithCourses(@Args('id', { type: () => ID }) id: string): Promise<LevelResponse> {
-    const level = await this.academicService.getLevelWithCourses(id);
+    const level = await this.academicService.getLevelById(id);
     return {
       ...level,
       createdAt: level.createdAt.toISOString(),
@@ -310,7 +310,7 @@ export class AcademicResolver {
   // =============== FLASHCARD RESOLVERS ===============
   @Query(() => [FlashcardDeckResponse])
   async flashcardDecks(): Promise<FlashcardDeckResponse[]> {
-    const decks = await this.academicService.getFlashcardDecks();
+    const decks = await this.academicService.getAllFlashcardDecks();
     return decks.map(deck => ({
       ...deck,
       createdAt: deck.createdAt.toISOString(),
@@ -442,7 +442,7 @@ export class AcademicResolver {
   // =============== QUIZ RESOLVERS ===============
   @Query(() => [QuizResponse])
   async quizzes(): Promise<QuizResponse[]> {
-    const quizzes = await this.academicService.getQuizzes();
+    const quizzes = await this.academicService.getAllQuizzes();
     return quizzes.map(quiz => ({
       ...quiz,
       createdAt: quiz.createdAt.toISOString(),
@@ -718,7 +718,7 @@ export class AcademicResolver {
   // =============== GPA SUBJECT RESOLVERS ===============
   @Query(() => [GpaSubjectResponse])
   async gpaSubjects(): Promise<GpaSubjectResponse[]> {
-    const subjects = await this.academicService.getGpaSubjects();
+    const subjects = await this.academicService.getAllGpaSubjects();
     return subjects.map(subject => ({
       ...subject,
       createdAt: subject.createdAt.toISOString(),

@@ -326,6 +326,8 @@ export const GET_QUIZZES = gql`
       description
       courseId
       isVisible
+      hasDuration
+      durationMinutes
       createdAt
       updatedAt
       course {
@@ -362,6 +364,8 @@ export const GET_QUIZ = gql`
       description
       courseId
       isVisible
+      hasDuration
+      durationMinutes
       createdAt
       updatedAt
       course {
@@ -398,6 +402,8 @@ export const GET_QUIZZES_BY_COURSE = gql`
       description
       courseId
       isVisible
+      hasDuration
+      durationMinutes
       createdAt
       updatedAt
       questions {
@@ -426,6 +432,8 @@ export const CREATE_QUIZ = gql`
       description
       courseId
       isVisible
+      hasDuration
+      durationMinutes
       createdAt
       updatedAt
     }
@@ -440,6 +448,8 @@ export const UPDATE_QUIZ = gql`
       description
       courseId
       isVisible
+      hasDuration
+      durationMinutes
       createdAt
       updatedAt
     }
@@ -449,6 +459,32 @@ export const UPDATE_QUIZ = gql`
 export const DELETE_QUIZ = gql`
   mutation DeleteQuiz($id: ID!) {
     deleteQuiz(id: $id)
+  }
+`;
+
+export const DELETE_QUIZ_QUESTION = gql`
+  mutation DeleteQuizQuestion($id: ID!) {
+    deleteQuizQuestion(id: $id)
+  }
+`;
+
+export const CREATE_QUIZ_QUESTION = gql`
+  mutation CreateQuizQuestion($createQuizQuestionInput: CreateQuizQuestionInput!) {
+    createQuizQuestion(createQuizQuestionInput: $createQuizQuestionInput) {
+      id
+      text
+      image
+      explanation
+      explanationImage
+      quizId
+      order
+      answers {
+        id
+        text
+        isCorrect
+        order
+      }
+    }
   }
 `;
 
@@ -519,6 +555,34 @@ export interface Level {
   courses?: Course[];
 }
 
+export interface CreateLevelInput {
+  name: string;
+  description: string;
+  order: number;
+  isVisible?: boolean;
+}
+
+export interface UpdateLevelInput {
+  name?: string;
+  description?: string;
+  order?: number;
+  isVisible?: boolean;
+}
+
+export interface CreateCourseInput {
+  name: string;
+  description: string;
+  levelId: string;
+  isVisible?: boolean;
+}
+
+export interface UpdateCourseInput {
+  name?: string;
+  description?: string;
+  levelId?: string;
+  isVisible?: boolean;
+}
+
 export interface Course {
   id: string;
   name: string;
@@ -544,6 +608,27 @@ export interface FlashcardDeck {
   cards?: Flashcard[];
 }
 
+export interface CreateFlashcardDeckInput {
+  name: string;
+  description: string;
+  courseId: string;
+  isVisible?: boolean;
+  cards?: CreateFlashcardInput[];
+}
+
+export interface UpdateFlashcardDeckInput {
+  name?: string;
+  description?: string;
+  courseId?: string;
+  isVisible?: boolean;
+}
+
+export interface CreateFlashcardInput {
+  question: string;
+  answer: string;
+  order: number;
+}
+
 export interface Flashcard {
   id: string;
   question: string;
@@ -558,10 +643,56 @@ export interface Quiz {
   description: string;
   courseId: string;
   isVisible: boolean;
+  hasDuration?: boolean;
+  durationMinutes?: number;
   createdAt: string;
   updatedAt: string;
   course?: Course;
   questions?: Question[];
+}
+
+export interface CreateQuizInput {
+  title: string;
+  description: string;
+  courseId: string;
+  isVisible?: boolean;
+  hasDuration?: boolean;
+  durationMinutes?: number;
+  questions?: CreateQuestionInput[];
+}
+
+export interface UpdateQuizInput {
+  title?: string;
+  description?: string;
+  courseId?: string;
+  isVisible?: boolean;
+  hasDuration?: boolean;
+  durationMinutes?: number;
+}
+
+export interface CreateQuestionInput {
+  text: string;
+  image?: string;
+  explanation?: string;
+  explanationImage?: string;
+  order: number;
+  answers?: CreateAnswerInput[];
+}
+
+export interface CreateQuizQuestionInput {
+  text: string;
+  image?: string;
+  explanation?: string;
+  explanationImage?: string;
+  order: number;
+  quizId: string;
+  answers: CreateAnswerInput[];
+}
+
+export interface CreateAnswerInput {
+  text: string;
+  isCorrect: boolean;
+  order: number;
 }
 
 export interface Question {
@@ -589,4 +720,18 @@ export interface GpaSubject {
   subjectName: string;
   creditHours: number;
   order: number;
+}
+
+export interface CreateGpaSubjectInput {
+  yearName: string;
+  subjectName: string;
+  creditHours: number;
+  order: number;
+}
+
+export interface UpdateGpaSubjectInput {
+  yearName?: string;
+  subjectName?: string;
+  creditHours?: number;
+  order?: number;
 } 

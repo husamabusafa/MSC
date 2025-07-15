@@ -19,7 +19,8 @@ import {
   ShoppingCart,
   Trophy,
   Star,
-  UserCheck
+  UserCheck,
+  Calculator
 } from 'lucide-react';
 
 // GraphQL Query to fetch student data
@@ -63,6 +64,7 @@ const navigation = [
   { id: 'courses', icon: BookOpen, href: '/student/courses' },
   { id: 'library', icon: Library, href: '/student/library' },
   { id: 'store', icon: ShoppingBag, href: '/student/store' },
+  { id: 'gpaCalculator', icon: Calculator, href: '/student/gpa-calculator' },
   { id: 'profile', icon: User, href: '/student/profile' },
   { id: 'orders', icon: ShoppingCart, href: '/student/orders' }
 ];

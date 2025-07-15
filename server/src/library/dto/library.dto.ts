@@ -24,7 +24,7 @@ export class CreateBookInput {
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsUrl()
+  @IsString()
   coverImage?: string;
 
   @Field()
@@ -60,7 +60,7 @@ export class UpdateBookInput {
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsUrl()
+  @IsString()
   coverImage?: string;
 
   @Field({ nullable: true })

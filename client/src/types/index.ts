@@ -61,6 +61,8 @@ export interface Quiz {
   course?: Course;
   questions: Question[];
   isVisible: boolean;
+  hasDuration?: boolean;
+  durationMinutes?: number;
   createdAt: string;
 }
 

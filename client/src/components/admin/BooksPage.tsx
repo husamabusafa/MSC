@@ -1,29 +1,43 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { ConfirmationModal } from '../common/ConfirmationModal';
+import { FilterPanel, FilterOption } from '../common/FilterPanel';
+import { FileUpload } from '../common/FileUpload';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   BookOpen, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   User,
   Package,
   Eye,
   EyeOff
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { Book } from '../../types';
+import { 
+  GET_BOOKS, 
+  CREATE_BOOK, 
+  UPDATE_BOOK, 
+  DELETE_BOOK,
+  Book,
+  CreateBookInput,
+  UpdateBookInput,
+  BooksFilterInput
+} from '../../lib/graphql/library';
 
 export const BooksPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
+  const [filters, setFilters] = useState<BooksFilterInput>({});
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -32,12 +46,43 @@ export const BooksPage: React.FC = () => {
     totalCopies: 1,
     isVisible: true
   });
-  const data = getRelatedData();
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
 
-  const filteredBooks = data.books.filter(book => {
-    const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.author.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_BOOKS, {
+    variables: { filters },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const [createBook] = useMutation(CREATE_BOOK, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error creating book:', error);
+    }
+  });
+
+  const [updateBook] = useMutation(UPDATE_BOOK, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error updating book:', error);
+    }
+  });
+
+  const [deleteBook] = useMutation(DELETE_BOOK, {
+    onCompleted: () => {
+      setIsConfirmModalOpen(false);
+      setBookToDelete(null);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error deleting book:', error);
+    }
   });
 
   const handleCreateBook = () => {
@@ -50,6 +95,7 @@ export const BooksPage: React.FC = () => {
       totalCopies: 1,
       isVisible: true
     });
+    setCoverImageFile(null);
     setIsModalOpen(true);
   };
 
@@ -63,22 +109,110 @@ export const BooksPage: React.FC = () => {
       totalCopies: book.totalCopies,
       isVisible: book.isVisible
     });
+    setCoverImageFile(null);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    console.log('Book saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedBook ? t('messages.success.bookUpdated') : t('messages.success.bookCreated'));
+    
+    // If there's a file uploaded, use it; otherwise use the existing URL
+    const imageToUse = coverImageFile ? formData.coverImage : formData.coverImage;
+    
+    if (selectedBook) {
+      // Update existing book
+      const updateInput: UpdateBookInput = {
+        title: formData.title,
+        author: formData.author,
+        description: formData.description,
+        coverImage: imageToUse || undefined,
+        totalCopies: formData.totalCopies,
+        isVisible: formData.isVisible
+      };
+      
+      await updateBook({
+        variables: {
+          id: selectedBook.id,
+          updateBookInput: updateInput
+        }
+      });
+    } else {
+      // Create new book
+      const createInput: CreateBookInput = {
+        title: formData.title,
+        author: formData.author,
+        description: formData.description,
+        coverImage: imageToUse || undefined,
+        totalCopies: formData.totalCopies,
+        availableCopies: formData.totalCopies, // Initially all copies are available
+        isVisible: formData.isVisible
+      };
+      
+      await createBook({
+        variables: {
+          createBookInput: createInput
+        }
+      });
+    }
   };
 
   const handleDeleteBook = (book: Book) => {
-    if (confirm(t('messages.confirmDelete.book'))) {
-      console.log('Delete book:', book.id);
-      alert(t('messages.success.bookDeleted'));
+    setBookToDelete(book);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDeleteBook = async () => {
+    if (bookToDelete) {
+      await deleteBook({
+        variables: {
+          id: bookToDelete.id
+        }
+      });
     }
+  };
+
+  const handleFileUpload = (file: File | null, preview: string) => {
+    setCoverImageFile(file);
+    setFormData(prev => ({ ...prev, coverImage: preview }));
+  };
+
+  const books = data?.books?.books || [];
+
+  const filterOptions: FilterOption[] = [
+    {
+      key: 'search',
+      label: t('common.search'),
+      type: 'text',
+      placeholder: t('common.searchByTitleOrAuthor')
+    },
+    {
+      key: 'isVisible',
+      label: t('common.visibleOnly'),
+      type: 'boolean'
+    },
+    {
+      key: 'isAvailable',
+      label: t('library.availableOnly'),
+      type: 'boolean'
+    }
+  ];
+
+  const handleFiltersChange = (newFilters: { [key: string]: any }) => {
+    const graphQLFilters: BooksFilterInput = {};
+    
+    if (newFilters.search) {
+      graphQLFilters.search = newFilters.search;
+    }
+    
+    if (newFilters.isVisible === true) {
+      graphQLFilters.isVisible = true;
+    }
+    
+    if (newFilters.isAvailable === true) {
+      graphQLFilters.isAvailable = true;
+    }
+    
+    setFilters(graphQLFilters);
   };
 
   const columns = [
@@ -121,36 +255,40 @@ export const BooksPage: React.FC = () => {
     },
     {
       key: 'copies',
-      label: 'Copies',
+      label: t('library.copies'),
+      sortable: true,
       render: (book: Book) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <Package className="w-4 h-4 text-gray-400" />
           <span className="text-gray-900 dark:text-white">
-            {book.availableCopies}/{book.totalCopies}
+            {book.availableCopies} / {book.totalCopies}
           </span>
         </div>
       )
     },
     {
       key: 'isVisible',
-      label: 'Visibility',
+      label: t('common.status'),
       render: (book: Book) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {book.isVisible ? (
             <>
               <Eye className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">Visible</span>
+              <span className="text-green-600 dark:text-green-400">{t('common.visible')}</span>
             </>
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Hidden</span>
+              <span className="text-gray-500 dark:text-gray-400">{t('common.hidden')}</span>
             </>
           )}
         </div>
       )
     }
   ];
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
 
   return (
     <div className="space-y-6">
@@ -161,7 +299,7 @@ export const BooksPage: React.FC = () => {
             {t('nav.books')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage library books and their availability
+            {t('library.manageBooks')}
           </p>
         </div>
         <Button
@@ -169,24 +307,21 @@ export const BooksPage: React.FC = () => {
           icon={Plus}
           onClick={handleCreateBook}
         >
-          Add Book
+          {t('library.addBook')}
         </Button>
       </div>
 
-      {/* Search */}
-      <Card>
-        <Input
-          icon={Search}
-          placeholder={`${t('common.search')} books...`}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Card>
+      {/* Filters */}
+      <FilterPanel
+        filters={filterOptions}
+        onFiltersChange={handleFiltersChange}
+        className="mb-6"
+      />
 
       {/* Books Table */}
       <Card padding="sm">
         <DataTable
-          data={filteredBooks}
+          data={books}
           columns={columns}
           actions={(book) => (
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -217,7 +352,6 @@ export const BooksPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedBook ? 'Edit Book' : 'Add Book'}
-        size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -247,16 +381,16 @@ export const BooksPage: React.FC = () => {
             />
           </div>
           
-          <Input
-            label="Cover Image URL"
+          <FileUpload
+            label="Cover Image"
             value={formData.coverImage}
-            onChange={(e) => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
-            placeholder="https://example.com/image.jpg"
+            onChange={handleFileUpload}
+            placeholder="Upload a cover image"
           />
           
           <Input
             type="number"
-            label="Total Copies"
+            label={t('library.totalCopies')}
             value={formData.totalCopies}
             onChange={(e) => setFormData(prev => ({ ...prev, totalCopies: parseInt(e.target.value) || 1 }))}
             min="1"
@@ -272,7 +406,7 @@ export const BooksPage: React.FC = () => {
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
             <label htmlFor="isVisible" className="ml-2 rtl:mr-2 rtl:ml-0 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Visible to students
+              {t('common.visibleToStudents')}
             </label>
           </div>
           
@@ -295,6 +429,17 @@ export const BooksPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmDeleteBook}
+        title={t('common.confirmDelete')}
+        message={`${t('common.deleteMessage')} "${bookToDelete?.title}"?`}
+        confirmText={t('common.delete')}
+        variant="danger"
+      />
     </div>
   );
 };

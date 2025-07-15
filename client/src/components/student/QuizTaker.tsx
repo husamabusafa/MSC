@@ -44,14 +44,28 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
   useEffect(() => {
     if (!quizState.isCompleted) {
       const timer = setInterval(() => {
-        setQuizState(prev => ({
-          ...prev,
-          timeElapsed: prev.timeElapsed + 1
-        }));
+        setQuizState(prev => {
+          const newTimeElapsed = prev.timeElapsed + 1;
+          
+          // Check if quiz has duration and time is up
+          if (quiz.hasDuration && quiz.durationMinutes) {
+            const timeLimit = quiz.durationMinutes * 60; // Convert to seconds
+            if (newTimeElapsed >= timeLimit) {
+              // Auto-finish quiz when time is up
+              handleFinishQuiz();
+              return prev;
+            }
+          }
+          
+          return {
+            ...prev,
+            timeElapsed: newTimeElapsed
+          };
+        });
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [quizState.isCompleted]);
+  }, [quizState.isCompleted, quiz.hasDuration, quiz.durationMinutes]);
 
   const currentQuestion = quiz.questions[quizState.currentQuestionIndex];
   const totalQuestions = quiz.questions.length;
@@ -115,6 +129,16 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+
+  const getRemainingTime = () => {
+    if (!quiz.hasDuration || !quiz.durationMinutes) return null;
+    const timeLimit = quiz.durationMinutes * 60; // Convert to seconds
+    const remaining = timeLimit - quizState.timeElapsed;
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const remainingTime = getRemainingTime();
+  const isTimeRunningOut = remainingTime !== null && remainingTime < 300; // Less than 5 minutes
 
   const getScoreMessage = () => {
     const percentage = (quizState.score / totalQuestions) * 100;
@@ -221,9 +245,17 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm">
               <Timer className="w-4 h-4" />
-              {formatTime(quizState.timeElapsed)}
+              {quiz.hasDuration && remainingTime !== null ? (
+                <div className={`font-medium ${isTimeRunningOut ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                  {formatTime(remainingTime)} remaining
+                </div>
+              ) : (
+                <div className="text-gray-600 dark:text-gray-400">
+                  {formatTime(quizState.timeElapsed)}
+                </div>
+              )}
             </div>
             <Button
               variant="outline"

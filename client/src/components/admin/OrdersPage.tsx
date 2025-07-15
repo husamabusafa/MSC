@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   ShoppingBag, 
-  Search,
   Check,
   X,
   Clock,
@@ -17,24 +17,39 @@ import {
   MessageSquare,
   DollarSign
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { Order } from '../../types';
+import { 
+  GET_ORDERS,
+  UPDATE_ORDER,
+  Order,
+  UpdateOrderInput,
+  OrdersFilter
+} from '../../lib/graphql/store';
 
 export const OrdersPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
-  const data = getRelatedData();
 
-  const filteredOrders = data.orders.filter(order => {
-    const matchesSearch = order.student?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_ORDERS, {
+    variables: { filter: statusFilter ? { status: statusFilter } : {} },
+    fetchPolicy: 'cache-and-network'
   });
+
+  const [updateOrder] = useMutation(UPDATE_ORDER, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+      alert(t('orders.orderUpdated'));
+    },
+    onError: (error) => {
+      alert(`Error updating order: ${error.message}`);
+    }
+  });
+
+  const orders = data?.orders?.orders || [];
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
@@ -42,26 +57,29 @@ export const OrdersPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleUpdateStatus = (status: 'completed' | 'cancelled') => {
+  const handleUpdateStatus = async (status: 'COMPLETED' | 'CANCELLED') => {
     if (!selectedOrder) return;
     
-    console.log('Update order status:', {
-      orderId: selectedOrder.id,
+    const updateInput: UpdateOrderInput = {
       status,
-      adminNotes
-    });
+      adminNotes: adminNotes.trim() || undefined
+    };
     
-    setIsModalOpen(false);
-    alert(t('messages.success.orderUpdated'));
+    await updateOrder({
+      variables: {
+        id: selectedOrder.id,
+        input: updateInput
+      }
+    });
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending':
+      case 'PENDING':
         return <Clock className="w-4 h-4 text-yellow-500" />;
-      case 'completed':
+      case 'COMPLETED':
         return <Check className="w-4 h-4 text-green-500" />;
-      case 'cancelled':
+      case 'CANCELLED':
         return <X className="w-4 h-4 text-red-500" />;
       default:
         return <Clock className="w-4 h-4 text-gray-500" />;
@@ -70,64 +88,60 @@ export const OrdersPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400';
-      case 'completed':
-        return 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400';
-      case 'cancelled':
-        return 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+      case 'PENDING':
+        return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200';
+      case 'COMPLETED':
+        return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200';
+      case 'CANCELLED':
+        return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200';
       default:
-        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-600 dark:text-gray-400';
+        return 'bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-200';
     }
   };
 
   const columns = [
     {
       key: 'id',
-      label: 'Order ID',
+      label: t('common.id'),
+      sortable: true,
       render: (order: Order) => (
         <span className="font-mono text-sm text-gray-900 dark:text-white">
-          #{order.id.slice(0, 8)}
+          #{order.id.slice(-8)}
         </span>
       )
     },
     {
       key: 'student',
-      label: 'Student',
+      label: t('common.student'),
       sortable: true,
       render: (order: Order) => (
-        <div className="flex items-center space-x-3 rtl:space-x-reverse">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <p className="font-medium text-gray-900 dark:text-white">{order.student?.name}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{order.student?.universityId}</p>
-          </div>
+        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          <User className="w-4 h-4 text-gray-400" />
+          <span className="text-gray-900 dark:text-white">{order.student?.name}</span>
         </div>
       )
     },
     {
       key: 'items',
-      label: 'Items',
+      label: t('orders.items'),
       render: (order: Order) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <Package className="w-4 h-4 text-gray-400" />
           <span className="text-gray-900 dark:text-white">
-            {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+            {order.items.length} {t('orders.items')}
           </span>
         </div>
       )
     },
     {
-      key: 'total',
-      label: t('store.total'),
+      key: 'totalAmount',
+      label: t('orders.total'),
       sortable: true,
       render: (order: Order) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-          <DollarSign className="w-4 h-4 text-green-500" />
-          <span className="font-semibold text-green-600 dark:text-green-400">
-            ${order.total.toFixed(2)}
+          <DollarSign className="w-4 h-4 text-gray-400" />
+          <span className="font-medium text-gray-900 dark:text-white">
+            ${(order.totalAmount || order.total || 0).toFixed(2)}
           </span>
         </div>
       )
@@ -140,14 +154,14 @@ export const OrdersPage: React.FC = () => {
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {getStatusIcon(order.status)}
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-            {t(`store.${order.status}`)}
+            {t(`orders.${order.status}`)}
           </span>
         </div>
       )
     },
     {
       key: 'createdAt',
-      label: 'Order Date',
+      label: t('common.createdAt'),
       sortable: true,
       render: (order: Order) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -160,198 +174,164 @@ export const OrdersPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {t('nav.orders')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage product orders from students
+            {t('orders.managementDescription')}
           </p>
         </div>
       </div>
 
-      <Card>
+      {/* Filters */}
+      <Card padding="sm">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <Input
-              icon={Search}
-              placeholder="Search by student name or order ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="">{t('orders.allStatuses')}</option>
+              <option value="pending">{t('orders.pending')}</option>
+              <option value="completed">{t('orders.completed')}</option>
+              <option value="cancelled">{t('orders.cancelled')}</option>
             </select>
           </div>
         </div>
       </Card>
 
+      {/* Orders Table */}
       <Card padding="sm">
         <DataTable
-          data={filteredOrders}
+          data={orders}
           columns={columns}
-          onRowClick={handleViewOrder}
           actions={(order) => (
-            <div className="flex items-center space-x-2 rtl:space-x-reverse">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleViewOrder(order)}
-              >
-                View Details
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleViewOrder(order)}
+            >
+              {t('orders.viewOrder')}
+            </Button>
           )}
-          emptyMessage="No orders found"
+          emptyMessage={t('orders.noOrdersFound')}
         />
       </Card>
 
+      {/* Order Details Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Order Details"
-        size="xl"
+        title={`${t('orders.orderDetails')} #${selectedOrder?.id.slice(-8)}`}
+        size="lg"
       >
         {selectedOrder && (
           <div className="space-y-6">
-            {/* Order Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+            {/* Order Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Order #{selectedOrder.id.slice(0, 8)}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {t('orders.customerInfo')}
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Placed on {new Date(selectedOrder.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                {getStatusIcon(selectedOrder.status)}
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedOrder.status)}`}>
-                  {t(`store.${selectedOrder.status}`)}
-                </span>
-              </div>
-            </div>
-
-            {/* Student Info */}
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Student Information</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{selectedOrder.student?.name}</p>
+                <div className="space-y-2">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    <strong>{t('common.name')}:</strong> {selectedOrder.student?.name}
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    <strong>{t('common.date')}:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}
+                  </p>
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                    <strong>{t('common.status')}:</strong>
+                    {getStatusIcon(selectedOrder.status)}
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
+                      {t(`orders.${selectedOrder.status}`)}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">University ID</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{selectedOrder.student?.universityId}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{selectedOrder.student?.email}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {t('orders.orderSummary')}
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    <strong>{t('orders.items')}:</strong> {selectedOrder.items.length}
+                  </p>
+                                     <p className="text-gray-600 dark:text-gray-400">
+                     <strong>{t('orders.total')}:</strong> ${(selectedOrder.totalAmount || selectedOrder.total || 0).toFixed(2)}
+                   </p>
                 </div>
               </div>
             </div>
 
             {/* Order Items */}
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Order Items</h3>
-              <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {t('orders.orderItems')}
+              </h3>
+              <div className="space-y-2">
                 {selectedOrder.items.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-                    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded overflow-hidden">
-                        {item.product?.image ? (
-                          <img
-                            src={item.product.image}
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-6 h-6 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {item.product?.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          ${item.price.toFixed(2)} × {item.quantity}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                      ${(item.price * item.quantity).toFixed(2)}
+                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                                         <div>
+                       <p className="font-medium text-gray-900 dark:text-white">
+                         {item.product?.name || 'Unknown Product'}
+                       </p>
+                       <p className="text-sm text-gray-600 dark:text-gray-400">
+                         {t('orders.quantity')}: {item.quantity}
+                       </p>
+                     </div>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        ${item.price.toFixed(2)} {t('orders.each')}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
-              
-              <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                <span className="text-lg font-semibold text-gray-900 dark:text-white">Total:</span>
-                <span className="text-xl font-bold text-green-600 dark:text-green-400">
-                  ${selectedOrder.total.toFixed(2)}
-                </span>
-              </div>
             </div>
-
-            {/* Student Notes */}
-            {selectedOrder.studentNotes && (
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Student Notes</h3>
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-                  <div className="flex items-start space-x-2 rtl:space-x-reverse">
-                    <MessageSquare className="w-4 h-4 text-blue-500 mt-0.5" />
-                    <p className="text-gray-700 dark:text-gray-300">{selectedOrder.studentNotes}</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Admin Notes */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Admin Notes
+                {t('orders.adminNotes')}
               </label>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add notes about this order..."
+                placeholder={t('orders.adminNotesPlaceholder')}
               />
             </div>
 
             {/* Actions */}
-            {selectedOrder.status === 'pending' && (
-              <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  variant="danger"
-                  onClick={() => handleUpdateStatus('cancelled')}
-                  className="flex-1"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Cancel Order
-                </Button>
+            {selectedOrder.status === 'PENDING' && (
+              <div className="flex gap-3">
                 <Button
                   variant="primary"
-                  onClick={() => handleUpdateStatus('completed')}
+                  onClick={() => handleUpdateStatus('COMPLETED')}
                   className="flex-1"
                 >
-                  <Check className="w-4 h-4 mr-2" />
-                  Mark as Completed
+                  {t('orders.markCompleted')}
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => handleUpdateStatus('CANCELLED')}
+                  className="flex-1"
+                >
+                  {t('orders.markCancelled')}
                 </Button>
               </div>
             )}

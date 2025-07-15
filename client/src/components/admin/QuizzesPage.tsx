@@ -1,78 +1,81 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
+import { useNotification } from '../../contexts/NotificationContext';
+import { useDeleteConfirmation } from '../../hooks/useDeleteConfirmation';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { Modal } from '../common/Modal';
+
+import { ConfirmationModal } from '../common/ConfirmationModal';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   Target, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   Eye,
   EyeOff,
   BookOpen,
   HelpCircle
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { Quiz } from '../../types';
+import { 
+  GET_QUIZZES, 
+  DELETE_QUIZ,
+  GET_COURSES,
+  Quiz,
+  Course
+} from '../../lib/graphql/academic';
 
 export const QuizzesPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
+  const { showNotification } = useNotification();
   const [selectedCourse, setSelectedCourse] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    courseId: '',
-    isVisible: true
-  });
-  const data = getRelatedData();
 
-  const filteredQuizzes = data.quizzes.filter(quiz => {
-    const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_QUIZZES, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: coursesData } = useQuery(GET_COURSES);
+
+  const [deleteQuiz] = useMutation(DELETE_QUIZ, {
+    onCompleted: () => {
+      refetch();
+      showNotification('success', 'Quiz deleted successfully!');
+    },
+    onError: (error) => {
+      showNotification('error', `Error deleting quiz: ${error.message}`);
+    }
+  });
+
+  const quizzes = data?.quizzes || [];
+  const courses = coursesData?.courses || [];
+
+  const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
     const matchesCourse = !selectedCourse || quiz.courseId === selectedCourse;
-    return matchesSearch && matchesCourse;
+    return matchesCourse;
   });
 
   const handleCreateQuiz = () => {
-    setSelectedQuiz(null);
-    setFormData({
-      title: '',
-      description: '',
-      courseId: '',
-      isVisible: true
-    });
-    setIsModalOpen(true);
+    window.history.pushState({}, '', '/admin/quizzes/create');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   const handleEditQuiz = (quiz: Quiz) => {
-    setSelectedQuiz(quiz);
-    setFormData({
-      title: quiz.title,
-      description: quiz.description,
-      courseId: quiz.courseId,
-      isVisible: quiz.isVisible
-    });
-    setIsModalOpen(true);
+    window.history.pushState({}, '', `/admin/quizzes/${quiz.id}/edit`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Quiz saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedQuiz ? t('messages.success.quizUpdated') : t('messages.success.quizCreated'));
-  };
 
-  const handleDeleteQuiz = (quiz: Quiz) => {
-    if (confirm(t('messages.confirmDelete.quiz'))) {
-      console.log('Delete quiz:', quiz.id);
-      alert(t('messages.success.quizDeleted'));
+
+  const handleDeleteQuiz = async (quiz: Quiz) => {
+    if (confirm(`Are you sure you want to delete "${quiz.title}"?`)) {
+      await deleteQuiz({
+        variables: {
+          id: quiz.id
+        }
+      });
     }
   };
 
@@ -109,7 +112,34 @@ export const QuizzesPage: React.FC = () => {
       render: (quiz: Quiz) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <HelpCircle className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 dark:text-white">{quiz.questions.length} {t('common.questions').toLowerCase()}</span>
+          <span className="text-gray-900 dark:text-white">{quiz.questions?.length || 0} questions</span>
+        </div>
+      )
+    },
+    {
+      key: 'duration',
+      label: 'المدة',
+      render: (quiz: Quiz) => (
+        <div className="flex items-center space-x-2 rtl:space-x-reverse">
+          {quiz.hasDuration ? (
+            <>
+              <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
+                <span className="text-white text-xs">⏱</span>
+              </div>
+              <span className="text-orange-600 dark:text-orange-400 font-medium">
+                {quiz.durationMinutes} دقيقة
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="w-4 h-4 rounded-full bg-gray-400 flex items-center justify-center">
+                <span className="text-white text-xs">∞</span>
+              </div>
+              <span className="text-gray-600 dark:text-gray-400">
+                بدون توقيت
+              </span>
+            </>
+          )}
         </div>
       )
     },
@@ -122,18 +152,18 @@ export const QuizzesPage: React.FC = () => {
     },
     {
       key: 'isVisible',
-      label: 'Visibility',
+      label: t('common.visibility'),
       render: (quiz: Quiz) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {quiz.isVisible ? (
             <>
               <Eye className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">Visible</span>
+              <span className="text-green-600 dark:text-green-400">{t('common.visible')}</span>
             </>
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Hidden</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('common.hidden')}</span>
             </>
           )}
         </div>
@@ -141,8 +171,12 @@ export const QuizzesPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -161,16 +195,9 @@ export const QuizzesPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Filters */}
       <Card>
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              icon={Search}
-              placeholder={`${t('common.search')} quizzes...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
           <div>
             <select
               value={selectedCourse}
@@ -178,7 +205,7 @@ export const QuizzesPage: React.FC = () => {
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Courses</option>
-              {data.courses.map(course => (
+              {courses.map((course: Course) => (
                 <option key={course.id} value={course.id}>{course.name}</option>
               ))}
             </select>
@@ -186,6 +213,7 @@ export const QuizzesPage: React.FC = () => {
         </div>
       </Card>
 
+      {/* Quizzes Table */}
       <Card padding="sm">
         <DataTable
           data={filteredQuizzes}
@@ -214,84 +242,7 @@ export const QuizzesPage: React.FC = () => {
         />
       </Card>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={selectedQuiz ? 'Edit Quiz' : 'Add Quiz'}
-        size="lg"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Quiz Title"
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            required
-            placeholder="CS Fundamentals Quiz"
-          />
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('academic.course')}
-            </label>
-            <select
-              value={formData.courseId}
-              onChange={(e) => setFormData(prev => ({ ...prev, courseId: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Select Course</option>
-              {data.courses.map(course => (
-                <option key={course.id} value={course.id}>{course.name}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('common.description')}
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              placeholder="Test your knowledge of computer science basics"
-            />
-          </div>
-          
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isVisible"
-              checked={formData.isVisible}
-              onChange={(e) => setFormData(prev => ({ ...prev, isVisible: e.target.checked }))}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <label htmlFor="isVisible" className="ml-2 rtl:mr-2 rtl:ml-0 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Visible to students
-            </label>
-          </div>
-          
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-              className="flex-1"
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              className="flex-1"
-            >
-              {t('common.save')}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+
     </div>
   );
 };

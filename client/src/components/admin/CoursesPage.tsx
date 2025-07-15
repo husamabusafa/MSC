@@ -1,42 +1,86 @@
 import React, { useState } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { ConfirmationModal } from '../common/ConfirmationModal';
 import { DataTable } from '../common/DataTable';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   BookOpen, 
   Plus, 
   Edit, 
   Trash2, 
-  Search,
   Eye,
   EyeOff,
   GraduationCap
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
-import { Course } from '../../types';
+import { 
+  GET_COURSES, 
+  GET_LEVELS,
+  CREATE_COURSE, 
+  UPDATE_COURSE, 
+  DELETE_COURSE,
+  Course,
+  Level,
+  CreateCourseInput,
+  UpdateCourseInput
+} from '../../lib/graphql/academic';
 
 export const CoursesPage: React.FC = () => {
   const { t } = useI18n();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     levelId: '',
     isVisible: true
   });
-  const data = getRelatedData();
 
-  const filteredCourses = data.courses.filter(course => {
-    const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = !selectedLevel || course.levelId === selectedLevel;
-    return matchesSearch && matchesLevel;
+  // GraphQL queries and mutations
+  const { data, loading, error, refetch } = useQuery(GET_COURSES, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: levelsData } = useQuery(GET_LEVELS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const [createCourse] = useMutation(CREATE_COURSE, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error creating course:', error);
+    }
+  });
+
+  const [updateCourse] = useMutation(UPDATE_COURSE, {
+    onCompleted: () => {
+      setIsModalOpen(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error updating course:', error);
+    }
+  });
+
+  const [deleteCourse] = useMutation(DELETE_COURSE, {
+    onCompleted: () => {
+      setIsConfirmModalOpen(false);
+      setCourseToDelete(null);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error deleting course:', error);
+    }
   });
 
   const handleCreateCourse = () => {
@@ -61,19 +105,63 @@ export const CoursesPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Course saved:', formData);
-    setIsModalOpen(false);
-    alert(selectedCourse ? t('messages.success.courseUpdated') : t('messages.success.courseCreated'));
+    
+    if (selectedCourse) {
+      // Update existing course
+      const updateInput: UpdateCourseInput = {
+        name: formData.name,
+        description: formData.description,
+        levelId: formData.levelId,
+        isVisible: formData.isVisible
+      };
+      
+      await updateCourse({
+        variables: {
+          id: selectedCourse.id,
+          updateCourseInput: updateInput
+        }
+      });
+    } else {
+      // Create new course
+      const createInput: CreateCourseInput = {
+        name: formData.name,
+        description: formData.description,
+        levelId: formData.levelId,
+        isVisible: formData.isVisible
+      };
+      
+      await createCourse({
+        variables: {
+          createCourseInput: createInput
+        }
+      });
+    }
   };
 
   const handleDeleteCourse = (course: Course) => {
-    if (confirm(t('messages.confirmDelete.course'))) {
-      console.log('Delete course:', course.id);
-      alert(t('messages.success.courseDeleted'));
+    setCourseToDelete(course);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmDeleteCourse = async () => {
+    if (courseToDelete) {
+      await deleteCourse({
+        variables: {
+          id: courseToDelete.id
+        }
+      });
     }
   };
+
+  const courses = data?.courses || [];
+  const levels = levelsData?.levels || [];
+
+  const filteredCourses = courses.filter((course: Course) => {
+    const matchesLevel = !selectedLevel || course.levelId === selectedLevel;
+    return matchesLevel;
+  });
 
   const columns = [
     {
@@ -108,7 +196,7 @@ export const CoursesPage: React.FC = () => {
     },
     {
       key: 'isVisible',
-      label: 'Visibility',
+      label: t('common.status'),
       render: (course: Course) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           {course.isVisible ? (
@@ -119,7 +207,7 @@ export const CoursesPage: React.FC = () => {
           ) : (
             <>
               <EyeOff className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Hidden</span>
+              <span className="text-gray-500 dark:text-gray-400">Hidden</span>
             </>
           )}
         </div>
@@ -127,8 +215,12 @@ export const CoursesPage: React.FC = () => {
     }
   ];
 
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500">Error: {error.message}</div>;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -147,16 +239,9 @@ export const CoursesPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Filter */}
       <Card>
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              icon={Search}
-              placeholder={`${t('common.search')} courses...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
           <div>
             <select
               value={selectedLevel}
@@ -164,7 +249,7 @@ export const CoursesPage: React.FC = () => {
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Levels</option>
-              {data.levels.map(level => (
+              {levels.map((level: Level) => (
                 <option key={level.id} value={level.id}>{level.name}</option>
               ))}
             </select>
@@ -172,6 +257,7 @@ export const CoursesPage: React.FC = () => {
         </div>
       </Card>
 
+      {/* Courses Table */}
       <Card padding="sm">
         <DataTable
           data={filteredCourses}
@@ -200,11 +286,11 @@ export const CoursesPage: React.FC = () => {
         />
       </Card>
 
+      {/* Course Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={selectedCourse ? 'Edit Course' : 'Add Course'}
-        size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -212,8 +298,20 @@ export const CoursesPage: React.FC = () => {
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             required
-            placeholder="Introduction to Computer Science"
           />
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('common.description')}
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -226,24 +324,10 @@ export const CoursesPage: React.FC = () => {
               required
             >
               <option value="">Select Level</option>
-              {data.levels.map(level => (
+              {levels.map((level: Level) => (
                 <option key={level.id} value={level.id}>{level.name}</option>
               ))}
             </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('common.description')}
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              placeholder="Basic concepts of computer science and programming"
-            />
           </div>
           
           <div className="flex items-center">
@@ -278,6 +362,17 @@ export const CoursesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={confirmDeleteCourse}
+        title={t('common.confirmDelete')}
+        message={`${t('common.deleteMessage')} "${courseToDelete?.name}"?`}
+        confirmText={t('common.delete')}
+        variant="danger"
+      />
     </div>
   );
 };

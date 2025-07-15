@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useQuery } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   BookOpen, 
   Search, 
@@ -14,28 +16,44 @@ import {
   Target,
   Brain
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
+import { GET_COURSES, GET_LEVELS } from '../../lib/graphql/academic';
 
 export const CoursesPage: React.FC = () => {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const data = getRelatedData();
+  
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES);
+  const { data: levelsData, loading: levelsLoading } = useQuery(GET_LEVELS);
 
-  const filteredCourses = data.courses.filter(course => {
+  const courses = coursesData?.courses || [];
+  const levels = levelsData?.levels || [];
+
+  const filteredCourses = courses.filter((course: any) => {
     const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLevel = !selectedLevel || course.levelId === selectedLevel;
     return matchesSearch && matchesLevel && course.isVisible;
   });
 
+  // For now, we'll show placeholder counts since we don't have quiz/flashcard counts in the course query
   const getQuizCount = (courseId: string) => {
-    return data.quizzes.filter(quiz => quiz.courseId === courseId && quiz.isVisible).length;
+    // This would need to be implemented with a separate query or included in the course query
+    return 0;
   };
 
   const getFlashcardCount = (courseId: string) => {
-    return data.flashcardDecks.filter(deck => deck.courseId === courseId && deck.isVisible).length;
+    // This would need to be implemented with a separate query or included in the course query
+    return 0;
   };
+
+  if (coursesLoading || levelsLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -70,7 +88,7 @@ export const CoursesPage: React.FC = () => {
             >
               All Levels
             </Button>
-            {data.levels.map(level => (
+            {levels.map((level: any) => (
               <Button
                 key={level.id}
                 variant={selectedLevel === level.id ? 'primary' : 'outline'}
@@ -86,7 +104,7 @@ export const CoursesPage: React.FC = () => {
 
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCourses.map((course) => {
+        {filteredCourses.map((course: any) => {
           const quizCount = getQuizCount(course.id);
           const flashcardCount = getFlashcardCount(course.id);
           

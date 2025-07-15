@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { QuizTaker } from '../../components/student/QuizTaker';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { getRelatedData } from '../../data/mockData';
+import { GET_QUIZZES_BY_COURSE } from '../../lib/graphql/academic';
 import { Quiz } from '../../types';
-import { ArrowLeft, Play, Target, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Play, Target, AlertCircle, Clock } from 'lucide-react';
 
 interface QuizPageProps {
   courseId: string;
@@ -15,17 +16,24 @@ interface QuizPageProps {
 export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
   const { t } = useI18n();
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [availableQuizzes, setAvailableQuizzes] = useState<Quiz[]>([]);
+  
+  const { data, loading, error } = useQuery(GET_QUIZZES_BY_COURSE, {
+    variables: { courseId },
+    skip: !courseId
+  });
 
-  useEffect(() => {
-    const data = getRelatedData();
-    const courseQuizzes = data.quizzes.filter(quiz => quiz.courseId === courseId);
-    setAvailableQuizzes(courseQuizzes);
-    setLoading(false);
-  }, [courseId]);
+  const availableQuizzes = data?.quizzesByCourse?.filter((quiz: Quiz) => quiz.isVisible) || [];
 
   const handleBackToQuizList = () => {
+    setSelectedQuiz(null);
+  };
+
+  const handleQuizComplete = (score: number, totalQuestions: number) => {
+    // Handle quiz completion - could save to backend or show results
+    console.log(`Quiz completed: ${score}/${totalQuestions}`);
+  };
+
+  const handleQuizExit = () => {
     setSelectedQuiz(null);
   };
 
@@ -51,7 +59,11 @@ export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
             <span>{t('common.back')}</span>
           </Button>
         </div>
-        <QuizTaker quiz={selectedQuiz} />
+        <QuizTaker 
+          quiz={selectedQuiz} 
+          onComplete={handleQuizComplete}
+          onExit={handleQuizExit}
+        />
       </div>
     );
   }
@@ -77,7 +89,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {availableQuizzes.map((quiz) => (
+          {availableQuizzes.map((quiz: Quiz) => (
             <Card key={quiz.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -91,8 +103,13 @@ export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
               </div>
 
               <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span>{quiz.questions.length} {t('academic.questions')}</span>
-                <span>{quiz.timeLimit} {t('common.minutes')}</span>
+                <span>{quiz.questions?.length || 0} {t('academic.questions')}</span>
+                {quiz.hasDuration && quiz.durationMinutes && (
+                  <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                    <Clock className="w-4 h-4" />
+                    <span>{quiz.durationMinutes} {t('common.minutes')}</span>
+                  </div>
+                )}
               </div>
 
               <Button

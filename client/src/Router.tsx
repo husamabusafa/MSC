@@ -23,7 +23,11 @@ import { AdminProductsPage } from './pages/admin/AdminProductsPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminFlashcardsPage } from './pages/admin/AdminFlashcardsPage';
 import { AdminQuizzesPage } from './pages/admin/AdminQuizzesPage';
+import { AdminQuizCreatePage } from './pages/admin/AdminQuizCreatePage';
+import { AdminQuizEditPage } from './pages/admin/AdminQuizEditPage';
+import { AdminQuizQuestionsPage } from './pages/admin/AdminQuizQuestionsPage';
 import { AdminGpaSubjectsPage } from './pages/admin/AdminGpaSubjectsPage';
+import { GpaCalculatorPage } from './pages/student/GpaCalculatorPage';
 
 export const Router: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -78,6 +82,8 @@ export const Router: React.FC = () => {
         return <ProfilePage />;
       case '/student/orders':
         return <OrderHistoryPage />;
+      case '/student/gpa-calculator':
+        return <GpaCalculatorPage />;
       default:
         // Handle dynamic routes
         if (currentPath.startsWith('/student/quiz/')) {
@@ -117,9 +123,22 @@ export const Router: React.FC = () => {
         return <AdminFlashcardsPage />;
       case '/admin/quizzes':
         return <AdminQuizzesPage />;
+      case '/admin/quizzes/create':
+        return <AdminQuizCreatePage />;
       case '/admin/gpa-subjects':
         return <AdminGpaSubjectsPage />;
       default:
+        // Handle dynamic routes
+        if (currentPath.startsWith('/admin/quizzes/') && currentPath.endsWith('/edit')) {
+          const quizId = currentPath.split('/')[3];
+          return <AdminQuizEditPage quizId={quizId} />;
+        }
+        if (currentPath.startsWith('/admin/quizzes/') && currentPath.includes('/questions')) {
+          const quizId = currentPath.split('/')[3];
+          if (currentPath.endsWith('/questions')) {
+            return <AdminQuizQuestionsPage quizId={quizId} />;
+          }
+        }
         return <AdminDashboardPage />;
     }
   }
