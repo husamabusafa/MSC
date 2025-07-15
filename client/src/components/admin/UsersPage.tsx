@@ -7,7 +7,7 @@ import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
 import { ConfirmationModal } from '../common/ConfirmationModal';
-import { FilterPanel, FilterOption } from '../common/FilterPanel';
+import { DynamicFilter, FilterField } from '../common/DynamicFilter';
 import { DataTable } from '../common/DataTable';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
@@ -58,9 +58,10 @@ export const UsersPage: React.FC = () => {
     onCompleted: () => {
       setIsModalOpen(false);
       refetch();
+      showSuccess(t('users.userCreated'));
     },
     onError: (error) => {
-      console.error('Error creating user:', error);
+      showError(`Error creating user: ${error.message}`);
     }
   });
 
@@ -68,9 +69,10 @@ export const UsersPage: React.FC = () => {
     onCompleted: () => {
       setIsModalOpen(false);
       refetch();
+      showSuccess(t('users.userUpdated'));
     },
     onError: (error) => {
-      console.error('Error updating user:', error);
+      showError(`Error updating user: ${error.message}`);
     }
   });
 
@@ -79,9 +81,10 @@ export const UsersPage: React.FC = () => {
       setIsConfirmModalOpen(false);
       setUserToDelete(null);
       refetch();
+      showSuccess(t('users.userDeleted'));
     },
     onError: (error) => {
-      console.error('Error deleting user:', error);
+      showError(`Error deleting user: ${error.message}`);
     }
   });
 
@@ -103,12 +106,17 @@ export const UsersPage: React.FC = () => {
     setFormData({
       name: user.name,
       email: user.email,
-      password: '', // Don't populate password for security
+      password: '',
       role: user.role as 'STUDENT' | 'ADMIN',
       universityId: user.universityId || '',
       isActive: user.isActive
     });
     setIsModalOpen(true);
+  };
+
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setIsConfirmModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,8 +132,7 @@ export const UsersPage: React.FC = () => {
         isActive: formData.isActive
       };
       
-      // Only include password if it's provided
-      if (formData.password.trim()) {
+      if (formData.password) {
         updateInput.password = formData.password;
       }
       
@@ -137,11 +144,6 @@ export const UsersPage: React.FC = () => {
       });
     } else {
       // Create new user
-      if (!formData.password.trim()) {
-        showError('Password is required for new users');
-        return;
-      }
-      
       const createInput: CreateUserInput = {
         name: formData.name,
         email: formData.email,
@@ -159,11 +161,6 @@ export const UsersPage: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = (user: User) => {
-    setUserToDelete(user);
-    setIsConfirmModalOpen(true);
-  };
-
   const confirmDeleteUser = async () => {
     if (userToDelete) {
       await deleteUser({
@@ -176,76 +173,22 @@ export const UsersPage: React.FC = () => {
 
   const users = data?.users?.users || [];
 
-  const filterOptions: FilterOption[] = [
-    {
-      key: 'search',
-      label: t('common.search'),
-      type: 'text',
-      placeholder: t('common.searchByNameOrEmail')
-    },
-    {
-      key: 'role',
-      label: t('users.role'),
-      type: 'select',
-      options: [
-        { value: 'STUDENT', label: t('users.STUDENT') },
-        { value: 'ADMIN', label: t('users.ADMIN') }
-      ]
-    },
-    {
-      key: 'isActive',
-      label: t('users.activeOnly'),
-      type: 'boolean'
-    }
-  ];
-
-  const handleFiltersChange = (newFilters: { [key: string]: any }) => {
-    const graphQLFilters: UsersFilterInput = {};
-    
-    if (newFilters.search) {
-      graphQLFilters.search = newFilters.search;
-    }
-    
-    if (newFilters.role) {
-      graphQLFilters.role = newFilters.role;
-    }
-    
-    if (newFilters.isActive === true) {
-      graphQLFilters.isActive = true;
-    }
-    
-    setFilters(graphQLFilters);
-  };
-
   const columns = [
     {
       key: 'name',
-      label: t('common.name'),
+      label: t('users.name'),
       sortable: true,
       render: (user: User) => (
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-admin-500 to-admin-600 flex items-center justify-center">
             <span className="text-white text-sm font-medium">
               {user.name.charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
             <p className="font-medium text-gray-900 dark:text-white">{user.name}</p>
-            {user.universityId && (
-              <p className="text-sm text-gray-500 dark:text-gray-400">ID: {user.universityId}</p>
-            )}
+            <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
           </div>
-        </div>
-      )
-    },
-    {
-      key: 'email',
-      label: t('auth.email'),
-      sortable: true,
-      render: (user: User) => (
-        <div className="flex items-center space-x-2 rtl:space-x-reverse">
-          <Mail className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 dark:text-white">{user.email}</span>
         </div>
       )
     },
@@ -254,18 +197,28 @@ export const UsersPage: React.FC = () => {
       label: t('users.role'),
       sortable: true,
       render: (user: User) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
           user.role === 'ADMIN' 
-            ? 'bg-admin-100 dark:bg-admin-900/20 text-admin-600 dark:text-admin-400'
-            : 'bg-admin-secondary-100 dark:bg-admin-secondary-900/20 text-admin-secondary-600 dark:text-admin-secondary-400'
+            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
         }`}>
           {t(`users.${user.role}`)}
         </span>
       )
     },
     {
+      key: 'universityId',
+      label: t('users.universityId'),
+      sortable: true,
+      render: (user: User) => (
+        <span className="text-gray-900 dark:text-white">
+          {user.universityId || '-'}
+        </span>
+      )
+    },
+    {
       key: 'isActive',
-      label: t('common.status'),
+      label: t('users.status'),
       sortable: true,
       render: (user: User) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -285,7 +238,7 @@ export const UsersPage: React.FC = () => {
     },
     {
       key: 'createdAt',
-      label: t('users.joinDate'),
+      label: t('users.createdAt'),
       sortable: true,
       render: (user: User) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -297,6 +250,96 @@ export const UsersPage: React.FC = () => {
       )
     }
   ];
+
+  // Define filter fields for the dynamic filter
+  const filterFields: FilterField[] = [
+    {
+      key: 'search',
+      label: t('common.search'),
+      type: 'search',
+      placeholder: t('common.searchByNameOrEmail'),
+      width: 'half'
+    },
+    {
+      key: 'role',
+      label: t('users.role'),
+      type: 'select',
+      options: [
+        { value: 'STUDENT', label: t('users.STUDENT') },
+        { value: 'ADMIN', label: t('users.ADMIN') }
+      ],
+      width: 'quarter'
+    },
+    {
+      key: 'isActive',
+      label: t('users.status'),
+      type: 'select',
+      options: [
+        { value: true, label: t('users.active') },
+        { value: false, label: t('users.inactive') }
+      ],
+      width: 'quarter'
+    },
+    {
+      key: 'createdDateRange',
+      label: t('users.createdDateRange'),
+      type: 'dateRange',
+      width: 'half',
+      transform: (value: { from?: string; to?: string }) => ({
+        createdAfter: value.from,
+        createdBefore: value.to
+      })
+    }
+  ];
+
+  // Filter presets
+  const filterPresets = [
+    {
+      name: t('users.activeStudents'),
+      filters: { role: 'STUDENT', isActive: true }
+    },
+    {
+      name: t('users.admins'),
+      filters: { role: 'ADMIN' }
+    },
+    {
+      name: t('users.recentUsers'),
+      filters: { 
+        createdDateRange: { 
+          from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        }
+      }
+    }
+  ];
+
+  const handleFiltersChange = (newFilters: any) => {
+    // Transform date range filter if it exists
+    const graphQLFilters: UsersFilterInput = {};
+    
+    if (newFilters.search) {
+      graphQLFilters.search = newFilters.search;
+    }
+    
+    if (newFilters.role) {
+      graphQLFilters.role = newFilters.role;
+    }
+    
+    if (newFilters.isActive !== undefined) {
+      graphQLFilters.isActive = newFilters.isActive;
+    }
+
+    // Handle date range transformation - commented out until server supports it
+    // if (newFilters.createdDateRange) {
+    //   if (newFilters.createdDateRange.from) {
+    //     graphQLFilters.createdAfter = newFilters.createdDateRange.from;
+    //   }
+    //   if (newFilters.createdDateRange.to) {
+    //     graphQLFilters.createdBefore = newFilters.createdDateRange.to;
+    //   }
+    // }
+    
+    setFilters(graphQLFilters);
+  };
 
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500">Error: {error.message}</div>;
@@ -315,6 +358,7 @@ export const UsersPage: React.FC = () => {
         </div>
         <Button
           variant="primary"
+          colorScheme="admin"
           icon={Plus}
           onClick={handleCreateUser}
         >
@@ -322,11 +366,17 @@ export const UsersPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filters */}
-      <FilterPanel
-        filters={filterOptions}
+      {/* Dynamic Filters */}
+      <DynamicFilter
+        fields={filterFields}
         onFiltersChange={handleFiltersChange}
-        className="mb-6"
+        theme="admin"
+        collapsible={true}
+        layout="grid"
+        showPresets={true}
+        presets={filterPresets}
+        showActiveCount={true}
+        showClearAll={true}
       />
 
       {/* Users Table */}
@@ -365,81 +415,90 @@ export const UsersPage: React.FC = () => {
         title={selectedUser ? t('users.editUser') : t('users.createUser')}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label={t('auth.fullName')}
-            value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            required
-          />
-          
-          <Input
-            type="email"
-            label={t('auth.email')}
-            value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            required
-          />
-          
-          <Input
-            type="password"
-            label={selectedUser ? t('auth.newPassword') : t('auth.password')}
-            value={formData.password}
-            onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-            required={!selectedUser}
-            placeholder={selectedUser ? 'Leave empty to keep current password' : ''}
-          />
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('users.name')}
+            </label>
+            <Input
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('users.email')}
+            </label>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('users.password')} {selectedUser && '(leave blank to keep current)'}
+            </label>
+            <Input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              required={!selectedUser}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               {t('users.role')}
             </label>
             <select
               value={formData.role}
               onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'STUDENT' | 'ADMIN' }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-admin-500"
             >
               <option value="STUDENT">{t('users.STUDENT')}</option>
               <option value="ADMIN">{t('users.ADMIN')}</option>
             </select>
           </div>
-          
-          {formData.role === 'STUDENT' && (
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('users.universityId')}
+            </label>
             <Input
-              label={t('auth.universityId')}
               value={formData.universityId}
               onChange={(e) => setFormData(prev => ({ ...prev, universityId: e.target.value }))}
-              placeholder="ST001"
             />
-          )}
-          
-          <div className="flex items-center">
+          </div>
+
+          <div className="flex items-center space-x-2">
             <input
               type="checkbox"
               id="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500"
             />
-            <label htmlFor="isActive" className="ml-2 rtl:mr-2 rtl:ml-0 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">
               {t('users.active')}
             </label>
           </div>
-          
-          <div className="flex gap-3 pt-4">
+
+          <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-4">
             <Button
-              type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1"
             >
               {t('common.cancel')}
             </Button>
             <Button
               type="submit"
-              variant="primary"
-              className="flex-1"
+              colorScheme="admin"
             >
-              {t('common.save')}
+              {selectedUser ? t('common.update') : t('common.create')}
             </Button>
           </div>
         </form>
@@ -450,9 +509,10 @@ export const UsersPage: React.FC = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={confirmDeleteUser}
-        title={t('users.confirmDelete')}
-        message={t('users.deleteWarning')}
+        title={t('users.deleteUser')}
+        message={t('users.deleteConfirmation')}
         confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="danger"
       />
     </div>

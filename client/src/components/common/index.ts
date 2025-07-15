@@ -4,6 +4,8 @@ export { Input } from './Input';
 export { Modal } from './Modal';
 export { ConfirmationModal } from './ConfirmationModal';
 export { FilterPanel } from './FilterPanel';
+export { DynamicFilter } from './DynamicFilter';
+export type { FilterField, FilterFieldType } from './DynamicFilter';
 export { FileUpload } from './FileUpload';
 export { DataTable } from './DataTable';
 export { LoadingSpinner } from './LoadingSpinner';

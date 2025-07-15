@@ -3,18 +3,15 @@ import { useQuery } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../common/Card';
-import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { DynamicFilter, FilterField } from '../common/DynamicFilter';
 import { 
   ShoppingBag, 
-  Search, 
   Plus, 
   Minus,
   ShoppingCart,
-  Star,
-  Tag,
   Package
 } from 'lucide-react';
 import { GET_PRODUCTS, GET_PRODUCT_CATEGORIES } from '../../lib/graphql/store';
@@ -22,24 +19,68 @@ import { GET_PRODUCTS, GET_PRODUCT_CATEGORIES } from '../../lib/graphql/store';
 export const StorePage: React.FC = () => {
   const { t } = useI18n();
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<any>({});
   const [cart, setCart] = useState<{[key: string]: number}>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orderNotes, setOrderNotes] = useState('');
   
-  const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS);
-  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_PRODUCT_CATEGORIES);
-  
-  const products = productsData?.products || [];
-  const categories = categoriesData?.productCategories || [];
-
-  const filteredProducts = products.filter((product: any) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || product.categoryId === selectedCategory;
-    return matchesSearch && matchesCategory && product.isVisible;
+  const { data: productsData, loading: productsLoading, error: productsError } = useQuery(GET_PRODUCTS, {
+    variables: { filter: { isVisible: true, ...filters } }
   });
+  
+  const products = productsData?.products?.products || [];
+
+  const filteredProducts = Array.isArray(products) ? products.filter((product: any) => {
+    return product.isVisible;
+  }) : [];
+
+  // Define filter fields for the dynamic filter
+  const filterFields: FilterField[] = [
+    {
+      key: 'search',
+      label: t('common.search'),
+      type: 'search',
+      placeholder: t('store.searchProducts'),
+      width: 'half'
+    },
+    {
+      key: 'categoryId',
+      label: t('store.category'),
+      type: 'select',
+      dynamicSource: 'categories',
+      placeholder: t('store.allCategories'),
+      width: 'half'
+    },
+    {
+      key: 'priceRange',
+      label: t('store.priceRange'),
+      type: 'numberRange',
+      min: 0,
+      step: 0.01,
+      width: 'half',
+      transform: (value: { min?: number; max?: number }) => ({
+        minPrice: value.min,
+        maxPrice: value.max
+      })
+    },
+    {
+      key: 'isSpecialOffer',
+      label: t('store.specialOffersOnly'),
+      type: 'boolean',
+      width: 'quarter'
+    }
+  ];
+
+  const handleFiltersChange = (newFilters: any) => {
+    // Transform price range filter if it exists
+    const transformedFilters = { ...newFilters };
+    if (newFilters.priceRange) {
+      transformedFilters.minPrice = newFilters.priceRange.min;
+      transformedFilters.maxPrice = newFilters.priceRange.max;
+      delete transformedFilters.priceRange;
+    }
+    setFilters(transformedFilters);
+  };
 
   const addToCart = (productId: string) => {
     setCart(prev => ({
@@ -61,6 +102,7 @@ export const StorePage: React.FC = () => {
   };
 
   const getCartTotal = () => {
+    if (!Array.isArray(products)) return 0;
     return Object.entries(cart).reduce((total, [productId, quantity]) => {
       const product = products.find((p: any) => p.id === productId);
       return total + (product?.price || 0) * quantity;
@@ -68,6 +110,7 @@ export const StorePage: React.FC = () => {
   };
 
   const getCartItems = () => {
+    if (!Array.isArray(products)) return [];
     return Object.entries(cart).map(([productId, quantity]) => {
       const product = products.find((p: any) => p.id === productId);
       return { product, quantity };
@@ -88,10 +131,35 @@ export const StorePage: React.FC = () => {
     // Show success message
   };
 
-  if (productsLoading || categoriesLoading) {
+  if (productsLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (productsError) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Card>
+          <div className="p-6 text-center">
+            <Package className="w-16 h-16 text-red-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              Error Loading Store
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              {productsError?.message || 'Failed to load store data'}
+            </p>
+            <Button
+              variant="primary"
+              colorScheme="student"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -118,40 +186,25 @@ export const StorePage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                icon={Search}
-                placeholder={t('common.search')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={selectedCategory === null ? 'primary' : 'outline'}
-                colorScheme="student"
-                onClick={() => setSelectedCategory(null)}
-              >
-                All Categories
-              </Button>
-              {categories.map((category: any) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? 'primary' : 'outline'}
-                  colorScheme="student"
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.name}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* Dynamic Filters */}
+      <DynamicFilter
+        fields={filterFields}
+        onFiltersChange={handleFiltersChange}
+        theme="student"
+        collapsible={false}
+        layout="grid"
+        showPresets={true}
+        presets={[
+          {
+            name: 'Special Offers',
+            filters: { isSpecialOffer: true }
+          },
+          {
+            name: 'Under 50 JD',
+            filters: { priceRange: { max: 50 } }
+          }
+        ]}
+      />
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

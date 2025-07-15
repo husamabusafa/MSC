@@ -26,6 +26,7 @@ export const translations = {
       description: 'Description',
       status: 'Status',
       date: 'Date',
+      createdAt: 'Created At',
       actions: 'Actions',
       noData: 'No data available',
       selectAll: 'Select All',
@@ -176,6 +177,7 @@ export const translations = {
       productCategories: 'Product Categories',
       products: 'Products',
       orders: 'Orders',
+      preRegistered: 'Pre-registered Students',
       preRegisteredStudents: 'Pre-registered Students',
       notifications: 'Notifications'
     },
@@ -371,6 +373,9 @@ export const translations = {
       noProductsFound: 'No products found',
       tryAdjustingSearch: 'Try adjusting your search or filter criteria',
       productManagementDescription: 'Manage store products and their categories',
+      searchProducts: 'Search products...',
+      priceRange: 'Price Range',
+      specialOffersOnly: 'Special Offers Only',
       addProduct: 'Add Product',
       editProduct: 'Edit Product',
       productName: 'Product Name',
@@ -455,14 +460,27 @@ export const translations = {
     // User Management
     users: {
       user: 'User',
+      name: 'Name',
+      email: 'Email',
+      password: 'Password',
+      universityId: 'University ID',
       role: 'Role',
       student: 'Student',
       admin: 'Admin',
+      STUDENT: 'Student',
+      ADMIN: 'Admin',
+      status: 'Status',
       active: 'Active',
       inactive: 'Inactive',
+      createdAt: 'Created At',
+      createdDateRange: 'Created Date Range',
+      activeStudents: 'Active Students',
+      admins: 'Admins',
+      recentUsers: 'Recent Users',
       createUser: 'Create User',
       editUser: 'Edit User',
       deleteUser: 'Delete User',
+      deleteConfirmation: 'Are you sure you want to delete this user? This action cannot be undone.',
       userCreated: 'User created successfully',
       userUpdated: 'User updated successfully',
       userDeleted: 'User deleted successfully',
@@ -492,6 +510,12 @@ export const translations = {
       messagePlaceholder: 'Enter notification message',
       searchPlaceholder: 'Search notifications...',
       managementDescription: 'Create and manage notifications for students'
+    },
+    
+    // Pre-registered Students
+    preRegisteredStudents: {
+      createStudent: 'Create Student',
+      unused: 'Unused'
     },
     
     // Settings
@@ -624,6 +648,7 @@ export const translations = {
       description: 'الوصف',
       status: 'الحالة',
       date: 'التاريخ',
+      createdAt: 'تاريخ الإنشاء',
       actions: 'الإجراءات',
       noData: 'لا توجد بيانات متاحة',
       selectAll: 'اختيار الكل',
@@ -774,7 +799,9 @@ export const translations = {
       productCategories: 'فئات المنتجات',
       products: 'المنتجات',
       orders: 'الطلبات',
-      preRegistered: 'الطلاب المسجلين مسبقاً'
+      preRegistered: 'الطلاب المسجلين مسبقاً',
+      preRegisteredStudents: 'الطلاب المسجلين مسبقاً',
+      notifications: 'الإشعارات'
     },
     
     // Dashboard
@@ -978,13 +1005,15 @@ export const translations = {
       noProductsFound: 'لا توجد منتجات',
       tryAdjustingSearch: 'حاول تعديل البحث أو معايير التصفية',
       productManagementDescription: 'إدارة منتجات المتجر وفئاتها',
+      searchProducts: 'البحث في المنتجات...',
+      priceRange: 'نطاق السعر',
+      specialOffersOnly: 'العروض الخاصة فقط',
       addProduct: 'إضافة منتج',
       editProduct: 'تعديل منتج',
       productName: 'اسم المنتج',
       selectCategory: 'اختر الفئة',
       productImage: 'صورة المنتج',
-      uploadProductImage: 'رفع صورة المنتج',
-      specialOffer: 'عرض خاص'
+      uploadProductImage: 'رفع صورة المنتج'
     },
     
     // Orders
@@ -1063,14 +1092,27 @@ export const translations = {
     // User Management
     users: {
       user: 'المستخدم',
+      name: 'الاسم',
+      email: 'البريد الإلكتروني',
+      password: 'كلمة المرور',
+      universityId: 'الرقم الجامعي',
       role: 'الدور',
       student: 'طالب',
       admin: 'مدير',
+      STUDENT: 'طالب',
+      ADMIN: 'مدير',
+      status: 'الحالة',
       active: 'نشط',
       inactive: 'غير نشط',
+      createdAt: 'تاريخ الإنشاء',
+      createdDateRange: 'نطاق تاريخ الإنشاء',
+      activeStudents: 'الطلاب النشطون',
+      admins: 'المدراء',
+      recentUsers: 'المستخدمون الجدد',
       createUser: 'إنشاء مستخدم',
       editUser: 'تعديل المستخدم',
       deleteUser: 'حذف المستخدم',
+      deleteConfirmation: 'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء.',
       userCreated: 'تم إنشاء المستخدم بنجاح',
       userUpdated: 'تم تحديث المستخدم بنجاح',
       userDeleted: 'تم حذف المستخدم بنجاح',
@@ -1100,6 +1142,12 @@ export const translations = {
       messagePlaceholder: 'أدخل رسالة الإشعار',
       searchPlaceholder: 'البحث في الإشعارات...',
       managementDescription: 'إنشاء وإدارة الإشعارات للطلاب'
+    },
+    
+    // Pre-registered Students
+    preRegisteredStudents: {
+      createStudent: 'إنشاء طالب',
+      unused: 'غير مستخدم'
     },
     
     // Settings
