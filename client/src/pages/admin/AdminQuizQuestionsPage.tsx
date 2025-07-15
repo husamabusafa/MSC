@@ -321,7 +321,7 @@ export const AdminQuizQuestionsPage: React.FC<AdminQuizQuestionsPageProps> = ({ 
                           value={answer.text}
                           onChange={(e) => handleAnswerChange(index, 'text', e.target.value)}
                           placeholder={`الإجابة ${String.fromCharCode(65 + index)}`}
-                          className="w-full"
+                          className="w-full py-4 text-base"
                         />
                       </div>
                       {answers.length > 2 && (

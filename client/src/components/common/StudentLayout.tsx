@@ -71,7 +71,7 @@ const navigation = [
 
 export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
-  const { t, language, setLanguage } = useI18n();
+  const { t, language, setLanguage, dir } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -83,6 +83,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const currentPath = window.location.pathname;
   const student = studentData?.me;
   const studentDetails = student?.studentDetails;
+  const isRTL = dir === 'rtl';
 
   // Navigate without page refresh
   const navigateToPath = (path: string) => {
@@ -92,7 +93,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -103,10 +104,14 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed inset-y-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:static lg:inset-0
-        ${language === 'ar' ? 'rtl:right-0 rtl:left-auto' : ''}
+        ${isRTL ? 'right-0' : 'left-0'}
+        ${isRTL 
+          ? sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+          : sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }
+        ${isRTL ? 'lg:translate-x-0' : 'lg:translate-x-0'}
       `}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -157,7 +162,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-student-500 to-student-600 flex items-center justify-center relative">
               <User className="w-6 h-6 text-white" />
               {student?.isActive && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 rtl:-left-1 rtl:-right-auto">
                   <UserCheck className="w-2 h-2 text-white m-0.5" />
                 </div>
               )}
@@ -252,7 +257,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center">
+              <div className="flex items-center space-x-4 rtl:space-x-reverse">
                 <button
                   onClick={() => setSidebarOpen(true)}
                   className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
@@ -260,7 +265,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
                   <Menu className="w-6 h-6 text-gray-500" />
                 </button>
 
-                <div className="flex items-center space-x-4 rtl:space-x-reverse lg:ml-4">
+                <div className="flex items-center space-x-4 rtl:space-x-reverse">
                   <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                     {t('dashboard.studentDashboard')}
                   </h1>

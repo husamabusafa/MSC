@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useQuery } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../common/Card';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   ShoppingBag, 
   Search, 
@@ -15,7 +17,7 @@ import {
   Tag,
   Package
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
+import { GET_PRODUCTS, GET_PRODUCT_CATEGORIES } from '../../lib/graphql/store';
 
 export const StorePage: React.FC = () => {
   const { t } = useI18n();
@@ -25,9 +27,14 @@ export const StorePage: React.FC = () => {
   const [cart, setCart] = useState<{[key: string]: number}>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [orderNotes, setOrderNotes] = useState('');
-  const data = getRelatedData();
+  
+  const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS);
+  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_PRODUCT_CATEGORIES);
+  
+  const products = productsData?.products || [];
+  const categories = categoriesData?.productCategories || [];
 
-  const filteredProducts = data.products.filter(product => {
+  const filteredProducts = products.filter((product: any) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || product.categoryId === selectedCategory;
@@ -55,33 +62,39 @@ export const StorePage: React.FC = () => {
 
   const getCartTotal = () => {
     return Object.entries(cart).reduce((total, [productId, quantity]) => {
-      const product = data.products.find(p => p.id === productId);
+      const product = products.find((p: any) => p.id === productId);
       return total + (product?.price || 0) * quantity;
     }, 0);
   };
 
-  const getCartItemCount = () => {
-    return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+  const getCartItems = () => {
+    return Object.entries(cart).map(([productId, quantity]) => {
+      const product = products.find((p: any) => p.id === productId);
+      return { product, quantity };
+    }).filter(item => item.product);
   };
 
-  const handleCheckout = () => {
-    // Simulate API call
-    console.log('Order placed:', {
+  const handleSubmitOrder = () => {
+    const orderItems = getCartItems();
+    console.log('Order submitted:', {
       studentId: user?.id,
-      items: Object.entries(cart).map(([productId, quantity]) => ({
-        productId,
-        quantity,
-        price: data.products.find(p => p.id === productId)?.price || 0
-      })),
-      total: getCartTotal(),
-      notes: orderNotes
+      items: orderItems,
+      notes: orderNotes,
+      total: getCartTotal()
     });
-    
     setCart({});
     setIsCartOpen(false);
     setOrderNotes('');
-    alert(t('store.orderPlaced'));
+    // Show success message
   };
+
+  if (productsLoading || categoriesLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -92,124 +105,110 @@ export const StorePage: React.FC = () => {
             {t('nav.store')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Shop for academic supplies and materials
+            Browse and order products from our store
           </p>
         </div>
-        
         <Button
           variant="primary"
+          colorScheme="student"
           icon={ShoppingCart}
           onClick={() => setIsCartOpen(true)}
-          className="relative"
         >
-          {t('store.cart')}
-          {getCartItemCount() > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-student-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {getCartItemCount()}
-            </span>
-          )}
+          Cart ({Object.keys(cart).length})
         </Button>
       </div>
 
       {/* Filters */}
       <Card>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              icon={Search}
-              placeholder={t('common.search')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant={selectedCategory === null ? 'primary' : 'outline'}
-              onClick={() => setSelectedCategory(null)}
-            >
-              All Categories
-            </Button>
-            {data.productCategories.map(category => (
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                icon={Search}
+                placeholder={t('common.search')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-2">
               <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'primary' : 'outline'}
-                onClick={() => setSelectedCategory(category.id)}
+                variant={selectedCategory === null ? 'primary' : 'outline'}
+                colorScheme="student"
+                onClick={() => setSelectedCategory(null)}
               >
-                {category.name}
+                All Categories
               </Button>
-            ))}
+              {categories.map((category: any) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'primary' : 'outline'}
+                  colorScheme="student"
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.name}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </Card>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProducts.map((product: any) => (
           <Card key={product.id} hover className="group">
-            <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 overflow-hidden relative">
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Package className="w-16 h-16 text-gray-400" />
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-student-100 dark:bg-student-900/20 rounded-lg">
+                  <Package className="w-6 h-6 text-student-600 dark:text-student-400" />
                 </div>
-              )}
-              
-              {product.isSpecialOffer && (
-                <div className="absolute top-2 left-2 bg-student-500 text-white text-xs px-2 py-1 rounded">
-                  <Tag className="w-3 h-3 inline mr-1" />
-                  {t('store.specialOffer')}
+                <div className="text-right">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                    ${product.price}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {product.category?.name}
+                  </p>
                 </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                  {product.category?.name}
-                </span>
-                                  <span className="text-lg font-bold text-student-600 dark:text-student-400">
-                  ${product.price}
-                </span>
               </div>
               
-              <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-student-600 dark:group-hover:text-student-400 transition-colors">
                 {product.name}
               </h3>
               
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                 {product.description}
               </p>
               
-              <div className="flex gap-2 pt-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeFromCart(product.id)}
+                    disabled={!cart[product.id]}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white min-w-[20px] text-center">
+                    {cart[product.id] || 0}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addToCart(product.id)}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
                 <Button
                   variant="primary"
                   size="sm"
+                  colorScheme="student"
                   onClick={() => addToCart(product.id)}
-                  className="flex-1"
                 >
-                  <Plus className="w-4 h-4 mr-1" />
-                  {t('store.addToCart')}
+                  Add to Cart
                 </Button>
-                
-                {cart[product.id] && (
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeFromCart(product.id)}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white px-2">
-                      {cart[product.id]}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           </Card>
@@ -218,7 +217,7 @@ export const StorePage: React.FC = () => {
 
       {filteredProducts.length === 0 && (
         <Card>
-          <div className="text-center py-12">
+          <div className="p-6 text-center py-12">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No products found
@@ -234,108 +233,84 @@ export const StorePage: React.FC = () => {
       <Modal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        title={t('store.cart')}
-        size="lg"
+        title="Shopping Cart"
       >
         <div className="space-y-4">
-          {Object.keys(cart).length === 0 ? (
-            <div className="text-center py-8">
-              <ShoppingCart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">Your cart is empty</p>
-            </div>
+          {getCartItems().length === 0 ? (
+            <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+              Your cart is empty
+            </p>
           ) : (
             <>
-              <div className="space-y-4">
-                {Object.entries(cart).map(([productId, quantity]) => {
-                  const product = data.products.find(p => p.id === productId);
-                  if (!product) return null;
-                  
-                  return (
-                    <div key={productId} className="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-                      <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
-                        {product.image ? (
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-8 h-8 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 dark:text-white">
-                          {product.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          ${product.price} each
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeFromCart(productId)}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white px-2">
-                          {quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addToCart(productId)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                        ${(product.price * quantity).toFixed(2)}
-                      </div>
+              <div className="space-y-3">
+                {getCartItems().map(({ product, quantity }) => (
+                  <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900 dark:text-white">
+                        {product.name}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        ${product.price} each
+                      </p>
                     </div>
-                  );
-                })}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeFromCart(product.id)}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <span className="min-w-[20px] text-center">{quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => addToCart(product.id)}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="text-right ml-4">
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        ${(product.price * quantity).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
               
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex justify-between items-center text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  <span>{t('store.total')}</span>
-                  <span>${getCartTotal().toFixed(2)}</span>
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Total: ${getCartTotal().toFixed(2)}
+                  </span>
                 </div>
                 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Order Notes (Optional)
+                    Order Notes (optional)
                   </label>
                   <textarea
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Add any notes about your order..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-student-500 dark:bg-gray-800 dark:text-white"
+                    placeholder="Any special instructions or notes..."
                   />
                 </div>
                 
-                <div className="flex gap-3">
+                <div className="flex justify-end space-x-2 rtl:space-x-reverse">
                   <Button
                     variant="outline"
                     onClick={() => setIsCartOpen(false)}
-                    className="flex-1"
                   >
-                    {t('common.cancel')}
+                    Continue Shopping
                   </Button>
                   <Button
-                    variant="primary"
-                    onClick={handleCheckout}
-                    className="flex-1"
+                    colorScheme="student"
+                    onClick={handleSubmitOrder}
                   >
-                    {t('store.placeOrder')}
+                    Place Order
                   </Button>
                 </div>
               </div>

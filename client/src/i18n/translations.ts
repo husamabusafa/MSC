@@ -208,6 +208,7 @@ export const translations = {
       question: 'Question',
       answer: 'Answer',
       flashcard: 'Flashcard',
+      flashcards: 'Flashcards',
       deck: 'Deck',
       takeQuiz: 'Take Quiz',
       viewFlashcards: 'View Flashcards',
@@ -251,7 +252,8 @@ export const translations = {
       allYears: 'All Years',
       noSubjectsFound: 'No subjects found',
       yearName: 'Year Name',
-      subjectName: 'Subject Name'
+      subjectName: 'Subject Name',
+      selectYear: 'Select Academic Year'
     },
     
     // Library
@@ -617,7 +619,7 @@ export const translations = {
       settings: 'الإعدادات',
       users: 'المستخدمون',
       academic: 'الأكاديمي',
-      levels: 'المستويات',
+      levels: 'السنوات الدراسية',
       flashcards: 'البطاقات التعليمية',
       quizzes: 'الاختبارات',
       gpaSubjects: 'مواد المعدل التراكمي',
@@ -657,9 +659,11 @@ export const translations = {
       level: 'المستوى',
       course: 'المقرر',
       quiz: 'الاختبار',
+      gpa: 'المعدل التراكمي',
       question: 'السؤال',
       answer: 'الإجابة',
       flashcard: 'البطاقة التعليمية',
+      flashcards: 'البطاقات التعليمية',
       deck: 'المجموعة',
       takeQuiz: 'أخذ الاختبار',
       viewFlashcards: 'عرض البطاقات التعليمية',
@@ -712,7 +716,8 @@ export const translations = {
       allYears: 'جميع السنوات',
       noSubjectsFound: 'لم يتم العثور على مواد',
       yearName: 'اسم السنة',
-      subjectName: 'اسم المادة'
+      subjectName: 'اسم المادة',
+      selectYear: 'اختر السنة الدراسية'
     },
     
     // Library

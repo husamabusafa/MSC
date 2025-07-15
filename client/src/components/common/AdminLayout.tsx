@@ -64,12 +64,13 @@ const navigation = [
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
-  const { t, language, setLanguage } = useI18n();
+  const { t, language, setLanguage, dir } = useI18n();
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const currentPath = window.location.pathname;
+  const isRTL = dir === 'rtl';
 
   const toggleExpanded = (itemId: string) => {
     setExpandedItems(prev => 
@@ -91,10 +92,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed inset-y-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
         lg:translate-x-0 lg:static lg:inset-0
-        rtl:right-0 rtl:left-auto rtl:${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+        ${isRTL ? 'right-0' : 'left-0'}
+        ${isRTL 
+          ? sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+          : sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }
+        ${isRTL ? 'lg:translate-x-0' : 'lg:translate-x-0'}
       `}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -140,7 +145,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     <span>{t(`nav.${item.id}`)}</span>
                   </div>
                   {hasSubItems && (
-                    <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+                    <div className={`transform transition-transform ${isExpanded ? 'rotate-90' : ''} ${isRTL ? 'rotate-180' : ''}`}>
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>
@@ -229,14 +234,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-18">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
-              >
-                <Menu className="w-6 h-6 text-gray-500" />
-              </button>
-
               <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
+                >
+                  <Menu className="w-6 h-6 text-gray-500" />
+                </button>
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                   {t('dashboard.adminDashboard')}
                 </h1>

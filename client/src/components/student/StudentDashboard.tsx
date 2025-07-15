@@ -1,7 +1,9 @@
 import React from 'react';
+import { useQuery } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../common/Card';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
   BookOpen, 
   Library, 
@@ -12,152 +14,184 @@ import {
   Users,
   Target
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
+import { GET_COURSES } from '../../lib/graphql/academic';
+import { GET_BOOKS } from '../../lib/graphql/library';
+import { GET_PRODUCTS } from '../../lib/graphql/store';
 
 export const StudentDashboard: React.FC = () => {
   const { t } = useI18n();
   const { user } = useAuth();
-  const data = getRelatedData();
+  
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES);
+  const { data: booksData, loading: booksLoading } = useQuery(GET_BOOKS);
+  const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS);
+
+  const courses = coursesData?.courses || [];
+  const books = booksData?.books || [];
+  const products = productsData?.products || [];
+
+  // Calculate total quizzes from all courses
+  const totalQuizzes = courses.reduce((total: number, course: any) => {
+    return total + (course.quizzes?.length || 0);
+  }, 0);
+
+  // Calculate total flashcards from all courses
+  const totalFlashcards = courses.reduce((total: number, course: any) => {
+    return total + (course.flashcardDecks?.reduce((deckTotal: number, deck: any) => {
+      return deckTotal + (deck.cards?.length || 0);
+    }, 0) || 0);
+  }, 0);
 
   const stats = [
     {
       title: t('nav.courses'),
-      value: data.courses.length,
+      value: courses.length,
       icon: BookOpen,
       color: 'text-student-600 dark:text-student-400',
       bgColor: 'bg-student-100 dark:bg-student-900/20'
     },
     {
       title: t('nav.library'),
-      value: data.books.length,
+      value: books.length,
       icon: Library,
       color: 'text-student-600 dark:text-student-400',
       bgColor: 'bg-student-100 dark:bg-student-900/20'
     },
     {
       title: t('nav.store'),
-      value: data.products.length,
+      value: products.length,
       icon: ShoppingBag,
       color: 'text-student-600 dark:text-student-400',
       bgColor: 'bg-student-100 dark:bg-student-900/20'
     },
     {
       title: t('academic.quizzes'),
-      value: data.quizzes.length,
+      value: totalQuizzes,
       icon: Target,
       color: 'text-student-600 dark:text-student-400',
       bgColor: 'bg-student-100 dark:bg-student-900/20'
     }
   ];
 
-  const recentActivity = [
-    { action: 'Completed Mathematics Quiz', time: '2 hours ago', type: 'quiz' },
-    { action: 'Borrowed Introduction to Algorithms', time: '1 day ago', type: 'library' },
-    { action: 'Ordered Scientific Calculator', time: '3 days ago', type: 'store' },
-    { action: 'Studied Programming Flashcards', time: '1 week ago', type: 'flashcards' }
-  ];
+  if (coursesLoading || booksLoading || productsLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <Card className="bg-gradient-to-r from-student-500 to-student-600 text-white border-none">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">
-              {t('dashboard.welcome')}, {user?.name}!
-            </h2>
-            <p className="text-student-100">
-              {t('common.readyToContinue')}
-            </p>
-          </div>
-          <div className="hidden md:block">
-            <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
-              <Award className="w-12 h-12 text-white" />
+      <Card>
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {t('dashboard.welcome')}, {user?.name}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {t('dashboard.studentWelcomeMessage')}
+              </p>
+            </div>
+            <div className="p-3 bg-student-100 dark:bg-student-900/20 rounded-lg">
+              <Award className="w-8 h-8 text-student-600 dark:text-student-400" />
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Statistics */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <Card key={index} hover>
-            <div className="flex items-center">
-              <div className={`p-3 rounded-lg ${stat.bgColor} mr-4 rtl:ml-4 rtl:mr-0`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {stat.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                    {stat.value}
+                  </p>
+                </div>
+                <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                </div>
               </div>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t('dashboard.quickActions')}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/student/courses"
-            className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <BookOpen className="w-8 h-8 text-student-600 dark:text-student-400 mr-3 rtl:ml-3 rtl:mr-0" />
-            <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.browseCourses')}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Explore available courses</p>
-            </div>
-          </a>
-          
-          <a
-            href="/student/library"
-            className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <Library className="w-8 h-8 text-student-600 dark:text-student-400 mr-3 rtl:ml-3 rtl:mr-0" />
-            <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.visitLibrary')}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Browse and borrow books</p>
-            </div>
-          </a>
-          
-          <a
-            href="/student/store"
-            className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <ShoppingBag className="w-8 h-8 text-student-600 dark:text-student-400 mr-3 rtl:ml-3 rtl:mr-0" />
-            <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.shopStore')}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Browse products</p>
-            </div>
-          </a>
-        </div>
-      </Card>
-
       {/* Recent Activity */}
-      <Card>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t('dashboard.recentActivity')}
-        </h3>
-        <div className="space-y-4">
-          {recentActivity.map((activity, index) => (
-            <div key={index} className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="w-2 h-2 bg-student-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {activity.action}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                  <Clock className="w-3 h-3 mr-1 rtl:ml-1 rtl:mr-0" />
-                  {activity.time}
-                </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('dashboard.recentCourses')}
+              </h2>
+              <Clock className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="space-y-3">
+              {courses.slice(0, 3).map((course: any) => (
+                <div key={course.id} className="flex items-center space-x-3 rtl:space-x-reverse">
+                  <div className="p-2 bg-student-100 dark:bg-student-900/20 rounded-lg">
+                    <BookOpen className="w-4 h-4 text-student-600 dark:text-student-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {course.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {course.level?.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('dashboard.quickStats')}
+              </h2>
+              <TrendingUp className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('academic.flashcards')}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {totalFlashcards}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('academic.quizzes')}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {totalQuizzes}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('nav.courses')}
+                </span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {courses.length}
+                </span>
               </div>
             </div>
-          ))}
-        </div>
-      </Card>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

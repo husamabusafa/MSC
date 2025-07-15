@@ -19,6 +19,7 @@ import {
   CREATE_GPA_SUBJECT, 
   UPDATE_GPA_SUBJECT, 
   DELETE_GPA_SUBJECT,
+  GET_LEVELS,
   GpaSubject,
   CreateGpaSubjectInput,
   UpdateGpaSubjectInput
@@ -38,6 +39,10 @@ export const GpaSubjectsPage: React.FC = () => {
 
   // GraphQL queries and mutations
   const { data, loading, error, refetch } = useQuery(GET_GPA_SUBJECTS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: levelsData, loading: levelsLoading } = useQuery(GET_LEVELS, {
     fetchPolicy: 'cache-and-network'
   });
 
@@ -74,13 +79,15 @@ export const GpaSubjectsPage: React.FC = () => {
   });
 
   const subjects = data?.gpaSubjects || [];
+  const levels = levelsData?.levels || [];
 
   const filteredSubjects = subjects.filter((subject: GpaSubject) => {
     const matchesYear = !selectedYear || subject.yearName === selectedYear;
     return matchesYear;
   }).sort((a: GpaSubject, b: GpaSubject) => a.order - b.order);
 
-  const uniqueYears: string[] = [...new Set(subjects.map((subject: GpaSubject) => subject.yearName))];
+  const uniqueYears = [...new Set(subjects.map((subject: GpaSubject) => subject.yearName))] as string[];
+  const sortedLevels = [...levels].sort((a: any, b: any) => a.order - b.order);
 
   const handleCreateSubject = () => {
     setSelectedSubject(null);
@@ -272,13 +279,28 @@ export const GpaSubjectsPage: React.FC = () => {
         title={selectedSubject ? t('gpaSubjects.editSubject') : t('gpaSubjects.createSubject')}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label={t('gpaSubjects.yearName')}
-            value={formData.yearName}
-            onChange={(e) => setFormData(prev => ({ ...prev, yearName: e.target.value }))}
-            required
-            placeholder="السنة الأولى"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('gpaSubjects.yearName')}
+            </label>
+            <select
+              value={formData.yearName}
+              onChange={(e) => setFormData(prev => ({ ...prev, yearName: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">{t('gpaSubjects.selectYear')}</option>
+              {levelsLoading ? (
+                <option disabled>Loading levels...</option>
+              ) : (
+                sortedLevels.map((level: any) => (
+                  <option key={level.id} value={level.name}>
+                    {level.name}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
           
           <Input
             label={t('gpaSubjects.subjectName')}

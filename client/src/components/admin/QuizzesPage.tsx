@@ -183,7 +183,7 @@ export const QuizzesPage: React.FC = () => {
             {t('nav.quizzes')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage quizzes and assessments for courses
+            إدارة الاختبارات والتقييمات للمقررات
           </p>
         </div>
         <Button
@@ -191,7 +191,7 @@ export const QuizzesPage: React.FC = () => {
           icon={Plus}
           onClick={handleCreateQuiz}
         >
-          Add Quiz
+          إضافة اختبار
         </Button>
       </div>
 

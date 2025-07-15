@@ -264,6 +264,7 @@ export const GpaCalculatorPage: React.FC = () => {
         <SemesterGPATab
           subjects={semesterSubjects}
           gpaSubjects={gpaSubjects}
+          levels={levels}
           result={semesterResult}
           onAddSubject={addSemesterSubject}
           onUpdateSubject={updateSemesterSubject}
@@ -277,6 +278,7 @@ export const GpaCalculatorPage: React.FC = () => {
         <CumulativeGPATab
           subjects={cumulativeSubjects}
           gpaSubjects={gpaSubjects}
+          levels={levels}
           previousGPA={previousGPA}
           previousHours={previousHours}
           result={cumulativeResult}
@@ -350,13 +352,14 @@ export const GpaCalculatorPage: React.FC = () => {
 const SemesterGPATab: React.FC<{
   subjects: SubjectGrade[];
   gpaSubjects: any[];
+  levels: Level[];
   result: number | null;
   onAddSubject: () => void;
   onUpdateSubject: (id: string, field: keyof SubjectGrade, value: any) => void;
   onRemoveSubject: (id: string) => void;
   onCalculate: () => void;
   t: any;
-}> = ({ subjects, gpaSubjects, result, onAddSubject, onUpdateSubject, onRemoveSubject, onCalculate, t }) => {
+}> = ({ subjects, gpaSubjects, levels, result, onAddSubject, onUpdateSubject, onRemoveSubject, onCalculate, t }) => {
   return (
     <div className="space-y-6">
       <Card>
@@ -376,6 +379,25 @@ const SemesterGPATab: React.FC<{
               <div key={subject.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    السنة الدراسية
+                  </label>
+                  <select
+                    value={subject.yearName}
+                    onChange={(e) => onUpdateSubject(subject.id, 'yearName', e.target.value)}
+                    disabled={!!subject.gpaSubjectId}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-student-500 dark:bg-gray-800 dark:text-white"
+                  >
+                    <option value="">اختر السنة الدراسية</option>
+                    {levels.map((level) => (
+                      <option key={level.id} value={level.name}>
+                        {level.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     المادة
                   </label>
                   <select
@@ -384,25 +406,12 @@ const SemesterGPATab: React.FC<{
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-student-500 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="">اختر المادة</option>
-                    {gpaSubjects.map((gpaSubject) => (
+                    {(subject.yearName ? gpaSubjects.filter(s => s.yearName === subject.yearName) : gpaSubjects).map((gpaSubject: any) => (
                       <option key={gpaSubject.id} value={gpaSubject.id}>
-                        {gpaSubject.subjectName} - {gpaSubject.yearName}
+                        {gpaSubject.subjectName}
                       </option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    السنة
-                  </label>
-                  <Input
-                    type="text"
-                    value={subject.yearName}
-                    onChange={(e) => onUpdateSubject(subject.id, 'yearName', e.target.value)}
-                    placeholder="مثال: السنة الأولى"
-                    disabled={!!subject.gpaSubjectId}
-                  />
                 </div>
 
                 <div>
@@ -490,6 +499,7 @@ const SemesterGPATab: React.FC<{
 const CumulativeGPATab: React.FC<{
   subjects: SubjectGrade[];
   gpaSubjects: any[];
+  levels: Level[];
   previousGPA: number;
   previousHours: number;
   result: number | null;
@@ -503,6 +513,7 @@ const CumulativeGPATab: React.FC<{
 }> = ({ 
   subjects, 
   gpaSubjects, 
+  levels,
   previousGPA, 
   previousHours, 
   result, 
@@ -572,6 +583,25 @@ const CumulativeGPATab: React.FC<{
               <div key={subject.id} className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    السنة الدراسية
+                  </label>
+                  <select
+                    value={subject.yearName}
+                    onChange={(e) => onUpdateSubject(subject.id, 'yearName', e.target.value)}
+                    disabled={!!subject.gpaSubjectId}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-student-500 dark:bg-gray-800 dark:text-white"
+                  >
+                    <option value="">اختر السنة الدراسية</option>
+                    {levels.map((level) => (
+                      <option key={level.id} value={level.name}>
+                        {level.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     المادة
                   </label>
                   <select
@@ -580,25 +610,12 @@ const CumulativeGPATab: React.FC<{
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-student-500 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="">اختر المادة</option>
-                    {gpaSubjects.map((gpaSubject) => (
+                    {(subject.yearName ? gpaSubjects.filter(s => s.yearName === subject.yearName) : gpaSubjects).map((gpaSubject: any) => (
                       <option key={gpaSubject.id} value={gpaSubject.id}>
-                        {gpaSubject.subjectName} - {gpaSubject.yearName}
+                        {gpaSubject.subjectName}
                       </option>
                     ))}
                   </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    السنة
-                  </label>
-                  <Input
-                    type="text"
-                    value={subject.yearName}
-                    onChange={(e) => onUpdateSubject(subject.id, 'yearName', e.target.value)}
-                    placeholder="مثال: السنة الأولى"
-                    disabled={!!subject.gpaSubjectId}
-                  />
                 </div>
 
                 <div>
