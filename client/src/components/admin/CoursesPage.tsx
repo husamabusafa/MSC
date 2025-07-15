@@ -227,7 +227,7 @@ export const CoursesPage: React.FC = () => {
             {t('nav.courses')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage courses and their content
+            {t('academic.managementDescription')}
           </p>
         </div>
         <Button

@@ -32,7 +32,8 @@ export const AdminQuizEditPage: React.FC<AdminQuizEditPageProps> = ({ quizId }) 
     courseId: '',
     isVisible: true,
     hasDuration: false,
-    durationMinutes: 30
+    durationMinutes: 30,
+    showAnswersImmediately: false
   });
 
   // GraphQL queries and mutations
@@ -72,7 +73,8 @@ export const AdminQuizEditPage: React.FC<AdminQuizEditPageProps> = ({ quizId }) 
         courseId: quiz.courseId,
         isVisible: quiz.isVisible,
         hasDuration: quiz.hasDuration || false,
-        durationMinutes: quiz.durationMinutes || 30
+        durationMinutes: quiz.durationMinutes || 30,
+        showAnswersImmediately: quiz.showAnswersImmediately || false
       });
       
       // Find the level for this course
@@ -102,7 +104,8 @@ export const AdminQuizEditPage: React.FC<AdminQuizEditPageProps> = ({ quizId }) 
       courseId: formData.courseId,
       isVisible: formData.isVisible,
       hasDuration: formData.hasDuration,
-      durationMinutes: formData.hasDuration ? formData.durationMinutes : undefined
+      durationMinutes: formData.hasDuration ? formData.durationMinutes : undefined,
+      showAnswersImmediately: formData.showAnswersImmediately
     };
 
     await updateQuiz({
@@ -311,6 +314,36 @@ export const AdminQuizEditPage: React.FC<AdminQuizEditPageProps> = ({ quizId }) 
                 {formData.hasDuration 
                   ? `سيكون للطلاب ${formData.durationMinutes} دقيقة لإكمال الاختبار`
                   : 'لا يوجد حد زمني للاختبار'
+                }
+              </p>
+            </div>
+          </div>
+
+          {/* Answer Display Settings */}
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              إعدادات عرض الإجابات
+            </h3>
+            
+            <div className="space-y-4">
+              {/* Show Answers Immediately */}
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <input
+                  type="checkbox"
+                  id="showAnswersImmediately"
+                  checked={formData.showAnswersImmediately}
+                  onChange={(e) => setFormData({ ...formData, showAnswersImmediately: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="showAnswersImmediately" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  عرض الإجابة الصحيحة فور اختيار الإجابة
+                </label>
+              </div>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {formData.showAnswersImmediately 
+                  ? 'سيتم عرض الإجابة الصحيحة للطلاب فور اختيار إجابة'
+                  : 'سيتم عرض الإجابات الصحيحة للطلاب بعد إكمال الاختبار فقط'
                 }
               </p>
             </div>

@@ -85,7 +85,7 @@ export const ProductCategoriesPage: React.FC = () => {
     }
   });
 
-  const categories = data?.productCategories || [];
+  const categories = data?.productCategories?.categories || [];
 
   const handleCreateCategory = () => {
     setSelectedCategory(null);

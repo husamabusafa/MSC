@@ -96,6 +96,27 @@ export const GET_COURSES = gql`
         description
         order
       }
+      quizzes {
+        id
+        title
+        description
+        isVisible
+        hasDuration
+        durationMinutes
+        showAnswersImmediately
+        questions {
+          id
+        }
+      }
+      flashcardDecks {
+        id
+        name
+        description
+        isVisible
+        cards {
+          id
+        }
+      }
     }
   }
 `;
@@ -328,6 +349,7 @@ export const GET_QUIZZES = gql`
       isVisible
       hasDuration
       durationMinutes
+      showAnswersImmediately
       createdAt
       updatedAt
       course {
@@ -366,6 +388,7 @@ export const GET_QUIZ = gql`
       isVisible
       hasDuration
       durationMinutes
+      showAnswersImmediately
       createdAt
       updatedAt
       course {
@@ -404,6 +427,7 @@ export const GET_QUIZZES_BY_COURSE = gql`
       isVisible
       hasDuration
       durationMinutes
+      showAnswersImmediately
       createdAt
       updatedAt
       questions {
@@ -434,6 +458,7 @@ export const CREATE_QUIZ = gql`
       isVisible
       hasDuration
       durationMinutes
+      showAnswersImmediately
       createdAt
       updatedAt
     }
@@ -450,6 +475,7 @@ export const UPDATE_QUIZ = gql`
       isVisible
       hasDuration
       durationMinutes
+      showAnswersImmediately
       createdAt
       updatedAt
     }
@@ -465,6 +491,55 @@ export const DELETE_QUIZ = gql`
 export const DELETE_QUIZ_QUESTION = gql`
   mutation DeleteQuizQuestion($id: ID!) {
     deleteQuizQuestion(id: $id)
+  }
+`;
+
+// =============== QUIZ ATTEMPT MUTATIONS ===============
+export const CREATE_QUIZ_ATTEMPT = gql`
+  mutation CreateQuizAttempt($createQuizAttemptInput: CreateQuizAttemptInput!) {
+    createQuizAttempt(createQuizAttemptInput: $createQuizAttemptInput) {
+      id
+      quizId
+      studentId
+      score
+      totalQuestions
+      completedAt
+    }
+  }
+`;
+
+export const GET_MY_QUIZ_ATTEMPTS = gql`
+  query GetMyQuizAttempts {
+    myQuizAttempts {
+      id
+      quizId
+      studentId
+      score
+      totalQuestions
+      completedAt
+      quiz {
+        id
+        title
+        description
+        course {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const GET_QUIZ_ATTEMPTS = gql`
+  query GetQuizAttempts($quizId: ID!) {
+    quizAttempts(quizId: $quizId) {
+      id
+      quizId
+      studentId
+      score
+      totalQuestions
+      completedAt
+    }
   }
 `;
 
@@ -645,6 +720,7 @@ export interface Quiz {
   isVisible: boolean;
   hasDuration?: boolean;
   durationMinutes?: number;
+  showAnswersImmediately?: boolean;
   createdAt: string;
   updatedAt: string;
   course?: Course;
@@ -658,6 +734,7 @@ export interface CreateQuizInput {
   isVisible?: boolean;
   hasDuration?: boolean;
   durationMinutes?: number;
+  showAnswersImmediately?: boolean;
   questions?: CreateQuestionInput[];
 }
 
@@ -668,6 +745,27 @@ export interface UpdateQuizInput {
   isVisible?: boolean;
   hasDuration?: boolean;
   durationMinutes?: number;
+  showAnswersImmediately?: boolean;
+}
+
+export interface CreateQuizAttemptInput {
+  quizId: string;
+  answers: QuizAnswerInput[];
+}
+
+export interface QuizAnswerInput {
+  questionId: string;
+  answerId: string;
+}
+
+export interface QuizAttempt {
+  id: string;
+  quizId: string;
+  studentId: string;
+  score: number;
+  totalQuestions: number;
+  completedAt: string;
+  quiz?: Quiz;
 }
 
 export interface CreateQuestionInput {

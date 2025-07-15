@@ -360,6 +360,7 @@ export class AcademicService {
         isVisible: createQuizInput.isVisible ?? true,
         hasDuration: createQuizInput.hasDuration ?? false,
         durationMinutes: createQuizInput.durationMinutes,
+        showAnswersImmediately: createQuizInput.showAnswersImmediately ?? false,
         questions: createQuizInput.questions ? {
           create: createQuizInput.questions.map(question => ({
             text: question.text,
@@ -481,6 +482,95 @@ export class AcademicService {
     }
 
     return this.prisma.quiz.delete({ where: { id } });
+  }
+
+  // =============== QUIZ ATTEMPT OPERATIONS ===============
+  async createQuizAttempt(quizId: string, studentId: string, answers: { questionId: string; answerId: string }[]) {
+    // Get the quiz with questions and answers
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: {
+        questions: {
+          include: {
+            answers: true,
+          },
+        },
+      },
+    });
+
+    if (!quiz) {
+      throw new NotFoundException(`Quiz with ID ${quizId} not found`);
+    }
+
+    // Calculate score
+    let score = 0;
+    const totalQuestions = quiz.questions.length;
+    
+    const quizAnswers = answers.map(answer => {
+      const question = quiz.questions.find(q => q.id === answer.questionId);
+      const selectedAnswer = question?.answers.find(a => a.id === answer.answerId);
+      const isCorrect = selectedAnswer?.isCorrect || false;
+      
+      if (isCorrect) {
+        score++;
+      }
+      
+      return {
+        questionId: answer.questionId,
+        answerId: answer.answerId,
+        isCorrect,
+      };
+    });
+
+    // Create the quiz attempt
+    const quizAttempt = await this.prisma.quizAttempt.create({
+      data: {
+        quizId,
+        studentId,
+        score,
+        totalQuestions,
+        answers: {
+          create: quizAnswers,
+        },
+      },
+      include: {
+        quiz: {
+          include: {
+            course: true,
+          },
+        },
+        student: true,
+        answers: true,
+      },
+    });
+
+    return quizAttempt;
+  }
+
+  async getQuizAttemptsByStudent(studentId: string) {
+    return this.prisma.quizAttempt.findMany({
+      where: { studentId },
+      orderBy: { completedAt: 'desc' },
+      include: {
+        quiz: {
+          include: {
+            course: true,
+          },
+        },
+        answers: true,
+      },
+    });
+  }
+
+  async getQuizAttemptsByQuiz(quizId: string) {
+    return this.prisma.quizAttempt.findMany({
+      where: { quizId },
+      orderBy: { completedAt: 'desc' },
+      include: {
+        student: true,
+        answers: true,
+      },
+    });
   }
 
   // =============== GPA SUBJECT OPERATIONS ===============

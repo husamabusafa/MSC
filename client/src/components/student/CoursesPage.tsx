@@ -36,15 +36,18 @@ export const CoursesPage: React.FC = () => {
     return matchesSearch && matchesLevel && course.isVisible;
   });
 
-  // For now, we'll show placeholder counts since we don't have quiz/flashcard counts in the course query
+  // Get quiz and flashcard counts from the course data
   const getQuizCount = (courseId: string) => {
-    // This would need to be implemented with a separate query or included in the course query
-    return 0;
+    const course = courses.find((c: any) => c.id === courseId);
+    return course?.quizzes?.filter((quiz: any) => quiz.isVisible).length || 0;
   };
 
   const getFlashcardCount = (courseId: string) => {
-    // This would need to be implemented with a separate query or included in the course query
-    return 0;
+    const course = courses.find((c: any) => c.id === courseId);
+    return course?.flashcardDecks?.filter((deck: any) => deck.isVisible)
+      .reduce((total: number, deck: any) => {
+        return total + (deck.cards?.length || 0);
+      }, 0) || 0;
   };
 
   if (coursesLoading || levelsLoading) {
@@ -145,7 +148,10 @@ export const CoursesPage: React.FC = () => {
                     size="sm"
                     colorScheme="student"
                     icon={Play}
-                    onClick={() => window.location.href = `/student/quiz/${course.id}`}
+                    onClick={() => {
+                      window.history.pushState({}, '', `/student/quiz/${course.id}`);
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className="flex-1"
                   >
                     {t('academic.takeQuiz')}
@@ -157,7 +163,10 @@ export const CoursesPage: React.FC = () => {
                     size="sm"
                     colorScheme="student"
                     icon={FileText}
-                    onClick={() => window.location.href = `/student/flashcards/${course.id}`}
+                    onClick={() => {
+                      window.history.pushState({}, '', `/student/flashcards/${course.id}`);
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className="flex-1"
                   >
                     {t('academic.viewFlashcards')}

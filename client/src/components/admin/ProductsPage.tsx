@@ -232,7 +232,7 @@ export const ProductsPage: React.FC = () => {
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <DollarSign className="w-4 h-4 text-green-500" />
           <span className="font-semibold text-green-600 dark:text-green-400">
-            ${product.price.toFixed(2)}
+            {product.price.toFixed(2)} د.أ
           </span>
         </div>
       )

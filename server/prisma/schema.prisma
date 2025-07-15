@@ -108,6 +108,7 @@ model Quiz {
   isVisible       Boolean  @default(true)
   hasDuration     Boolean  @default(false)
   durationMinutes Int?
+  showAnswersImmediately Boolean @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

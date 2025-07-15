@@ -63,6 +63,7 @@ export interface Quiz {
   isVisible: boolean;
   hasDuration?: boolean;
   durationMinutes?: number;
+  showAnswersImmediately?: boolean;
   createdAt: string;
 }
 

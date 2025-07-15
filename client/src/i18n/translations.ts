@@ -71,6 +71,8 @@ export const translations = {
       // Form elements
       title: 'Title',
       author: 'Author',
+      isbn: 'ISBN',
+      book: 'Book',
       cards: 'Cards',
       questions: 'Questions',
       questionText: 'Question Text',
@@ -234,7 +236,9 @@ export const translations = {
       noQuizzesDescription: 'There are no quizzes available for this course yet.',
       flashcardsTitle: 'Flashcards',
       quizzesTitle: 'Quizzes',
-      quizzes: 'Quizzes'
+      quizzes: 'Quizzes',
+      managementDescription: 'Manage courses and their content',
+      addCourse: 'Add Course'
     },
     
     // GPA Subjects
@@ -329,6 +333,79 @@ export const translations = {
       removeFromCart: 'Remove from cart',
       cartEmpty: 'Your cart is empty',
       continueShoppingMsg: 'Continue shopping to add items to your cart.'
+    },
+    
+    // Orders
+    orders: {
+      managementDescription: 'Monitor and manage product orders from students',
+      viewOrder: 'View Order',
+      orderUpdated: 'Order updated successfully',
+      orderDetails: 'Order Details',
+      customerInfo: 'Customer Information',
+      orderSummary: 'Order Summary',
+      orderItems: 'Order Items',
+      adminNotes: 'Admin Notes',
+      adminNotesPlaceholder: 'Enter admin notes for this order...',
+      markCompleted: 'Mark as Completed',
+      markCancelled: 'Mark as Cancelled',
+      noOrdersFound: 'No orders found',
+      items: 'Items',
+      total: 'Total',
+      quantity: 'Quantity',
+      each: 'each',
+      allStatuses: 'All Statuses',
+      PENDING: 'Pending',
+      COMPLETED: 'Completed',
+      CANCELLED: 'Cancelled',
+      pending: 'Pending',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      // Column headers
+      id: 'Order ID',
+      student: 'Student',
+      totalAmount: 'Total Amount',
+      createdAt: 'Order Date',
+      // Filter options
+      filterByStatus: 'Filter by Status',
+      filterByDate: 'Filter by Date',
+      filterByAmount: 'Filter by Amount',
+      applyFilters: 'Apply Filters',
+      clearFilters: 'Clear Filters'
+    },
+
+    // Book Orders
+    bookOrders: {
+      managementDescription: 'Monitor and manage book orders from students',
+      viewOrder: 'View Order',
+      orderUpdated: 'Book order updated successfully',
+      orderDetails: 'Order Details',
+      orderInfo: 'Order Information',
+      bookDetails: 'Book Details',
+      studentNotes: 'Student Notes',
+      adminNotes: 'Admin Notes',
+      adminNotesPlaceholder: 'Enter admin notes for this order...',
+      approve: 'Approve',
+      cancel: 'Cancel',
+      noOrdersFound: 'No book orders found',
+      allStatuses: 'All Statuses',
+      PENDING: 'Pending',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+      CANCELLED: 'Cancelled',
+      pending: 'Pending',
+      approved: 'Approved',
+      rejected: 'Rejected',
+      cancelled: 'Cancelled',
+      // Column headers
+      id: 'Order ID',
+      student: 'Student',
+      book: 'Book',
+      createdAt: 'Order Date',
+      // Filter options
+      filterByStatus: 'Filter by Status',
+      filterByDate: 'Filter by Date',
+      applyFilters: 'Apply Filters',
+      clearFilters: 'Clear Filters'
     },
     
     // User Management
@@ -526,6 +603,8 @@ export const translations = {
       // Form elements
       title: 'العنوان',
       author: 'المؤلف',
+      isbn: 'الرقم المعياري',
+      book: 'الكتاب',
       cards: 'البطاقات',
       questions: 'الأسئلة',
       questionText: 'نص السؤال',
@@ -698,7 +777,9 @@ export const translations = {
       questionImage: 'صورة السؤال',
       answers: 'الإجابات',
       correctAnswer: 'الإجابة الصحيحة',
-      explanationImage: 'صورة توضيحية'
+      explanationImage: 'صورة توضيحية',
+      managementDescription: 'إدارة المقررات ومحتوياتها',
+      addCourse: 'إضافة مقرر'
     },
     
     // GPA Subjects
@@ -793,6 +874,79 @@ export const translations = {
       removeFromCart: 'إزالة من السلة',
       cartEmpty: 'السلة فارغة',
       continueShoppingMsg: 'تابع التسوق لإضافة عناصر للسلة.'
+    },
+    
+    // Orders
+    orders: {
+      managementDescription: 'مراقبة وإدارة طلبات المنتجات من الطلاب',
+      viewOrder: 'عرض الطلب',
+      orderUpdated: 'تم تحديث الطلب بنجاح',
+      orderDetails: 'تفاصيل الطلب',
+      customerInfo: 'معلومات العميل',
+      orderSummary: 'ملخص الطلب',
+      orderItems: 'عناصر الطلب',
+      adminNotes: 'ملاحظات الإدارة',
+      adminNotesPlaceholder: 'أدخل ملاحظات الإدارة لهذا الطلب...',
+      markCompleted: 'تحديد كمكتمل',
+      markCancelled: 'تحديد كملغي',
+      noOrdersFound: 'لا توجد طلبات',
+      items: 'عناصر',
+      total: 'الإجمالي',
+      quantity: 'الكمية',
+      each: 'للواحد',
+      allStatuses: 'جميع الحالات',
+      PENDING: 'معلق',
+      COMPLETED: 'مكتمل',
+      CANCELLED: 'ملغي',
+      pending: 'معلق',
+      completed: 'مكتمل',
+      cancelled: 'ملغي',
+      // Column headers
+      id: 'رقم الطلب',
+      student: 'الطالب',
+      totalAmount: 'المبلغ الإجمالي',
+      createdAt: 'تاريخ الطلب',
+      // Filter options
+      filterByStatus: 'تصفية حسب الحالة',
+      filterByDate: 'تصفية حسب التاريخ',
+      filterByAmount: 'تصفية حسب المبلغ',
+      applyFilters: 'تطبيق المرشحات',
+      clearFilters: 'مسح المرشحات'
+    },
+
+    // Book Orders
+    bookOrders: {
+      managementDescription: 'مراقبة وإدارة طلبات الكتب من الطلاب',
+      viewOrder: 'عرض الطلب',
+      orderUpdated: 'تم تحديث طلب الكتاب بنجاح',
+      orderDetails: 'تفاصيل الطلب',
+      orderInfo: 'معلومات الطلب',
+      bookDetails: 'تفاصيل الكتاب',
+      studentNotes: 'ملاحظات الطالب',
+      adminNotes: 'ملاحظات الإدارة',
+      adminNotesPlaceholder: 'أدخل ملاحظات الإدارة لهذا الطلب...',
+      approve: 'موافقة',
+      cancel: 'إلغاء',
+      noOrdersFound: 'لا توجد طلبات كتب',
+      allStatuses: 'جميع الحالات',
+      PENDING: 'معلق',
+      APPROVED: 'موافق عليه',
+      REJECTED: 'مرفوض',
+      CANCELLED: 'ملغي',
+      pending: 'معلق',
+      approved: 'موافق عليه',
+      rejected: 'مرفوض',
+      cancelled: 'ملغي',
+      // Column headers
+      id: 'رقم الطلب',
+      student: 'الطالب',
+      book: 'الكتاب',
+      createdAt: 'تاريخ الطلب',
+      // Filter options
+      filterByStatus: 'تصفية حسب الحالة',
+      filterByDate: 'تصفية حسب التاريخ',
+      applyFilters: 'تطبيق المرشحات',
+      clearFilters: 'مسح المرشحات'
     },
     
     // User Management

@@ -14,7 +14,9 @@ import {
   User,
   BookOpen,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  Filter,
+  FilterX
 } from 'lucide-react';
 import { 
   GET_BOOK_ORDERS,
@@ -26,14 +28,26 @@ import {
 
 export const BookOrdersPage: React.FC = () => {
   const { t } = useI18n();
-  const [statusFilter, setStatusFilter] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<BookOrder | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState<{
+    status: string;
+    search: string;
+  }>({
+    status: '',
+    search: ''
+  });
 
   // GraphQL queries and mutations
   const { data, loading, error, refetch } = useQuery(GET_BOOK_ORDERS, {
-    variables: { filters: statusFilter ? { status: statusFilter } : {} },
+    variables: { 
+      filters: {
+        ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search })
+      }
+    },
     fetchPolicy: 'cache-and-network'
   });
 
@@ -56,7 +70,7 @@ export const BookOrdersPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleUpdateStatus = async (status: 'APPROVED' | 'CANCELLED') => {
+  const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED') => {
     if (!selectedOrder) return;
     
     const updateInput: UpdateBookOrderInput = {
@@ -72,13 +86,30 @@ export const BookOrdersPage: React.FC = () => {
     });
   };
 
+  const handleApplyFilters = () => {
+    setIsFilterModalOpen(false);
+    refetch();
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      status: '',
+      search: ''
+    });
+    setIsFilterModalOpen(false);
+    refetch();
+  };
+
+  const getActiveFilterCount = () => {
+    return Object.values(filters).filter(value => value && value.length > 0).length;
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'PENDING':
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'APPROVED':
         return <Check className="w-4 h-4 text-green-500" />;
-      case 'CANCELLED':
       case 'REJECTED':
         return <X className="w-4 h-4 text-red-500" />;
       default:
@@ -92,7 +123,6 @@ export const BookOrdersPage: React.FC = () => {
         return 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200';
       case 'APPROVED':
         return 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200';
-      case 'CANCELLED':
       case 'REJECTED':
         return 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200';
       default:
@@ -103,7 +133,7 @@ export const BookOrdersPage: React.FC = () => {
   const columns = [
     {
       key: 'id',
-      label: t('common.id'),
+      label: t('bookOrders.id'),
       sortable: true,
       render: (order: BookOrder) => (
         <span className="font-mono text-sm text-gray-900 dark:text-white">
@@ -113,7 +143,7 @@ export const BookOrdersPage: React.FC = () => {
     },
     {
       key: 'student',
-      label: t('common.student'),
+      label: t('bookOrders.student'),
       sortable: true,
       render: (order: BookOrder) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -124,7 +154,7 @@ export const BookOrdersPage: React.FC = () => {
     },
     {
       key: 'book',
-      label: t('common.book'),
+      label: t('bookOrders.book'),
       sortable: true,
       render: (order: BookOrder) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -153,7 +183,7 @@ export const BookOrdersPage: React.FC = () => {
     },
     {
       key: 'createdAt',
-      label: t('common.createdAt'),
+      label: t('bookOrders.createdAt'),
       sortable: true,
       render: (order: BookOrder) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -185,18 +215,31 @@ export const BookOrdersPage: React.FC = () => {
 
       {/* Filters */}
       <Card padding="sm">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            <Button
+              variant="outline"
+              icon={Filter}
+              onClick={() => setIsFilterModalOpen(true)}
+              className="relative"
             >
-              <option value="">{t('bookOrders.allStatuses')}</option>
-              <option value="pending">{t('bookOrders.pending')}</option>
-              <option value="approved">{t('bookOrders.approved')}</option>
-              <option value="cancelled">{t('bookOrders.cancelled')}</option>
-            </select>
+              {t('common.filter')}
+              {getActiveFilterCount() > 0 && (
+                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {getActiveFilterCount()}
+                </span>
+              )}
+            </Button>
+            {getActiveFilterCount() > 0 && (
+              <Button
+                variant="outline"
+                icon={FilterX}
+                onClick={handleClearFilters}
+                size="sm"
+              >
+                {t('bookOrders.clearFilters')}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
@@ -261,9 +304,6 @@ export const BookOrdersPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400">
                     <strong>{t('common.author')}:</strong> {selectedOrder.book?.author}
                   </p>
-                                     <p className="text-gray-600 dark:text-gray-400">
-                     <strong>{t('common.isbn')}:</strong> {selectedOrder.book?.isbn}
-                   </p>
                 </div>
               </div>
             </div>
@@ -309,7 +349,7 @@ export const BookOrdersPage: React.FC = () => {
                  </Button>
                  <Button
                    variant="danger"
-                   onClick={() => handleUpdateStatus('CANCELLED')}
+                   onClick={() => handleUpdateStatus('REJECTED')}
                    className="flex-1"
                  >
                    {t('bookOrders.cancel')}
@@ -318,6 +358,62 @@ export const BookOrdersPage: React.FC = () => {
              )}
           </div>
         )}
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        title={t('common.filter')}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('bookOrders.filterByStatus')}
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">{t('bookOrders.allStatuses')}</option>
+              <option value="PENDING">{t('bookOrders.PENDING')}</option>
+              <option value="APPROVED">{t('bookOrders.APPROVED')}</option>
+              <option value="REJECTED">{t('bookOrders.CANCELLED')}</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('common.search')}
+            </label>
+            <input
+              type="text"
+              value={filters.search}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder={t('common.search')}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              variant="primary"
+              onClick={handleApplyFilters}
+              className="flex-1"
+            >
+              {t('bookOrders.applyFilters')}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              className="flex-1"
+            >
+              {t('bookOrders.clearFilters')}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

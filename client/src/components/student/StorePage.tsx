@@ -164,7 +164,7 @@ export const StorePage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    ${product.price}
+                    {product.price} د.أ
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {product.category?.name}
@@ -250,7 +250,7 @@ export const StorePage: React.FC = () => {
                         {product.name}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        ${product.price} each
+                        {product.price} د.أ each
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ export const StorePage: React.FC = () => {
                     </div>
                     <div className="text-right ml-4">
                       <p className="font-medium text-gray-900 dark:text-white">
-                        ${(product.price * quantity).toFixed(2)}
+                        {(product.price * quantity).toFixed(2)} د.أ
                       </p>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export const StorePage: React.FC = () => {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Total: ${getCartTotal().toFixed(2)}
+                    Total: {getCartTotal().toFixed(2)} د.أ
                   </span>
                 </div>
                 

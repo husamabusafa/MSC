@@ -9,13 +9,14 @@ import {
   Timer, 
   Target,
   Award,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react';
 import { Quiz } from '../../types';
 
 interface QuizTakerProps {
   quiz: Quiz;
-  onComplete: (score: number, totalQuestions: number) => void;
+  onComplete: (score: number, totalQuestions: number, answers: { [questionId: string]: string }) => void;
   onExit: () => void;
 }
 
@@ -26,6 +27,7 @@ interface QuizState {
   score: number;
   showResults: boolean;
   timeElapsed: number;
+  revealedAnswers: { [questionId: string]: boolean };
 }
 
 export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }) => {
@@ -35,7 +37,8 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
     isCompleted: false,
     score: 0,
     showResults: false,
-    timeElapsed: 0
+    timeElapsed: 0,
+    revealedAnswers: {}
   });
 
   const [showExitModal, setShowExitModal] = useState(false);
@@ -77,7 +80,11 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
       answers: {
         ...prev.answers,
         [currentQuestion.id]: answerId
-      }
+      },
+      revealedAnswers: quiz.showAnswersImmediately ? {
+        ...prev.revealedAnswers,
+        [currentQuestion.id]: true
+      } : prev.revealedAnswers
     }));
   };
 
@@ -109,7 +116,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
       score,
       showResults: true
     }));
-    onComplete(score, totalQuestions);
+    onComplete(score, totalQuestions, quizState.answers);
   };
 
   const calculateScore = () => {
@@ -155,7 +162,8 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
       isCompleted: false,
       score: 0,
       showResults: false,
-      timeElapsed: 0
+      timeElapsed: 0,
+      revealedAnswers: {}
     });
   };
 
@@ -207,6 +215,69 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
           <p className={`text-lg font-medium mb-6 ${scoreMessage.color}`}>
             {scoreMessage.message}
           </p>
+          
+          {/* Question Review */}
+          <div className="text-left mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Question Review
+            </h3>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {quiz.questions.map((question, index) => {
+                const userAnswer = quizState.answers[question.id];
+                const correctAnswer = question.answers.find(answer => answer.isCorrect);
+                const isCorrect = userAnswer === correctAnswer?.id;
+                
+                return (
+                  <div key={question.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                        isCorrect
+                          ? 'bg-green-500 text-white'
+                          : 'bg-red-500 text-white'
+                      }`}>
+                        {isCorrect ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                          {index + 1}. {question.text}
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-600 dark:text-gray-400">Your answer:</span>
+                            <span className={`font-medium ${
+                              isCorrect
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {question.answers.find(a => a.id === userAnswer)?.text || 'No answer'}
+                            </span>
+                          </div>
+                          {!isCorrect && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600 dark:text-gray-400">Correct answer:</span>
+                              <span className="font-medium text-green-600 dark:text-green-400">
+                                {correctAnswer?.text}
+                              </span>
+                            </div>
+                          )}
+                          {question.explanation && (
+                            <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Explanation: </span>
+                              <span className="text-gray-600 dark:text-gray-400">{question.explanation}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
           
           <div className="flex gap-4 justify-center">
             <Button
@@ -297,33 +368,92 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
         
         {/* Answers */}
         <div className="space-y-3">
-          {currentQuestion.answers.map((answer, index) => (
-            <button
-              key={answer.id}
-              onClick={() => handleAnswerSelect(answer.id)}
-              className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${
-                selectedAnswer === answer.id
-                  ? 'border-student-500 bg-student-50 dark:bg-student-900/20'
-                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                  selectedAnswer === answer.id
-                    ? 'border-student-500 bg-student-500'
-                    : 'border-gray-300 dark:border-gray-600'
-                }`}>
-                  {selectedAnswer === answer.id && (
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  )}
+          {currentQuestion.answers.map((answer, index) => {
+            const isSelected = selectedAnswer === answer.id;
+            const isRevealed = quizState.revealedAnswers[currentQuestion.id];
+            const isCorrect = answer.isCorrect;
+            
+            let buttonClass = '';
+            if (isRevealed) {
+              if (isCorrect) {
+                buttonClass = 'border-green-500 bg-green-50 dark:bg-green-900/20';
+              } else if (isSelected && !isCorrect) {
+                buttonClass = 'border-red-500 bg-red-50 dark:bg-red-900/20';
+              } else {
+                buttonClass = 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800';
+              }
+            } else {
+              buttonClass = isSelected
+                ? 'border-student-500 bg-student-50 dark:bg-student-900/20'
+                : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500';
+            }
+            
+            return (
+              <button
+                key={answer.id}
+                onClick={() => handleAnswerSelect(answer.id)}
+                disabled={isRevealed}
+                className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${buttonClass} ${
+                  isRevealed ? 'cursor-default' : 'cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    isRevealed
+                      ? isCorrect
+                        ? 'border-green-500 bg-green-500'
+                        : isSelected
+                        ? 'border-red-500 bg-red-500'
+                        : 'border-gray-300 dark:border-gray-600'
+                      : isSelected
+                      ? 'border-student-500 bg-student-500'
+                      : 'border-gray-300 dark:border-gray-600'
+                  }`}>
+                    {isRevealed && isCorrect && (
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    )}
+                    {isRevealed && isSelected && !isCorrect && (
+                      <X className="w-4 h-4 text-white" />
+                    )}
+                    {!isRevealed && isSelected && (
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    )}
+                  </div>
+                  <span className={`flex-1 ${
+                    isRevealed && isCorrect
+                      ? 'text-green-700 dark:text-green-300 font-semibold'
+                      : isRevealed && isSelected && !isCorrect
+                      ? 'text-red-700 dark:text-red-300'
+                      : 'text-gray-900 dark:text-white'
+                  }`}>
+                    {String.fromCharCode(65 + index)}. {answer.text}
+                  </span>
                 </div>
-                <span className="text-gray-900 dark:text-white">
-                  {String.fromCharCode(65 + index)}. {answer.text}
-                </span>
-              </div>
-            </button>
-          ))}
+              </button>
+                         );
+           })}
         </div>
+        
+        {/* Explanation */}
+        {quizState.revealedAnswers[currentQuestion.id] && currentQuestion.explanation && (
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
+              Explanation:
+            </h4>
+            <p className="text-blue-700 dark:text-blue-200 text-sm">
+              {currentQuestion.explanation}
+            </p>
+            {currentQuestion.explanationImage && (
+              <div className="mt-3">
+                <img
+                  src={currentQuestion.explanationImage}
+                  alt="Explanation illustration"
+                  className="max-w-full h-auto rounded-lg shadow-sm"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Navigation */}

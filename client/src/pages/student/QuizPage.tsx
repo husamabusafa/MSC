@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { QuizTaker } from '../../components/student/QuizTaker';
 import { useI18n } from '../../contexts/I18nContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { GET_QUIZZES_BY_COURSE } from '../../lib/graphql/academic';
+import { GET_QUIZZES_BY_COURSE, CREATE_QUIZ_ATTEMPT, CreateQuizAttemptInput } from '../../lib/graphql/academic';
 import { Quiz } from '../../types';
 import { ArrowLeft, Play, Target, AlertCircle, Clock } from 'lucide-react';
 
@@ -15,11 +16,21 @@ interface QuizPageProps {
 
 export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
   const { t } = useI18n();
+  const { showNotification } = useNotification();
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   
   const { data, loading, error } = useQuery(GET_QUIZZES_BY_COURSE, {
     variables: { courseId },
     skip: !courseId
+  });
+
+  const [createQuizAttempt] = useMutation(CREATE_QUIZ_ATTEMPT, {
+    onCompleted: () => {
+      showNotification('success', 'Quiz completed successfully!');
+    },
+    onError: (error) => {
+      showNotification('error', `Error submitting quiz: ${error.message}`);
+    }
   });
 
   const availableQuizzes = data?.quizzesByCourse?.filter((quiz: Quiz) => quiz.isVisible) || [];
@@ -28,9 +39,28 @@ export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
     setSelectedQuiz(null);
   };
 
-  const handleQuizComplete = (score: number, totalQuestions: number) => {
-    // Handle quiz completion - could save to backend or show results
-    console.log(`Quiz completed: ${score}/${totalQuestions}`);
+  const handleQuizComplete = async (score: number, totalQuestions: number, answers: { [questionId: string]: string }) => {
+    if (!selectedQuiz) return;
+
+    try {
+      const quizAnswers = Object.entries(answers).map(([questionId, answerId]) => ({
+        questionId,
+        answerId
+      }));
+
+      const createQuizAttemptInput: CreateQuizAttemptInput = {
+        quizId: selectedQuiz.id,
+        answers: quizAnswers
+      };
+
+      await createQuizAttempt({
+        variables: { createQuizAttemptInput }
+      });
+
+      console.log(`Quiz completed: ${score}/${totalQuestions}`);
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+    }
   };
 
   const handleQuizExit = () => {

@@ -352,6 +352,9 @@ export class QuizResponse {
   @Field(() => Int, { nullable: true })
   durationMinutes?: number;
 
+  @Field({ nullable: true })
+  showAnswersImmediately?: boolean;
+
   @Field()
   createdAt: string;
 
@@ -475,6 +478,11 @@ export class CreateQuizInput {
   @IsOptional()
   durationMinutes?: number;
 
+  @Field({ nullable: true })
+  @IsBoolean()
+  @IsOptional()
+  showAnswersImmediately?: boolean;
+
   @Field(() => [CreateQuestionInput], { nullable: true })
   @IsArray()
   @IsOptional()
@@ -587,6 +595,79 @@ export class UpdateQuizInput {
   @Min(1)
   @IsOptional()
   durationMinutes?: number;
+
+  @Field({ nullable: true })
+  @IsBoolean()
+  @IsOptional()
+  showAnswersImmediately?: boolean;
+}
+
+// =============== QUIZ ATTEMPT DTOs ===============
+@ObjectType()
+export class QuizAttemptResponse {
+  @Field()
+  id: string;
+
+  @Field()
+  quizId: string;
+
+  @Field()
+  studentId: string;
+
+  @Field(() => Int)
+  score: number;
+
+  @Field(() => Int)
+  totalQuestions: number;
+
+  @Field()
+  completedAt: string;
+
+  @Field(() => QuizResponse, { nullable: true })
+  quiz?: QuizResponse;
+
+  @Field(() => [QuizAnswerResponse], { nullable: true })
+  answers?: QuizAnswerResponse[];
+}
+
+@ObjectType()
+export class QuizAnswerResponse {
+  @Field()
+  id: string;
+
+  @Field()
+  attemptId: string;
+
+  @Field()
+  questionId: string;
+
+  @Field()
+  answerId: string;
+
+  @Field()
+  isCorrect: boolean;
+}
+
+@InputType()
+export class CreateQuizAttemptInput {
+  @Field()
+  @IsString()
+  quizId: string;
+
+  @Field(() => [QuizAnswerInput])
+  @IsArray()
+  answers: QuizAnswerInput[];
+}
+
+@InputType()
+export class QuizAnswerInput {
+  @Field()
+  @IsString()
+  questionId: string;
+
+  @Field()
+  @IsString()
+  answerId: string;
 }
 
 // =============== GPA SUBJECT DTOs ===============

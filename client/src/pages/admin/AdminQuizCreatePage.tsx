@@ -7,7 +7,7 @@ import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { FileUpload } from '../../components/common/FileUpload';
-import { ArrowLeft, Plus, X, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Plus, X, Trash2, Image as ImageIcon } from 'lucide-react';
 import { 
   GET_COURSES, 
   GET_LEVELS,
@@ -43,12 +43,13 @@ export const AdminQuizCreatePage: React.FC = () => {
     courseId: '',
     isVisible: true,
     hasDuration: false,
-    durationMinutes: 30
+    durationMinutes: 30,
+    showAnswersImmediately: false
   });
   const [questions, setQuestions] = useState<Question[]>([]);
   
   // State for inline question creation
-  const [showQuestionForm, setShowQuestionForm] = useState(false);
+  const [showQuestionForm, setShowQuestionForm] = useState(true);
   const [questionFormData, setQuestionFormData] = useState({
     text: '',
     image: '',
@@ -106,6 +107,7 @@ export const AdminQuizCreatePage: React.FC = () => {
       isVisible: formData.isVisible,
       hasDuration: formData.hasDuration,
       durationMinutes: formData.hasDuration ? formData.durationMinutes : undefined,
+      showAnswersImmediately: formData.showAnswersImmediately,
       questions: questions.length > 0 ? questions.map(q => ({
         text: q.text,
         image: q.image || undefined,
@@ -125,9 +127,7 @@ export const AdminQuizCreatePage: React.FC = () => {
     });
   };
 
-  const handleAddQuestion = () => {
-    setShowQuestionForm(true);
-  };
+
 
   // Form handlers for inline question creation
   const handleAnswerChange = (index: number, field: keyof Answer, value: string | boolean) => {
@@ -192,7 +192,39 @@ export const AdminQuizCreatePage: React.FC = () => {
     };
 
     setQuestions([...questions, newQuestion]);
-    setShowQuestionForm(false);
+    resetQuestionForm();
+    showNotification('success', 'Question added successfully!');
+  };
+
+  const handleAddQuestionManually = () => {
+    if (!questionFormData.text.trim()) {
+      showNotification('error', 'Please enter question text');
+      return;
+    }
+
+    const filledAnswers = answers.filter(answer => answer.text.trim() !== '');
+    if (filledAnswers.length < 2) {
+      showNotification('error', 'Please provide at least 2 answers');
+      return;
+    }
+
+    const hasCorrectAnswer = filledAnswers.some(answer => answer.isCorrect);
+    if (!hasCorrectAnswer) {
+      showNotification('error', 'Please select a correct answer');
+      return;
+    }
+
+    const newQuestion: Question = {
+      id: `q_${Date.now()}`,
+      text: questionFormData.text,
+      image: questionFormData.image || undefined,
+      explanation: questionFormData.explanation || undefined,
+      explanationImage: questionFormData.explanationImage || undefined,
+      order: questions.length + 1,
+      answers: filledAnswers
+    };
+
+    setQuestions([...questions, newQuestion]);
     resetQuestionForm();
     showNotification('success', 'Question added successfully!');
   };
@@ -212,10 +244,7 @@ export const AdminQuizCreatePage: React.FC = () => {
     ]);
   };
 
-  const handleCancelQuestionForm = () => {
-    setShowQuestionForm(false);
-    resetQuestionForm();
-  };
+
 
   const handleDeleteQuestion = (questionId: string) => {
     if (window.confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
@@ -224,18 +253,7 @@ export const AdminQuizCreatePage: React.FC = () => {
     }
   };
 
-  const handleEditQuestion = (question: Question) => {
-    setQuestionFormData({
-      text: question.text,
-      image: question.image || '',
-      explanation: question.explanation || '',
-      explanationImage: question.explanationImage || '',
-    });
-    setAnswers(question.answers);
-    setShowQuestionForm(true);
-    // Remove the question from the list so it can be re-added after editing
-    setQuestions(questions.filter(q => q.id !== question.id));
-  };
+
 
   if (levelsLoading || coursesLoading) {
     return (
@@ -414,21 +432,42 @@ export const AdminQuizCreatePage: React.FC = () => {
             </div>
           </div>
 
+          {/* Answer Display Settings */}
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              إعدادات عرض الإجابات
+            </h3>
+            
+            <div className="space-y-4">
+              {/* Show Answers Immediately */}
+              <div className="flex items-center space-x-3 rtl:space-x-reverse">
+                <input
+                  type="checkbox"
+                  id="showAnswersImmediately"
+                  checked={formData.showAnswersImmediately}
+                  onChange={(e) => setFormData({ ...formData, showAnswersImmediately: e.target.checked })}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="showAnswersImmediately" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  عرض الإجابة الصحيحة فور اختيار الإجابة
+                </label>
+              </div>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {formData.showAnswersImmediately 
+                  ? 'سيتم عرض الإجابة الصحيحة للطلاب فور اختيار إجابة'
+                  : 'سيتم عرض الإجابات الصحيحة للطلاب بعد إكمال الاختبار فقط'
+                }
+              </p>
+            </div>
+          </div>
+
           {/* Questions Section */}
           <div className="border-t pt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 الأسئلة ({questions.length})
               </h3>
-              <Button
-                type="button"
-                onClick={handleAddQuestion}
-                variant="outline"
-                className="flex items-center space-x-2 rtl:space-x-reverse"
-              >
-                <Plus className="w-4 h-4" />
-                <span>إضافة سؤال</span>
-              </Button>
             </div>
 
             <div className="space-y-4">
@@ -440,15 +479,6 @@ export const AdminQuizCreatePage: React.FC = () => {
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         إضافة سؤال جديد
                       </h3>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleCancelQuestionForm}
-                        className="text-gray-500 hover:text-gray-700"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
                     </div>
 
                     {/* Question Text */}
@@ -492,14 +522,14 @@ export const AdminQuizCreatePage: React.FC = () => {
                               name="correctAnswer"
                               checked={answer.isCorrect}
                               onChange={() => handleCorrectAnswerChange(index)}
-                              className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                              className="w-5 h-5 text-blue-600 focus:ring-blue-500 mt-3"
                             />
                             <Input
                               type="text"
                               value={answer.text}
                               onChange={(e) => handleAnswerChange(index, 'text', e.target.value)}
                               placeholder={`الإجابة ${index + 1}`}
-                              className="flex-1 py-4 text-base"
+                              className="flex-1 py-4 px-4 text-lg min-w-0 w-full min-h-[60px]"
                             />
                             {answers.length > 2 && (
                               <Button
@@ -507,7 +537,7 @@ export const AdminQuizCreatePage: React.FC = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeAnswer(index)}
-                                className="text-red-500 hover:text-red-700"
+                                className="text-red-500 hover:text-red-700 mt-3"
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -555,21 +585,16 @@ export const AdminQuizCreatePage: React.FC = () => {
                         accept="image/*"
                         maxSize={5}
                       />
-                    </div>
+                                        </div>
 
-                    {/* Form Actions */}
-                    <div className="flex justify-end space-x-3 rtl:space-x-reverse">
+                    {/* Add Question Button */}
+                    <div className="flex justify-end">
                       <Button
                         type="button"
-                        variant="ghost"
-                        onClick={handleCancelQuestionForm}
+                        onClick={handleAddQuestionManually}
+                        className="bg-green-600 hover:bg-green-700"
                       >
-                        إلغاء
-                      </Button>
-                      <Button
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
+                        <Plus className="w-4 h-4 mr-2" />
                         إضافة السؤال
                       </Button>
                     </div>
@@ -610,15 +635,6 @@ export const AdminQuizCreatePage: React.FC = () => {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleEditQuestion(question)}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
                             onClick={() => handleDeleteQuestion(question.id)}
                             className="text-red-600 hover:text-red-700"
                           >
@@ -631,9 +647,9 @@ export const AdminQuizCreatePage: React.FC = () => {
                 </div>
               )}
 
-              {questions.length === 0 && !showQuestionForm && (
+              {questions.length === 0 && (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  لا توجد أسئلة حتى الآن. اضغط "إضافة سؤال" لإنشاء أول سؤال.
+                  لا توجد أسئلة حتى الآن. أضف أسئلة للاختبار من النموذج أعلاه.
                 </div>
               )}
             </div>

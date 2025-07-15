@@ -28,6 +28,9 @@ import {
   QuizQuestionResponse,
   CreateQuizQuestionInput,
   UpdateQuizQuestionInput,
+  // Quiz Attempt DTOs
+  QuizAttemptResponse,
+  CreateQuizAttemptInput,
   // GPA Subject DTOs
   GpaSubjectResponse,
   CreateGpaSubjectInput,
@@ -641,6 +644,82 @@ export class AcademicResolver {
 
     await this.academicService.deleteQuizQuestion(id);
     return true;
+  }
+
+  // =============== QUIZ ATTEMPT RESOLVERS ===============
+  @Mutation(() => QuizAttemptResponse)
+  @UseGuards(JwtAuthGuard)
+  async createQuizAttempt(
+    @Args('createQuizAttemptInput') createQuizAttemptInput: CreateQuizAttemptInput,
+    @CurrentUser() user: User,
+  ): Promise<QuizAttemptResponse> {
+    if (user.role !== 'STUDENT') {
+      throw new Error('Only students can submit quiz attempts');
+    }
+
+    const attempt = await this.academicService.createQuizAttempt(
+      createQuizAttemptInput.quizId,
+      user.id,
+      createQuizAttemptInput.answers
+    );
+
+    return {
+      ...attempt,
+      completedAt: attempt.completedAt.toISOString(),
+      quiz: attempt.quiz ? {
+        ...attempt.quiz,
+        createdAt: attempt.quiz.createdAt.toISOString(),
+        updatedAt: attempt.quiz.updatedAt.toISOString(),
+        course: attempt.quiz.course ? {
+          ...attempt.quiz.course,
+          createdAt: attempt.quiz.course.createdAt.toISOString(),
+          updatedAt: attempt.quiz.course.updatedAt.toISOString(),
+        } : undefined,
+      } : undefined,
+    };
+  }
+
+  @Query(() => [QuizAttemptResponse])
+  @UseGuards(JwtAuthGuard)
+  async myQuizAttempts(
+    @CurrentUser() user: User,
+  ): Promise<QuizAttemptResponse[]> {
+    if (user.role !== 'STUDENT') {
+      throw new Error('Only students can view their quiz attempts');
+    }
+
+    const attempts = await this.academicService.getQuizAttemptsByStudent(user.id);
+    return attempts.map(attempt => ({
+      ...attempt,
+      completedAt: attempt.completedAt.toISOString(),
+      quiz: attempt.quiz ? {
+        ...attempt.quiz,
+        createdAt: attempt.quiz.createdAt.toISOString(),
+        updatedAt: attempt.quiz.updatedAt.toISOString(),
+        course: attempt.quiz.course ? {
+          ...attempt.quiz.course,
+          createdAt: attempt.quiz.course.createdAt.toISOString(),
+          updatedAt: attempt.quiz.course.updatedAt.toISOString(),
+        } : undefined,
+      } : undefined,
+    }));
+  }
+
+  @Query(() => [QuizAttemptResponse])
+  @UseGuards(JwtAuthGuard)
+  async quizAttempts(
+    @Args('quizId', { type: () => ID }) quizId: string,
+    @CurrentUser() user: User,
+  ): Promise<QuizAttemptResponse[]> {
+    if (user.role !== 'ADMIN') {
+      throw new Error('Only admins can view quiz attempts');
+    }
+
+    const attempts = await this.academicService.getQuizAttemptsByQuiz(quizId);
+    return attempts.map(attempt => ({
+      ...attempt,
+      completedAt: attempt.completedAt.toISOString(),
+    }));
   }
 
   // =============== FLASHCARD RESOLVERS ===============

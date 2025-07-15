@@ -414,7 +414,7 @@ export const QuizQuestionEditor: React.FC<QuizQuestionEditorProps> = ({
                       value={answer.text}
                       onChange={(e) => handleAnswerChange(index, 'text', e.target.value)}
                       placeholder={`Answer ${String.fromCharCode(65 + index)}`}
-                      className="py-4 text-base"
+                      className="py-4 px-4 text-lg min-w-0 w-full min-h-[60px]"
                     />
                   </div>
                   {formData.answers.length > 2 && (
