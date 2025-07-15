@@ -16,8 +16,10 @@ import {
   X,
   ExternalLink,
   Filter,
-  Clock,
-  Package
+  Package,
+  ImageOff,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { GET_BOOKS, CREATE_BOOK_ORDER } from '../../lib/graphql/library';
 
@@ -33,6 +35,8 @@ export const LibraryPage: React.FC = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const booksPerPage = 6;
   
   const { data: booksData, loading: booksLoading, refetch } = useQuery(GET_BOOKS, {
     variables: { filters: { isVisible: true } },
@@ -65,6 +69,17 @@ export const LibraryPage: React.FC = () => {
                                (availabilityFilter === 'unavailable' && book.availableCopies === 0);
     return matchesSearch && matchesAuthor && matchesAvailability && book.isVisible;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+  const startIndex = (currentPage - 1) * booksPerPage;
+  const endIndex = startIndex + booksPerPage;
+  const currentBooks = filteredBooks.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, authorFilter, availabilityFilter]);
 
   const uniqueAuthors = Array.from(new Set(books.map((book: any) => book.author as string))).filter(Boolean).sort() as string[];
 
@@ -127,7 +142,13 @@ export const LibraryPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-600 dark:text-gray-400">
-            {filteredBooks.length} {t('library.allBooks')}
+            {filteredBooks.length > 0 ? (
+              <>
+                {t('common.showing')} {startIndex + 1}-{Math.min(endIndex, filteredBooks.length)} {t('common.of')} {filteredBooks.length} {t('library.allBooks')}
+              </>
+            ) : (
+              `0 ${t('library.allBooks')}`
+            )}
           </span>
         </div>
       </div>
@@ -215,29 +236,35 @@ export const LibraryPage: React.FC = () => {
 
       {/* Books Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredBooks.map((book: any) => (
+        {currentBooks.map((book: any) => (
           <Card key={book.id} hover className="group">
             <div className="p-6">
               {/* Book Cover */}
-              {book.coverImage && (
-                <div className="mb-4 flex justify-center">
+              <div className="mb-4 flex justify-center">
+                {book.coverImage ? (
                   <img
                     src={book.coverImage}
                     alt={book.title}
                     className="w-32 h-44 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `
+                        <div class="w-32 h-44 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 group-hover:shadow-lg transition-shadow duration-300">
+                          <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                          </svg>
+                        </div>
+                      `;
                     }}
                   />
-                </div>
-              )}
-              
-              <div className="flex items-start justify-between mb-4">
-                {!book.coverImage && (
-                  <div className="p-3 bg-student-100 dark:bg-student-900/20 rounded-lg">
-                    <BookOpen className="w-6 h-6 text-student-600 dark:text-student-400" />
+                ) : (
+                  <div className="w-32 h-44 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600 group-hover:shadow-lg transition-shadow duration-300">
+                    <ImageOff className="w-12 h-12 text-gray-400 dark:text-gray-500" />
                   </div>
                 )}
+              </div>
+              
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex flex-col gap-2 ml-auto">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                     book.availableCopies > 0
@@ -301,6 +328,71 @@ export const LibraryPage: React.FC = () => {
         ))}
       </div>
 
+      {/* Pagination */}
+      {filteredBooks.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            icon={ChevronLeft}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            {t('common.previous')}
+          </Button>
+          
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, index) => {
+              const pageNumber = index + 1;
+              const isCurrentPage = pageNumber === currentPage;
+              
+              // Show first page, last page, current page, and pages around current
+              const shouldShow = 
+                pageNumber === 1 || 
+                pageNumber === totalPages || 
+                Math.abs(pageNumber - currentPage) <= 1;
+              
+              const shouldShowEllipsis = 
+                (pageNumber === 2 && currentPage > 4) ||
+                (pageNumber === totalPages - 1 && currentPage < totalPages - 3);
+              
+              if (!shouldShow && !shouldShowEllipsis) return null;
+              
+              if (shouldShowEllipsis) {
+                return (
+                  <span key={pageNumber} className="px-2 py-1 text-gray-500">
+                    ...
+                  </span>
+                );
+              }
+              
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={isCurrentPage ? 'primary' : 'outline'}
+                  size="sm"
+                  colorScheme={isCurrentPage ? 'student' : undefined}
+                  onClick={() => setCurrentPage(pageNumber)}
+                  className="min-w-[2.5rem]"
+                >
+                  {pageNumber}
+                </Button>
+              );
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            icon={ChevronRight}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
+
       {filteredBooks.length === 0 && (
         <Card>
           <div className="p-6 text-center py-12">
@@ -333,18 +425,29 @@ export const LibraryPage: React.FC = () => {
         <div className="space-y-4">
           <div className="bg-student-50 dark:bg-student-900/20 rounded-lg p-4">
             {/* Book Cover in Modal */}
-            {selectedBook?.coverImage && (
-              <div className="mb-4 flex justify-center">
+            <div className="mb-4 flex justify-center">
+              {selectedBook?.coverImage ? (
                 <img
                   src={selectedBook.coverImage}
                   alt={selectedBook.title}
                   className="w-24 h-32 object-cover rounded-lg shadow-md"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `
+                      <div class="w-24 h-32 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
+                        <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                    `;
                   }}
                 />
-              </div>
-            )}
+              ) : (
+                <div className="w-24 h-32 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
+                  <ImageOff className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                </div>
+              )}
+            </div>
             
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               {selectedBook?.title}

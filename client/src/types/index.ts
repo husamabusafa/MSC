@@ -94,6 +94,17 @@ export interface GpaSubject {
   order: number;
 }
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  levelId?: string;
+  levelName?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Book {
   id: string;
   title: string;

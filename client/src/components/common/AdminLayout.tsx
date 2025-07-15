@@ -18,6 +18,7 @@ import {
   Sun,
   Globe,
   FileText,
+  Bell,
   Package
 } from 'lucide-react';
 
@@ -29,6 +30,7 @@ const navigation = [
   { id: 'dashboard', icon: Shield, href: '/admin' },
   { id: 'users', icon: Users, href: '/admin/users' },
   { id: 'preRegistered', icon: FileText, href: '/admin/pre-registered' },
+  { id: 'notifications', icon: Bell, href: '/admin/notifications' },
   { 
     id: 'academic', 
     icon: GraduationCap, 

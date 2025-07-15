@@ -50,6 +50,7 @@ model Level {
 
   // Relations
   courses Course[]
+  notifications Notification[]
 
   @@map("levels")
 }
@@ -289,6 +290,21 @@ model QuizAnswer {
   attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@map("quiz_answers")
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  levelId     String?  // Optional - if null, notification is for all levels
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  level Level? @relation(fields: [levelId], references: [id], onDelete: SetNull)
+
+  @@map("notifications")
 }
 
 // Note: SQLite doesn't support enums, so we use string fields with default values

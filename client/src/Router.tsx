@@ -14,6 +14,7 @@ import { OrderHistoryPage } from './pages/student/OrderHistoryPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminPreRegisteredPage } from './pages/admin/AdminPreRegisteredPage';
+import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AdminBooksPage } from './pages/admin/AdminBooksPage';
 import { AdminLevelsPage } from './pages/admin/AdminLevelsPage';
 import { AdminCoursesPage } from './pages/admin/AdminCoursesPage';
@@ -105,6 +106,8 @@ export const Router: React.FC = () => {
         return <AdminUsersPage />;
       case '/admin/pre-registered':
         return <AdminPreRegisteredPage />;
+      case '/admin/notifications':
+        return <AdminNotificationsPage />;
       case '/admin/levels':
         return <AdminLevelsPage />;
       case '/admin/courses':

@@ -176,7 +176,8 @@ export const translations = {
       productCategories: 'Product Categories',
       products: 'Products',
       orders: 'Orders',
-      preRegistered: 'Pre-registered Students'
+      preRegisteredStudents: 'Pre-registered Students',
+      notifications: 'Notifications'
     },
     
     // Dashboard
@@ -325,7 +326,8 @@ export const translations = {
       availableBooks: 'Available Books',
       unavailableBooks: 'Unavailable Books',
       visibleBooks: 'Visible Books',
-      hiddenBooks: 'Hidden Books'
+      hiddenBooks: 'Hidden Books',
+      allAuthors: 'All Authors'
     },
     
     // Store
@@ -468,6 +470,28 @@ export const translations = {
       lastLogin: 'Last Login',
       joinDate: 'Join Date',
       noUsersFound: 'No users found'
+    },
+    
+    // Notifications
+    notifications: {
+      title: 'Title',
+      message: 'Message',
+      targetLevel: 'Target Level',
+      level: 'Level',
+      allLevels: 'All Levels',
+      isActive: 'Active',
+      createNotification: 'Create Notification',
+      editNotification: 'Edit Notification',
+      deleteNotification: 'Delete Notification',
+      deleteConfirmation: 'Are you sure you want to delete this notification?',
+      notificationCreated: 'Notification created successfully',
+      notificationUpdated: 'Notification updated successfully',
+      notificationDeleted: 'Notification deleted successfully',
+      noNotificationsFound: 'No notifications found',
+      titlePlaceholder: 'Enter notification title',
+      messagePlaceholder: 'Enter notification message',
+      searchPlaceholder: 'Search notifications...',
+      managementDescription: 'Create and manage notifications for students'
     },
     
     // Settings
@@ -909,7 +933,8 @@ export const translations = {
       availableBooks: 'الكتب المتاحة',
       unavailableBooks: 'الكتب غير المتاحة',
       visibleBooks: 'الكتب المرئية',
-      hiddenBooks: 'الكتب المخفية'
+      hiddenBooks: 'الكتب المخفية',
+      allAuthors: 'جميع المؤلفين'
     },
     
     // Store
@@ -1053,6 +1078,28 @@ export const translations = {
       lastLogin: 'آخر تسجيل دخول',
       joinDate: 'تاريخ الانضمام',
       noUsersFound: 'لم يتم العثور على مستخدمين'
+    },
+    
+    // Notifications
+    notifications: {
+      title: 'العنوان',
+      message: 'الرسالة',
+      targetLevel: 'المستوى المستهدف',
+      level: 'المستوى',
+      allLevels: 'جميع المستويات',
+      isActive: 'نشط',
+      createNotification: 'إنشاء إشعار',
+      editNotification: 'تعديل الإشعار',
+      deleteNotification: 'حذف الإشعار',
+      deleteConfirmation: 'هل أنت متأكد من أنك تريد حذف هذا الإشعار؟',
+      notificationCreated: 'تم إنشاء الإشعار بنجاح',
+      notificationUpdated: 'تم تحديث الإشعار بنجاح',
+      notificationDeleted: 'تم حذف الإشعار بنجاح',
+      noNotificationsFound: 'لم يتم العثور على إشعارات',
+      titlePlaceholder: 'أدخل عنوان الإشعار',
+      messagePlaceholder: 'أدخل رسالة الإشعار',
+      searchPlaceholder: 'البحث في الإشعارات...',
+      managementDescription: 'إنشاء وإدارة الإشعارات للطلاب'
     },
     
     // Settings
