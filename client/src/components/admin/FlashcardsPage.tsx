@@ -67,13 +67,13 @@ export const FlashcardsPage: React.FC = () => {
     e.preventDefault();
     console.log('Flashcard deck saved:', formData);
     setIsModalOpen(false);
-    alert(selectedDeck ? 'Flashcard deck updated successfully' : 'Flashcard deck created successfully');
+    alert(selectedDeck ? t('messages.success.flashcardUpdated') : t('messages.success.flashcardCreated'));
   };
 
   const handleDeleteDeck = (deck: FlashcardDeck) => {
-    if (confirm('Are you sure you want to delete this flashcard deck?')) {
+    if (confirm(t('messages.confirmDelete.flashcard'))) {
       console.log('Delete deck:', deck.id);
-      alert('Flashcard deck deleted successfully');
+      alert(t('messages.success.flashcardDeleted'));
     }
   };
 
@@ -106,11 +106,11 @@ export const FlashcardsPage: React.FC = () => {
     },
     {
       key: 'cards',
-      label: 'Cards',
+      label: t('common.cards'),
       render: (deck: FlashcardDeck) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <FileText className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 dark:text-white">{deck.cards.length} cards</span>
+          <span className="text-gray-900 dark:text-white">{deck.cards.length} {t('common.cards').toLowerCase()}</span>
         </div>
       )
     },

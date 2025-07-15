@@ -66,20 +66,20 @@ export const GpaSubjectsPage: React.FC = () => {
     e.preventDefault();
     console.log('GPA subject saved:', formData);
     setIsModalOpen(false);
-    alert(selectedSubject ? 'Subject updated successfully' : 'Subject created successfully');
+    alert(selectedSubject ? t('messages.success.subjectUpdated') : t('messages.success.subjectCreated'));
   };
 
   const handleDeleteSubject = (subject: GpaSubject) => {
-    if (confirm('Are you sure you want to delete this subject?')) {
+    if (confirm(t('messages.confirmDelete.subject'))) {
       console.log('Delete subject:', subject.id);
-      alert('Subject deleted successfully');
+      alert(t('messages.success.subjectDeleted'));
     }
   };
 
   const columns = [
     {
       key: 'order',
-      label: 'Order',
+      label: t('common.order'),
       sortable: true,
       width: 'w-20',
       render: (subject: GpaSubject) => (

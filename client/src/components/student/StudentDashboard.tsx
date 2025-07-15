@@ -67,7 +67,7 @@ export const StudentDashboard: React.FC = () => {
               {t('dashboard.welcome')}, {user?.name}!
             </h2>
             <p className="text-blue-100">
-              Ready to continue your learning journey today?
+              {t('common.readyToContinue')}
             </p>
           </div>
           <div className="hidden md:block">
@@ -107,8 +107,8 @@ export const StudentDashboard: React.FC = () => {
           >
             <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3 rtl:ml-3 rtl:mr-0" />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Browse Courses</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Explore available courses</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.browseCourses')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Explore available courses</p>
             </div>
           </a>
           
@@ -118,8 +118,8 @@ export const StudentDashboard: React.FC = () => {
           >
             <Library className="w-8 h-8 text-green-600 dark:text-green-400 mr-3 rtl:ml-3 rtl:mr-0" />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Visit Library</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Browse and borrow books</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.visitLibrary')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Browse and borrow books</p>
             </div>
           </a>
           
@@ -129,8 +129,8 @@ export const StudentDashboard: React.FC = () => {
           >
             <ShoppingBag className="w-8 h-8 text-purple-600 dark:text-purple-400 mr-3 rtl:ml-3 rtl:mr-0" />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Shop Store</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Browse products</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{t('dashboard.shopStore')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Browse products</p>
             </div>
           </a>
         </div>

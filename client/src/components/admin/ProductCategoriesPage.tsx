@@ -60,13 +60,13 @@ export const ProductCategoriesPage: React.FC = () => {
     e.preventDefault();
     console.log('Category saved:', formData);
     setIsModalOpen(false);
-    alert(selectedCategory ? 'Category updated successfully' : 'Category created successfully');
+    alert(selectedCategory ? t('messages.success.categoryUpdated') : t('messages.success.categoryCreated'));
   };
 
   const handleDeleteCategory = (category: ProductCategory) => {
-    if (confirm('Are you sure you want to delete this category?')) {
+    if (confirm(t('messages.confirmDelete.category'))) {
       console.log('Delete category:', category.id);
-      alert('Category deleted successfully');
+      alert(t('messages.success.categoryDeleted'));
     }
   };
 

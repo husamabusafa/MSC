@@ -1,4 +1,4 @@
-import { User, Level, Course, FlashcardDeck, Quiz, Question, Answer, Book, ProductCategory, Product, PreRegisteredStudent, GpaSubject, BookOrder, Order } from '../types';
+import { User, Level, Course, FlashcardDeck, Quiz, Question, Book, ProductCategory, Product, PreRegisteredStudent, GpaSubject, BookOrder, Order } from '../types';
 
 export const mockUsers: User[] = [
   {

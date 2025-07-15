@@ -76,13 +76,13 @@ export const ProductsPage: React.FC = () => {
     e.preventDefault();
     console.log('Product saved:', formData);
     setIsModalOpen(false);
-    alert(selectedProduct ? 'Product updated successfully' : 'Product created successfully');
+    alert(selectedProduct ? t('messages.success.productUpdated') : t('messages.success.productCreated'));
   };
 
   const handleDeleteProduct = (product: Product) => {
-    if (confirm('Are you sure you want to delete this product?')) {
+    if (confirm(t('messages.confirmDelete.product'))) {
       console.log('Delete product:', product.id);
-      alert('Product deleted successfully');
+      alert(t('messages.success.productDeleted'));
     }
   };
 

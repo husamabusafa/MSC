@@ -65,13 +65,13 @@ export const CoursesPage: React.FC = () => {
     e.preventDefault();
     console.log('Course saved:', formData);
     setIsModalOpen(false);
-    alert(selectedCourse ? 'Course updated successfully' : 'Course created successfully');
+    alert(selectedCourse ? t('messages.success.courseUpdated') : t('messages.success.courseCreated'));
   };
 
   const handleDeleteCourse = (course: Course) => {
-    if (confirm('Are you sure you want to delete this course?')) {
+    if (confirm(t('messages.confirmDelete.course'))) {
       console.log('Delete course:', course.id);
-      alert('Course deleted successfully');
+      alert(t('messages.success.courseDeleted'));
     }
   };
 

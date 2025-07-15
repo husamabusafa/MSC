@@ -185,7 +185,7 @@ export function DataTable<T extends Record<string, any>>({
       {pagination && totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-700 dark:text-gray-300">
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, sortedData.length)} of {sortedData.length} results
+            {t('common.showing')} {((currentPage - 1) * pageSize) + 1} {t('common.to')} {Math.min(currentPage * pageSize, sortedData.length)} {t('common.of')} {sortedData.length} {t('common.results')}
           </div>
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <Button

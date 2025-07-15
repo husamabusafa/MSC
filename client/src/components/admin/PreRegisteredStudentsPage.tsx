@@ -58,13 +58,13 @@ export const PreRegisteredStudentsPage: React.FC = () => {
     // Simulate API call
     console.log('Pre-registered student saved:', formData);
     setIsModalOpen(false);
-    alert(selectedStudent ? 'Student updated successfully' : 'Student added successfully');
+    alert(selectedStudent ? t('messages.success.studentUpdated') : t('messages.success.studentCreated'));
   };
 
   const handleDeleteStudent = (student: PreRegisteredStudent) => {
-    if (confirm('Are you sure you want to delete this pre-registered student?')) {
+    if (confirm(t('messages.confirmDelete.student'))) {
       console.log('Delete student:', student.id);
-      alert('Student deleted successfully');
+      alert(t('messages.success.studentDeleted'));
     }
   };
 
@@ -99,12 +99,12 @@ export const PreRegisteredStudentsPage: React.FC = () => {
           {student.isUsed ? (
             <>
               <Check className="w-4 h-4 text-green-500" />
-              <span className="text-green-600 dark:text-green-400">Used</span>
+              <span className="text-green-600 dark:text-green-400">{t('common.used')}</span>
             </>
           ) : (
             <>
               <X className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-600 dark:text-gray-400">Available</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('common.available')}</span>
             </>
           )}
         </div>
@@ -121,7 +121,7 @@ export const PreRegisteredStudentsPage: React.FC = () => {
             {t('nav.preRegistered')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage pre-registered students who can create accounts
+            {t('common.preRegisteredDescription')}
           </p>
         </div>
         <Button
@@ -129,7 +129,7 @@ export const PreRegisteredStudentsPage: React.FC = () => {
           icon={Plus}
           onClick={handleCreateStudent}
         >
-          Add Student
+          {t('common.addStudent')}
         </Button>
       </div>
 
@@ -170,7 +170,7 @@ export const PreRegisteredStudentsPage: React.FC = () => {
               </Button>
             </div>
           )}
-          emptyMessage="No pre-registered students found"
+          emptyMessage={t('users.noUsersFound')}
         />
       </Card>
 

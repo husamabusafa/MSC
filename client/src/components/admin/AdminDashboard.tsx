@@ -117,7 +117,7 @@ export const AdminDashboard: React.FC = () => {
               {t('dashboard.welcome')}, {user?.name}!
             </h2>
             <p className="text-purple-100">
-              Manage your educational platform efficiently
+              {t('common.manageEfficiently')}
             </p>
           </div>
           <div className="hidden md:block">

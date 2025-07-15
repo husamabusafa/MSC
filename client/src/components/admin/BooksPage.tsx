@@ -71,13 +71,13 @@ export const BooksPage: React.FC = () => {
     // Simulate API call
     console.log('Book saved:', formData);
     setIsModalOpen(false);
-    alert(selectedBook ? 'Book updated successfully' : 'Book created successfully');
+    alert(selectedBook ? t('messages.success.bookUpdated') : t('messages.success.bookCreated'));
   };
 
   const handleDeleteBook = (book: Book) => {
-    if (confirm('Are you sure you want to delete this book?')) {
+    if (confirm(t('messages.confirmDelete.book'))) {
       console.log('Delete book:', book.id);
-      alert('Book deleted successfully');
+      alert(t('messages.success.bookDeleted'));
     }
   };
 

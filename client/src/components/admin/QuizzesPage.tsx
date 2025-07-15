@@ -66,20 +66,20 @@ export const QuizzesPage: React.FC = () => {
     e.preventDefault();
     console.log('Quiz saved:', formData);
     setIsModalOpen(false);
-    alert(selectedQuiz ? 'Quiz updated successfully' : 'Quiz created successfully');
+    alert(selectedQuiz ? t('messages.success.quizUpdated') : t('messages.success.quizCreated'));
   };
 
   const handleDeleteQuiz = (quiz: Quiz) => {
-    if (confirm('Are you sure you want to delete this quiz?')) {
+    if (confirm(t('messages.confirmDelete.quiz'))) {
       console.log('Delete quiz:', quiz.id);
-      alert('Quiz deleted successfully');
+      alert(t('messages.success.quizDeleted'));
     }
   };
 
   const columns = [
     {
       key: 'title',
-      label: 'Title',
+      label: t('common.title'),
       sortable: true,
       render: (quiz: Quiz) => (
         <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -105,11 +105,11 @@ export const QuizzesPage: React.FC = () => {
     },
     {
       key: 'questions',
-      label: 'Questions',
+      label: t('common.questions'),
       render: (quiz: Quiz) => (
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
           <HelpCircle className="w-4 h-4 text-gray-400" />
-          <span className="text-gray-900 dark:text-white">{quiz.questions.length} questions</span>
+          <span className="text-gray-900 dark:text-white">{quiz.questions.length} {t('common.questions').toLowerCase()}</span>
         </div>
       )
     },

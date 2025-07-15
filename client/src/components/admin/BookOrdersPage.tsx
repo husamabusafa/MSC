@@ -51,7 +51,7 @@ export const BookOrdersPage: React.FC = () => {
     });
     
     setIsModalOpen(false);
-    alert(`Order ${status} successfully`);
+    alert(t('messages.success.orderUpdated'));
   };
 
   const getStatusIcon = (status: string) => {

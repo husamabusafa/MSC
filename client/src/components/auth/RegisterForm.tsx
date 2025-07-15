@@ -156,7 +156,7 @@ export const RegisterForm: React.FC = () => {
       </div>
 
       <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p><strong>Use these pre-registered University IDs:</strong></p>
+        <p><strong>{t('common.usePreRegistered')}</strong></p>
         <p>ST002 (Omar Al-Rashid)</p>
         <p>ST003 (Fatima Ibrahim)</p>
       </div>

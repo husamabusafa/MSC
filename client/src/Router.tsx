@@ -7,6 +7,10 @@ import { StudentDashboardPage } from './pages/student/StudentDashboardPage';
 import { StudentCoursesPage } from './pages/student/StudentCoursesPage';
 import { StudentLibraryPage } from './pages/student/StudentLibraryPage';
 import { StudentStorePage } from './pages/student/StudentStorePage';
+import { ProfilePage } from './pages/student/ProfilePage';
+import { QuizPage } from './pages/student/QuizPage';
+import { FlashcardsPage } from './pages/student/FlashcardsPage';
+import { OrderHistoryPage } from './pages/student/OrderHistoryPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminPreRegisteredPage } from './pages/admin/AdminPreRegisteredPage';
@@ -51,7 +55,20 @@ export const Router: React.FC = () => {
         return <StudentLibraryPage />;
       case '/student/store':
         return <StudentStorePage />;
+      case '/student/profile':
+        return <ProfilePage />;
+      case '/student/orders':
+        return <OrderHistoryPage />;
       default:
+        // Handle dynamic routes
+        if (currentPath.startsWith('/student/quiz/')) {
+          const courseId = currentPath.split('/')[3];
+          return <QuizPage courseId={courseId} />;
+        }
+        if (currentPath.startsWith('/student/flashcards/')) {
+          const courseId = currentPath.split('/')[3];
+          return <FlashcardsPage courseId={courseId} />;
+        }
         return <StudentDashboardPage />;
     }
   }

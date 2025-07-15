@@ -28,7 +28,99 @@ export const translations = {
       actions: 'Actions',
       noData: 'No data available',
       selectAll: 'Select All',
-      clearAll: 'Clear All'
+      clearAll: 'Clear All',
+      // Pagination
+      showing: 'Showing',
+      to: 'to',
+      of: 'of',
+      results: 'results',
+      // Status text
+      used: 'Used',
+      available: 'Available',
+      unavailable: 'Unavailable',
+      pending: 'Pending',
+      approved: 'Approved',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      processing: 'Processing',
+      shipped: 'Shipped',
+      delivered: 'Delivered',
+      active: 'Active',
+      inactive: 'Inactive',
+      // Common UI elements
+      order: 'Order',
+      orderNumber: 'Order #',
+      orderId: 'Order ID',
+      type: 'Type',
+      total: 'Total',
+      allTypes: 'All Types',
+      allStatus: 'All Status',
+      books: 'Books',
+      products: 'Products',
+      viewDetails: 'View Details',
+      backToCourses: 'Back to Courses',
+      backToDashboard: 'Back to Dashboard',
+      orderHistory: 'Order History',
+      // Form elements
+      title: 'Title',
+      author: 'Author',
+      cards: 'Cards',
+      questions: 'Questions',
+      questionText: 'Question Text',
+      questionImage: 'Question Image',
+      answers: 'Answers',
+      explanation: 'Explanation',
+      optional: 'Optional',
+      required: 'Required',
+      addQuestion: 'Add Question',
+      editQuestion: 'Edit Question',
+      addStudent: 'Add Student',
+      addLevel: 'Add Level',
+      editLevel: 'Edit Level',
+      startStudying: 'Start Studying',
+      startQuiz: 'Start Quiz',
+      // Instructions
+      howToStudy: 'How to Study',
+      howToStudyFlashcards: 'How to Study with Flashcards',
+      quizInstructions: 'Quiz Instructions',
+      clickToReveal: 'Click to reveal answer',
+      multipleChoice: 'Multiple Choice',
+      studyMode: 'Study Mode',
+      interactive: 'Interactive',
+      // Time and duration
+      minutes: 'minutes',
+      min: 'min',
+      estimatedTime: 'Estimated Time',
+      // Misc
+      each: 'each',
+      item: 'item',
+      items: 'items',
+      notFound: 'Not Found',
+      notFoundDescription: 'The item you\'re looking for doesn\'t exist or has been removed.',
+      managementDescription: 'Manage system users and their permissions',
+      preRegisteredDescription: 'Manage pre-registered students who can create accounts',
+      orderHistoryDescription: 'View your book borrowing and product purchase history',
+      readyToContinue: 'Ready to continue your learning journey today?',
+      manageEfficiently: 'Manage your educational platform efficiently',
+      studyWithInteractive: 'Study with interactive flashcards to reinforce your learning',
+      testYourKnowledge: 'Test your knowledge with interactive quizzes',
+      foundationCourses: 'Foundation courses for first-year students',
+      enterImageUrl: 'Enter image URL or upload...',
+      enterQuestionHere: 'Enter your question here...',
+      demoAccounts: 'Demo Accounts',
+      usePreRegistered: 'Use these pre-registered University IDs:',
+      // Empty states
+      noOrdersFound: 'No Orders Found',
+      tryAdjustingFilters: 'Try adjusting your filters or search terms',
+      noOrdersYet: 'You haven\'t made any orders yet',
+      // Flashcard instructions
+      flashcardInstructions: [
+        'Click on a flashcard to reveal the answer',
+        'Mark cards as "Easy" or "Difficult" to track your progress',
+        'Use the navigation buttons to move between cards',
+        'Shuffle the deck to study in random order',
+        'Reset anytime to start over with the original order'
+      ]
     },
     
     // Auth
@@ -88,7 +180,14 @@ export const translations = {
       totalBooks: 'Total Books',
       totalOrders: 'Total Orders',
       pendingOrders: 'Pending Orders',
-      availableBooks: 'Available Books'
+      availableBooks: 'Available Books',
+      browseCourses: 'Browse Courses',
+      visitLibrary: 'Visit Library',
+      shopStore: 'Shop Store',
+      enrolledCourses: 'Enrolled Courses',
+      borrowedBooks: 'Borrowed Books',
+      recentOrders: 'Recent Orders',
+      completedQuizzes: 'Completed Quizzes'
     },
     
     // Academic
@@ -116,7 +215,14 @@ export const translations = {
       creditHours: 'Credit Hours',
       yearName: 'Year Name',
       subjectName: 'Subject Name',
-      gpaSubject: 'GPA Subject'
+      gpaSubject: 'GPA Subject',
+      courseNotFound: 'Course Not Found',
+      noFlashcardsAvailable: 'No Flashcard Decks Available',
+      noFlashcardsDescription: 'There are no flashcard decks available for this course yet.',
+      noQuizzesAvailable: 'No Quizzes Available',
+      noQuizzesDescription: 'There are no quizzes available for this course yet.',
+      flashcardsTitle: 'Flashcards',
+      quizzesTitle: 'Quizzes'
     },
     
     // Library
@@ -141,7 +247,17 @@ export const translations = {
       returned: 'Returned',
       cancelled: 'Cancelled',
       studentNotes: 'Student Notes',
-      adminNotes: 'Admin Notes'
+      adminNotes: 'Admin Notes',
+      bookBorrow: 'Book Borrow',
+      yourNotes: 'Your Notes:',
+      adminNotesLabel: 'Admin Notes:',
+      noBooksAvailable: 'No books available',
+      noBooksDescription: 'There are no books available at the moment.',
+      requestBook: 'Request Book',
+      notes: 'Notes',
+      borrowNotes: 'Borrow Notes (Optional)',
+      alreadyRequested: 'Already Requested',
+      submitRequest: 'Submit Request'
     },
     
     // Store
@@ -165,7 +281,16 @@ export const translations = {
       completed: 'Completed',
       processing: 'Processing',
       shipped: 'Shipped',
-      delivered: 'Delivered'
+      delivered: 'Delivered',
+      productPurchase: 'Product Purchase',
+      productOrder: 'Product Order',
+      orderTotal: 'Order Total',
+      noProductsAvailable: 'No products available',
+      noProductsDescription: 'There are no products available at the moment.',
+      addToCartSuccess: 'Product added to cart successfully',
+      removeFromCart: 'Remove from cart',
+      cartEmpty: 'Your cart is empty',
+      continueShoppingMsg: 'Continue shopping to add items to your cart.'
     },
     
     // User Management
@@ -184,7 +309,8 @@ export const translations = {
       userDeleted: 'User deleted successfully',
       confirmDelete: 'Are you sure you want to delete this user?',
       lastLogin: 'Last Login',
-      joinDate: 'Join Date'
+      joinDate: 'Join Date',
+      noUsersFound: 'No users found'
     },
     
     // Settings
@@ -202,7 +328,13 @@ export const translations = {
       newPassword: 'New Password',
       confirmNewPassword: 'Confirm New Password',
       passwordChanged: 'Password changed successfully',
-      profileUpdated: 'Profile updated successfully'
+      profileUpdated: 'Profile updated successfully',
+      updateProfile: 'Update Profile',
+      personalInfo: 'Personal Information',
+      profileUpdatedSuccess: 'Profile updated successfully!',
+      profileUpdateFailed: 'Failed to update profile',
+      passwordChangedSuccess: 'Password changed successfully!',
+      passwordChangeFailed: 'Failed to change password'
     },
     
     // Form Validation
@@ -217,6 +349,70 @@ export const translations = {
       priceRequired: 'Price is required',
       categoryRequired: 'Category is required',
       invalidPrice: 'Please enter a valid price'
+    },
+    
+    // Success Messages
+    messages: {
+      success: {
+        bookCreated: 'Book created successfully',
+        bookUpdated: 'Book updated successfully',
+        bookDeleted: 'Book deleted successfully',
+        courseCreated: 'Course created successfully',
+        courseUpdated: 'Course updated successfully',
+        courseDeleted: 'Course deleted successfully',
+        levelCreated: 'Level created successfully',
+        levelUpdated: 'Level updated successfully',
+        levelDeleted: 'Level deleted successfully',
+        quizCreated: 'Quiz created successfully',
+        quizUpdated: 'Quiz updated successfully',
+        quizDeleted: 'Quiz deleted successfully',
+        flashcardCreated: 'Flashcard deck created successfully',
+        flashcardUpdated: 'Flashcard deck updated successfully',
+        flashcardDeleted: 'Flashcard deck deleted successfully',
+        subjectCreated: 'Subject created successfully',
+        subjectUpdated: 'Subject updated successfully',
+        subjectDeleted: 'Subject deleted successfully',
+        productCreated: 'Product created successfully',
+        productUpdated: 'Product updated successfully',
+        productDeleted: 'Product deleted successfully',
+        categoryCreated: 'Category created successfully',
+        categoryUpdated: 'Category updated successfully',
+        categoryDeleted: 'Category deleted successfully',
+        studentCreated: 'Student added successfully',
+        studentUpdated: 'Student updated successfully',
+        studentDeleted: 'Student deleted successfully',
+        orderUpdated: 'Order updated successfully'
+      },
+      confirmDelete: {
+        question: 'Are you sure you want to delete this question?',
+        book: 'Are you sure you want to delete this book?',
+        course: 'Are you sure you want to delete this course?',
+        level: 'Are you sure you want to delete this level?',
+        quiz: 'Are you sure you want to delete this quiz?',
+        flashcard: 'Are you sure you want to delete this flashcard deck?',
+        subject: 'Are you sure you want to delete this subject?',
+        product: 'Are you sure you want to delete this product?',
+        category: 'Are you sure you want to delete this category?',
+        student: 'Are you sure you want to delete this pre-registered student?'
+      }
+    },
+    
+    // Instructions
+    instructions: {
+      flashcards: [
+        'Click on a flashcard to reveal the answer',
+        'Mark cards as "Easy" or "Difficult" to track your progress',
+        'Use the navigation buttons to move between cards',
+        'Shuffle the deck to study in random order',
+        'Reset anytime to start over with the original order'
+      ],
+      quiz: [
+        'Read each question carefully before selecting an answer',
+        'You can navigate between questions using the Previous/Next buttons',
+        'Make sure to answer all questions before submitting',
+        'Your results will be shown immediately after completion'
+      ],
+      studyTips: 'Click on the card to flip it and reveal the answer. Mark cards as "Easy" or "Difficult" to track your progress. Use the shuffle button to randomize the order.'
     }
   },
   
@@ -249,7 +445,99 @@ export const translations = {
       actions: 'الإجراءات',
       noData: 'لا توجد بيانات متاحة',
       selectAll: 'اختيار الكل',
-      clearAll: 'مسح الكل'
+      clearAll: 'مسح الكل',
+      // Pagination
+      showing: 'عرض',
+      to: 'إلى',
+      of: 'من',
+      results: 'النتائج',
+      // Status text
+      used: 'مستخدم',
+      available: 'متاح',
+      unavailable: 'غير متاح',
+      pending: 'معلق',
+      approved: 'موافق عليه',
+      completed: 'مكتمل',
+      cancelled: 'ملغي',
+      processing: 'قيد المعالجة',
+      shipped: 'تم الشحن',
+      delivered: 'تم التوصيل',
+      active: 'نشط',
+      inactive: 'غير نشط',
+      // Common UI elements
+      order: 'ترتيب',
+      orderNumber: 'رقم الطلب',
+      orderId: 'رقم الطلب',
+      type: 'النوع',
+      total: 'الإجمالي',
+      allTypes: 'جميع الأنواع',
+      allStatus: 'جميع الحالات',
+      books: 'الكتب',
+      products: 'المنتجات',
+      viewDetails: 'عرض التفاصيل',
+      backToCourses: 'العودة للمقررات',
+      backToDashboard: 'العودة للرئيسية',
+      orderHistory: 'سجل الطلبات',
+      // Form elements
+      title: 'العنوان',
+      author: 'المؤلف',
+      cards: 'البطاقات',
+      questions: 'الأسئلة',
+      questionText: 'نص السؤال',
+      questionImage: 'صورة السؤال',
+      answers: 'الإجابات',
+      explanation: 'الشرح',
+      optional: 'اختياري',
+      required: 'مطلوب',
+      addQuestion: 'إضافة سؤال',
+      editQuestion: 'تعديل السؤال',
+      addStudent: 'إضافة طالب',
+      addLevel: 'إضافة مستوى',
+      editLevel: 'تعديل المستوى',
+      startStudying: 'بدء الدراسة',
+      startQuiz: 'بدء الاختبار',
+      // Instructions
+      howToStudy: 'كيفية الدراسة',
+      howToStudyFlashcards: 'كيفية الدراسة بالبطاقات التعليمية',
+      quizInstructions: 'تعليمات الاختبار',
+      clickToReveal: 'انقر للكشف عن الإجابة',
+      multipleChoice: 'اختيار من متعدد',
+      studyMode: 'وضع الدراسة',
+      interactive: 'تفاعلي',
+      // Time and duration
+      minutes: 'دقائق',
+      min: 'د',
+      estimatedTime: 'الوقت المقدر',
+      // Misc
+      each: 'للواحد',
+      item: 'عنصر',
+      items: 'عناصر',
+      notFound: 'غير موجود',
+      notFoundDescription: 'العنصر الذي تبحث عنه غير موجود أو تم حذفه.',
+      managementDescription: 'إدارة مستخدمي النظام وصلاحياتهم',
+      preRegisteredDescription: 'إدارة الطلاب المسجلين مسبقاً الذين يمكنهم إنشاء حسابات',
+      orderHistoryDescription: 'عرض سجل استعارة الكتب وشراء المنتجات',
+      readyToContinue: 'مستعد لمواصلة رحلتك التعليمية اليوم؟',
+      manageEfficiently: 'إدارة منصتك التعليمية بكفاءة',
+      studyWithInteractive: 'ادرس باستخدام البطاقات التعليمية التفاعلية لتعزيز تعلمك',
+      testYourKnowledge: 'اختبر معرفتك باستخدام الاختبارات التفاعلية',
+      foundationCourses: 'المقررات الأساسية لطلاب السنة الأولى',
+      enterImageUrl: 'أدخل رابط الصورة أو قم بالتحميل...',
+      enterQuestionHere: 'أدخل سؤالك هنا...',
+      demoAccounts: 'حسابات تجريبية',
+      usePreRegistered: 'استخدم هذه الأرقام الجامعية المسجلة مسبقاً:',
+      // Empty states
+      noOrdersFound: 'لا توجد طلبات',
+      tryAdjustingFilters: 'حاول تعديل المرشحات أو مصطلحات البحث',
+      noOrdersYet: 'لم تقم بأي طلبات بعد',
+      // Flashcard instructions
+      flashcardInstructions: [
+        'اضغط على البطاقة التعليمية لكشف الإجابة',
+        'اربط البطاقات بـ "سهل" أو "صعب" لتتبع تقدمك',
+        'استخدم أزرار التنقل للانتقال بين البطاقات',
+        'اخلط الحزمة للدراسة بترتيب عشوائي',
+        'أعد البدء في أي وقت للعودة للترتيب الأصلي'
+      ]
     },
     
     // Auth
@@ -309,7 +597,14 @@ export const translations = {
       totalBooks: 'إجمالي الكتب',
       totalOrders: 'إجمالي الطلبات',
       pendingOrders: 'الطلبات المعلقة',
-      availableBooks: 'الكتب المتاحة'
+      availableBooks: 'الكتب المتاحة',
+      browseCourses: 'تصفح المقررات',
+      visitLibrary: 'زيارة المكتبة',
+      shopStore: 'تسوق في المتجر',
+      enrolledCourses: 'المقررات المسجلة',
+      borrowedBooks: 'الكتب المستعارة',
+      recentOrders: 'الطلبات الأخيرة',
+      completedQuizzes: 'الاختبارات المكتملة'
     },
     
     // Academic
@@ -337,7 +632,14 @@ export const translations = {
       creditHours: 'الساعات المعتمدة',
       yearName: 'اسم السنة',
       subjectName: 'اسم المادة',
-      gpaSubject: 'مادة المعدل التراكمي'
+      gpaSubject: 'مادة المعدل التراكمي',
+      courseNotFound: 'المقرر غير موجود',
+      noFlashcardsAvailable: 'لا توجد بطاقات تعليمية متاحة',
+      noFlashcardsDescription: 'لا توجد بطاقات تعليمية متاحة لهذا المقرر بعد.',
+      noQuizzesAvailable: 'لا توجد اختبارات متاحة',
+      noQuizzesDescription: 'لا توجد اختبارات متاحة لهذا المقرر بعد.',
+      flashcardsTitle: 'البطاقات التعليمية',
+      quizzesTitle: 'الاختبارات'
     },
     
     // Library
@@ -362,7 +664,17 @@ export const translations = {
       returned: 'مُرجع',
       cancelled: 'ملغي',
       studentNotes: 'ملاحظات الطالب',
-      adminNotes: 'ملاحظات الإدارة'
+      adminNotes: 'ملاحظات الإدارة',
+      bookBorrow: 'استعارة كتاب',
+      yourNotes: 'ملاحظاتك:',
+      adminNotesLabel: 'ملاحظات الإدارة:',
+      noBooksAvailable: 'لا توجد كتب متاحة',
+      noBooksDescription: 'لا توجد كتب متاحة في الوقت الحالي.',
+      requestBook: 'طلب كتاب',
+      notes: 'ملاحظات',
+      borrowNotes: 'ملاحظات الاستعارة (اختياري)',
+      alreadyRequested: 'تم الطلب مسبقاً',
+      submitRequest: 'إرسال الطلب'
     },
     
     // Store
@@ -386,7 +698,16 @@ export const translations = {
       completed: 'مكتمل',
       processing: 'قيد المعالجة',
       shipped: 'تم الشحن',
-      delivered: 'تم التوصيل'
+      delivered: 'تم التوصيل',
+      productPurchase: 'شراء منتج',
+      productOrder: 'طلب منتج',
+      orderTotal: 'إجمالي الطلب',
+      noProductsAvailable: 'لا توجد منتجات متاحة',
+      noProductsDescription: 'لا توجد منتجات متاحة في الوقت الحالي.',
+      addToCartSuccess: 'تم إضافة المنتج للسلة بنجاح',
+      removeFromCart: 'إزالة من السلة',
+      cartEmpty: 'السلة فارغة',
+      continueShoppingMsg: 'تابع التسوق لإضافة عناصر للسلة.'
     },
     
     // User Management
@@ -405,7 +726,8 @@ export const translations = {
       userDeleted: 'تم حذف المستخدم بنجاح',
       confirmDelete: 'هل أنت متأكد من حذف هذا المستخدم؟',
       lastLogin: 'آخر تسجيل دخول',
-      joinDate: 'تاريخ الانضمام'
+      joinDate: 'تاريخ الانضمام',
+      noUsersFound: 'لم يتم العثور على مستخدمين'
     },
     
     // Settings
@@ -423,7 +745,13 @@ export const translations = {
       newPassword: 'كلمة المرور الجديدة',
       confirmNewPassword: 'تأكيد كلمة المرور الجديدة',
       passwordChanged: 'تم تغيير كلمة المرور بنجاح',
-      profileUpdated: 'تم تحديث الملف الشخصي بنجاح'
+      profileUpdated: 'تم تحديث الملف الشخصي بنجاح',
+      updateProfile: 'تحديث الملف الشخصي',
+      personalInfo: 'المعلومات الشخصية',
+      profileUpdatedSuccess: 'تم تحديث الملف الشخصي بنجاح!',
+      profileUpdateFailed: 'فشل في تحديث الملف الشخصي',
+      passwordChangedSuccess: 'تم تغيير كلمة المرور بنجاح!',
+      passwordChangeFailed: 'فشل في تغيير كلمة المرور'
     },
     
     // Form Validation
@@ -438,6 +766,70 @@ export const translations = {
       priceRequired: 'السعر مطلوب',
       categoryRequired: 'الفئة مطلوبة',
       invalidPrice: 'يرجى إدخال سعر صحيح'
+    },
+    
+    // Success Messages
+    messages: {
+      success: {
+        bookCreated: 'تم إنشاء الكتاب بنجاح',
+        bookUpdated: 'تم تحديث الكتاب بنجاح',
+        bookDeleted: 'تم حذف الكتاب بنجاح',
+        courseCreated: 'تم إنشاء المقرر بنجاح',
+        courseUpdated: 'تم تحديث المقرر بنجاح',
+        courseDeleted: 'تم حذف المقرر بنجاح',
+        levelCreated: 'تم إنشاء المستوى بنجاح',
+        levelUpdated: 'تم تحديث المستوى بنجاح',
+        levelDeleted: 'تم حذف المستوى بنجاح',
+        quizCreated: 'تم إنشاء الاختبار بنجاح',
+        quizUpdated: 'تم تحديث الاختبار بنجاح',
+        quizDeleted: 'تم حذف الاختبار بنجاح',
+        flashcardCreated: 'تم إنشاء البطاقات التعليمية بنجاح',
+        flashcardUpdated: 'تم تحديث البطاقات التعليمية بنجاح',
+        flashcardDeleted: 'تم حذف البطاقات التعليمية بنجاح',
+        subjectCreated: 'تم إنشاء المادة بنجاح',
+        subjectUpdated: 'تم تحديث المادة بنجاح',
+        subjectDeleted: 'تم حذف المادة بنجاح',
+        productCreated: 'تم إنشاء المنتج بنجاح',
+        productUpdated: 'تم تحديث المنتج بنجاح',
+        productDeleted: 'تم حذف المنتج بنجاح',
+        categoryCreated: 'تم إنشاء الفئة بنجاح',
+        categoryUpdated: 'تم تحديث الفئة بنجاح',
+        categoryDeleted: 'تم حذف الفئة بنجاح',
+        studentCreated: 'تم إضافة الطالب بنجاح',
+        studentUpdated: 'تم تحديث الطالب بنجاح',
+        studentDeleted: 'تم حذف الطالب بنجاح',
+        orderUpdated: 'تم تحديث الطلب بنجاح'
+      },
+      confirmDelete: {
+        question: 'هل أنت متأكد من حذف هذا السؤال؟',
+        book: 'هل أنت متأكد من حذف هذا الكتاب؟',
+        course: 'هل أنت متأكد من حذف هذا المقرر؟',
+        level: 'هل أنت متأكد من حذف هذا المستوى؟',
+        quiz: 'هل أنت متأكد من حذف هذا الاختبار؟',
+        flashcard: 'هل أنت متأكد من حذف هذه البطاقات التعليمية؟',
+        subject: 'هل أنت متأكد من حذف هذه المادة؟',
+        product: 'هل أنت متأكد من حذف هذا المنتج؟',
+        category: 'هل أنت متأكد من حذف هذه الفئة؟',
+        student: 'هل أنت متأكد من حذف هذا الطالب المسجل مسبقاً؟'
+      }
+    },
+    
+    // Instructions
+    instructions: {
+      flashcards: [
+        'انقر على البطاقة التعليمية للكشف عن الإجابة',
+        'ضع علامة على البطاقات كـ "سهل" أو "صعب" لتتبع تقدمك',
+        'استخدم أزرار التنقل للانتقال بين البطاقات',
+        'استخدم زر الخلط للدراسة بترتيب عشوائي',
+        'أعد التعيين في أي وقت للعودة للترتيب الأصلي'
+      ],
+      quiz: [
+        'اقرأ كل سؤال بعناية قبل اختيار الإجابة',
+        'يمكنك التنقل بين الأسئلة باستخدام أزرار السابق/التالي',
+        'تأكد من الإجابة على جميع الأسئلة قبل الإرسال',
+        'ستظهر نتائجك فوراً بعد الانتهاء'
+      ],
+      studyTips: 'انقر على البطاقة لقلبها والكشف عن الإجابة. ضع علامة على البطاقات كـ "سهل" أو "صعب" لتتبع تقدمك. استخدم زر الخلط لترتيب عشوائي.'
     }
   }
 };

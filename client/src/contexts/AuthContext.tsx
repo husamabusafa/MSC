@@ -36,14 +36,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const foundUser = mockUsers.find(u => u.email === email && u.isActive);
-      if (foundUser) {
+      if (foundUser && password) { // Simple password check for mock
         setUser(foundUser);
         localStorage.setItem('currentUser', JSON.stringify(foundUser));
       } else {
         throw new Error('Invalid credentials');
       }
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -88,8 +86,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       setUser(newUser);
       localStorage.setItem('currentUser', JSON.stringify(newUser));
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }

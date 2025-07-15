@@ -64,13 +64,13 @@ export const LevelsPage: React.FC = () => {
     e.preventDefault();
     console.log('Level saved:', formData);
     setIsModalOpen(false);
-    alert(selectedLevel ? 'Level updated successfully' : 'Level created successfully');
+    alert(selectedLevel ? t('messages.success.levelUpdated') : t('messages.success.levelCreated'));
   };
 
   const handleDeleteLevel = (level: Level) => {
-    if (confirm('Are you sure you want to delete this level?')) {
+    if (confirm(t('messages.confirmDelete.level'))) {
       console.log('Delete level:', level.id);
-      alert('Level deleted successfully');
+      alert(t('messages.success.levelDeleted'));
     }
   };
 
@@ -187,7 +187,7 @@ export const LevelsPage: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedLevel ? 'Edit Level' : 'Add Level'}
+        title={selectedLevel ? t('common.editLevel') : t('common.addLevel')}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -208,13 +208,13 @@ export const LevelsPage: React.FC = () => {
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
-              placeholder="Foundation courses for first-year students"
+              placeholder={t('common.foundationCourses')}
             />
           </div>
           
           <Input
             type="number"
-            label="Order"
+            label={t('common.order')}
             value={formData.order}
             onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 1 }))}
             min="1"

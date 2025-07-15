@@ -14,7 +14,8 @@ import {
   X,
   Moon,
   Sun,
-  Globe
+  Globe,
+  ShoppingCart
 } from 'lucide-react';
 
 interface StudentLayoutProps {
@@ -25,7 +26,9 @@ const navigation = [
   { id: 'dashboard', icon: GraduationCap, href: '/student' },
   { id: 'courses', icon: BookOpen, href: '/student/courses' },
   { id: 'library', icon: Library, href: '/student/library' },
-  { id: 'store', icon: ShoppingBag, href: '/student/store' }
+  { id: 'store', icon: ShoppingBag, href: '/student/store' },
+  { id: 'profile', icon: User, href: '/student/profile' },
+  { id: 'orders', icon: ShoppingCart, href: '/student/orders' }
 ];
 
 export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
@@ -140,11 +143,11 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main content */}
-      <div className="lg:ml-64 rtl:lg:mr-64 rtl:lg:ml-0">
+      <div className="flex-1">
         {/* Top bar */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
+            <div className="flex items-center justify-between h-18">
               <button
                 onClick={() => setSidebarOpen(true)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"

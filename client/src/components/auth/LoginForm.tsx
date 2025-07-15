@@ -86,7 +86,7 @@ export const LoginForm: React.FC = () => {
       </div>
 
       <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p><strong>Demo Accounts:</strong></p>
+        <p><strong>{t('common.demoAccounts')}:</strong></p>
         <p>Student: student@example.com / password</p>
         <p>Admin: admin@example.com / password</p>
       </div>

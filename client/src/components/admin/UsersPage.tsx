@@ -169,7 +169,7 @@ export const UsersPage: React.FC = () => {
             {t('nav.users')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage system users and their permissions
+            {t('common.managementDescription')}
           </p>
         </div>
         <Button
@@ -216,7 +216,7 @@ export const UsersPage: React.FC = () => {
               </Button>
             </div>
           )}
-          emptyMessage="No users found"
+          emptyMessage={t('users.noUsersFound')}
         />
       </Card>
 
