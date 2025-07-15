@@ -5,6 +5,9 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { AcademicModule } from './academic/academic.module';
+import { LibraryModule } from './library/library.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    AcademicModule,
+    LibraryModule,
+    StoreModule,
   ],
 })
 export class AppModule {} 

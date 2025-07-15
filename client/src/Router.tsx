@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { LoginPage } from './pages/LoginPage';
@@ -27,6 +27,24 @@ import { AdminGpaSubjectsPage } from './pages/admin/AdminGpaSubjectsPage';
 
 export const Router: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    // Listen for navigation events
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    // Listen for both popstate (back/forward) and custom navigation events
+    window.addEventListener('popstate', handlePopState);
+    
+    // Initial path set
+    setCurrentPath(window.location.pathname);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -35,8 +53,6 @@ export const Router: React.FC = () => {
       </div>
     );
   }
-
-  const currentPath = window.location.pathname;
 
   // Authentication routes
   if (!user) {
@@ -47,8 +63,11 @@ export const Router: React.FC = () => {
   }
 
   // Student routes
-  if (user.role === 'student') {
+  if (user.role === 'STUDENT') {
     switch (currentPath) {
+      case '/student':
+      case '/student/dashboard':
+        return <StudentDashboardPage />;
       case '/student/courses':
         return <StudentCoursesPage />;
       case '/student/library':
@@ -74,7 +93,7 @@ export const Router: React.FC = () => {
   }
 
   // Admin routes
-  if (user.role === 'admin') {
+  if (user.role === 'ADMIN') {
     switch (currentPath) {
       case '/admin/users':
         return <AdminUsersPage />;

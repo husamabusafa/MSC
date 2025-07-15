@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'student' | 'admin';
+  role: 'STUDENT' | 'ADMIN';
   universityId?: string;
   createdAt: string;
   isActive: boolean;

@@ -24,7 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return <AuthLayout>{children}</AuthLayout>;
   }
 
-  if (user.role === 'admin') {
+  if (user.role === 'ADMIN') {
     return <AdminLayout>{children}</AdminLayout>;
   }
 

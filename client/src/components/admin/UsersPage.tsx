@@ -27,7 +27,7 @@ export const UsersPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'student' as 'student' | 'admin',
+    role: 'STUDENT' as 'STUDENT' | 'ADMIN',
     universityId: '',
     isActive: true
   });
@@ -45,7 +45,7 @@ export const UsersPage: React.FC = () => {
     setFormData({
       name: '',
       email: '',
-      role: 'student',
+      role: 'STUDENT',
       universityId: '',
       isActive: true
     });
@@ -117,7 +117,7 @@ export const UsersPage: React.FC = () => {
       sortable: true,
       render: (user: User) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          user.role === 'admin' 
+          user.role === 'ADMIN' 
             ? 'bg-admin-100 dark:bg-admin-900/20 text-admin-600 dark:text-admin-400'
             : 'bg-admin-secondary-100 dark:bg-admin-secondary-900/20 text-admin-secondary-600 dark:text-admin-secondary-400'
         }`}>
@@ -248,7 +248,7 @@ export const UsersPage: React.FC = () => {
             </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'student' | 'admin' }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'STUDENT' | 'ADMIN' }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="student">{t('users.student')}</option>
@@ -256,7 +256,7 @@ export const UsersPage: React.FC = () => {
             </select>
           </div>
           
-          {formData.role === 'student' && (
+          {formData.role === 'STUDENT' && (
             <Input
               label={t('auth.universityId')}
               value={formData.universityId}

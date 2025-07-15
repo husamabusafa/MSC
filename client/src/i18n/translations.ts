@@ -195,6 +195,7 @@ export const translations = {
       level: 'Level',
       course: 'Course',
       quiz: 'Quiz',
+      gpa: 'GPA',
       question: 'Question',
       answer: 'Answer',
       flashcard: 'Flashcard',

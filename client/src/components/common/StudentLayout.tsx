@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useQuery, gql } from '@apollo/client';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -15,8 +16,43 @@ import {
   Moon,
   Sun,
   Globe,
-  ShoppingCart
+  ShoppingCart,
+  Trophy,
+  Star,
+  UserCheck
 } from 'lucide-react';
+
+// GraphQL Query to fetch student data
+const GET_STUDENT_DATA = gql`
+  query GetStudentData {
+    me {
+      id
+      name
+      email
+      role
+      isActive
+      studentDetails {
+        id
+        studentId
+        level {
+          id
+          name
+        }
+        gpa
+        enrolledCourses {
+          id
+          name
+          code
+        }
+        completedCourses {
+          id
+          name
+          code
+        }
+      }
+    }
+  }
+`;
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -37,10 +73,24 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Fetch student data
+  const { data: studentData, loading } = useQuery(GET_STUDENT_DATA, {
+    errorPolicy: 'ignore' // Ignore errors for now to prevent breaking the layout
+  });
+
   const currentPath = window.location.pathname;
+  const student = studentData?.me;
+  const studentDetails = student?.studentDetails;
+
+  // Navigate without page refresh
+  const navigateToPath = (path: string) => {
+    window.history.pushState({}, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    setSidebarOpen(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -54,7 +104,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:inset-0
-        rtl:right-0 rtl:left-auto rtl:${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+        ${language === 'ar' ? 'rtl:right-0 rtl:left-auto' : ''}
       `}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -81,11 +131,11 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {navigation.map((item) => {
             const isActive = currentPath === item.href || (item.href !== '/student' && currentPath.startsWith(item.href));
             return (
-              <a
+              <button
                 key={item.id}
-                href={item.href}
+                onClick={() => navigateToPath(item.href)}
                 className={`
-                  flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                  w-full flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors
                   ${isActive 
                     ? 'bg-student-500/10 text-student-500 dark:bg-student-500/20 dark:text-student-500' 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -94,26 +144,74 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               >
                 <item.icon className="w-5 h-5" />
                 <span>{t(`nav.${item.id}`)}</span>
-              </a>
+              </button>
             );
           })}
         </nav>
 
+        {/* Student Profile Section */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
-            <div className="w-10 h-10 rounded-full bg-student-500 flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-student-500 to-student-600 flex items-center justify-center relative">
+              <User className="w-6 h-6 text-white" />
+              {student?.isActive && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800">
+                  <UserCheck className="w-2 h-2 text-white m-0.5" />
+                </div>
+              )}
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {user?.name}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {student?.name || user?.name}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {user?.email}
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {studentDetails?.studentId || user?.email}
               </p>
+              {studentDetails?.level && (
+                <div className="flex items-center space-x-1 rtl:space-x-reverse mt-1">
+                  <Star className="w-3 h-3 text-yellow-500" />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {studentDetails.level.name}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
+          {/* Student Stats */}
+          {studentDetails && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <BookOpen className="w-4 h-4 text-blue-500" />
+                  <div>
+                    <p className="text-xs font-medium text-gray-900 dark:text-white">
+                      {t('academic.enrolledCourses')}
+                    </p>
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      {studentDetails.enrolledCourses?.length || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <Trophy className="w-4 h-4 text-green-500" />
+                  <div>
+                    <p className="text-xs font-medium text-gray-900 dark:text-white">
+                      {t('academic.gpa')}
+                    </p>
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      {studentDetails.gpa ? studentDetails.gpa.toFixed(2) : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
           <div className="space-y-2">
             <button
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
@@ -151,24 +249,39 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         {/* Top bar */}
         <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
           <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-18">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
-              >
-                <Menu className="w-6 h-6 text-gray-500" />
-              </button>
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
+                >
+                  <Menu className="w-6 h-6 text-gray-500" />
+                </button>
 
-              <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t('dashboard.studentDashboard')}
-                </h1>
+                <div className="flex items-center space-x-4 rtl:space-x-reverse lg:ml-4">
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    {t('dashboard.studentDashboard')}
+                  </h1>
+                  {studentDetails?.level && (
+                    <span className="px-2 py-1 text-xs font-medium bg-student-100 text-student-700 dark:bg-student-900/20 dark:text-student-300 rounded-full">
+                      {studentDetails.level.name}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center space-x-4 rtl:space-x-reverse">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {t('dashboard.welcome')}, {user?.name}
+                  {t('dashboard.welcome')}, {student?.name || user?.name}
                 </span>
+                {studentDetails?.gpa && (
+                  <div className="flex items-center space-x-1 rtl:space-x-reverse">
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {studentDetails.gpa.toFixed(2)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

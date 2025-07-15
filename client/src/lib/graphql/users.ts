@@ -1,0 +1,251 @@
+import { gql } from '@apollo/client';
+
+// User Management Types
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  universityId?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PreRegisteredStudent {
+  id: string;
+  fullName: string;
+  universityId: string;
+  isUsed: boolean;
+  createdAt: string;
+}
+
+export interface UsersResponse {
+  users: User[];
+  total: number;
+}
+
+export interface PreRegisteredStudentsResponse {
+  preRegisteredStudents: PreRegisteredStudent[];
+  total: number;
+}
+
+export interface CreateUserInput {
+  email: string;
+  password: string;
+  name: string;
+  universityId?: string;
+  role: 'ADMIN' | 'STUDENT';
+  isActive: boolean;
+}
+
+export interface UpdateUserInput {
+  email?: string;
+  password?: string;
+  name?: string;
+  universityId?: string;
+  role?: 'ADMIN' | 'STUDENT';
+  isActive?: boolean;
+}
+
+export interface UpdateProfileInput {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
+export interface UsersFilterInput {
+  search?: string;
+  role?: 'ADMIN' | 'STUDENT';
+  isActive?: boolean;
+}
+
+export interface CreatePreRegisteredStudentInput {
+  fullName: string;
+  universityId: string;
+}
+
+export interface UpdatePreRegisteredStudentInput {
+  fullName?: string;
+  universityId?: string;
+}
+
+export interface PreRegisteredStudentsFilterInput {
+  search?: string;
+  isUsed?: boolean;
+}
+
+// User Management Queries
+export const GET_USERS = gql`
+  query GetUsers($filters: UsersFilterInput) {
+    users(filters: $filters) {
+      users {
+        id
+        email
+        name
+        role
+        universityId
+        isActive
+        createdAt
+        updatedAt
+      }
+      total
+    }
+  }
+`;
+
+export const GET_USER = gql`
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+// User Management Mutations
+export const CREATE_USER = gql`
+  mutation CreateUser($createUserInput: CreateUserInput!) {
+    createUser(createUserInput: $createUserInput) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($id: ID!, $updateUserInput: UpdateUserInput!) {
+    updateUser(id: $id, updateUserInput: $updateUserInput) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
+
+export const ACTIVATE_USER = gql`
+  mutation ActivateUser($id: ID!) {
+    activateUser(id: $id) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const DEACTIVATE_USER = gql`
+  mutation DeactivateUser($id: ID!) {
+    deactivateUser(id: $id) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($updateProfileInput: UpdateProfileInput!) {
+    updateProfile(updateProfileInput: $updateProfileInput) {
+      id
+      email
+      name
+      role
+      universityId
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+// Pre-registered Student Management Queries
+export const GET_PRE_REGISTERED_STUDENTS = gql`
+  query GetPreRegisteredStudents($filters: PreRegisteredStudentsFilterInput) {
+    preRegisteredStudents(filters: $filters) {
+      preRegisteredStudents {
+        id
+        fullName
+        universityId
+        isUsed
+        createdAt
+      }
+      total
+    }
+  }
+`;
+
+export const GET_PRE_REGISTERED_STUDENT = gql`
+  query GetPreRegisteredStudent($id: ID!) {
+    preRegisteredStudent(id: $id) {
+      id
+      fullName
+      universityId
+      isUsed
+      createdAt
+    }
+  }
+`;
+
+// Pre-registered Student Management Mutations
+export const CREATE_PRE_REGISTERED_STUDENT = gql`
+  mutation CreatePreRegisteredStudent($createPreRegisteredStudentInput: CreatePreRegisteredStudentInput!) {
+    createPreRegisteredStudent(createPreRegisteredStudentInput: $createPreRegisteredStudentInput) {
+      id
+      fullName
+      universityId
+      isUsed
+      createdAt
+    }
+  }
+`;
+
+export const UPDATE_PRE_REGISTERED_STUDENT = gql`
+  mutation UpdatePreRegisteredStudent($id: ID!, $updatePreRegisteredStudentInput: UpdatePreRegisteredStudentInput!) {
+    updatePreRegisteredStudent(id: $id, updatePreRegisteredStudentInput: $updatePreRegisteredStudentInput) {
+      id
+      fullName
+      universityId
+      isUsed
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_PRE_REGISTERED_STUDENT = gql`
+  mutation DeletePreRegisteredStudent($id: ID!) {
+    deletePreRegisteredStudent(id: $id)
+  }
+`; 

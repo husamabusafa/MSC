@@ -36,7 +36,7 @@ export class RegisterInput {
 }
 
 @ObjectType()
-export class UserResponse {
+export class AuthUserResponse {
   @Field()
   id: string;
 
@@ -65,5 +65,5 @@ export class AuthResponse {
   accessToken: string;
 
   @Field()
-  user: UserResponse;
+  user: AuthUserResponse;
 } 
