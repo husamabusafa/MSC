@@ -138,6 +138,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               icon={Shuffle}
               onClick={handleShuffle}
               disabled={totalCards <= 1}
@@ -147,6 +148,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               icon={RotateCcw}
               onClick={handleReset}
             >
@@ -155,6 +157,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               onClick={onExit}
             >
               Exit
@@ -165,27 +168,27 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-4">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-student-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-            <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+          <div className="bg-student-50 dark:bg-student-900/20 p-3 rounded-lg">
+            <p className="text-lg font-semibold text-student-600 dark:text-student-400">
               {flashcardState.studiedCards.size}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Studied</p>
           </div>
-          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-            <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                      <div className="bg-student-50 dark:bg-student-900/20 p-3 rounded-lg">
+              <p className="text-lg font-semibold text-student-600 dark:text-student-400">
               {flashcardState.masteredCards.size}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Mastered</p>
           </div>
-          <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-            <p className="text-lg font-semibold text-red-600 dark:text-red-400">
+                      <div className="bg-student-50 dark:bg-student-900/20 p-3 rounded-lg">
+              <p className="text-lg font-semibold text-student-600 dark:text-student-400">
               {flashcardState.difficultCards.size}
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">Difficult</p>
@@ -206,9 +209,9 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <div className="text-center w-full">
               <div className="flex justify-center mb-4">
                 {flashcardState.isFlipped ? (
-                  <Brain className="w-12 h-12 text-green-600 dark:text-green-400" />
+                  <Brain className="w-12 h-12 text-student-600 dark:text-student-400" />
                 ) : (
-                  <BookOpen className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+                  <BookOpen className="w-12 h-12 text-student-600 dark:text-student-400" />
                 )}
               </div>
               
@@ -233,9 +236,9 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
            {currentCardStatus !== 'none' && (
              <div className="absolute top-4 right-4">
                {currentCardStatus === 'easy' ? (
-                 <CheckCircle className="w-6 h-6 text-green-500" />
+                                   <CheckCircle className="w-6 h-6 text-student-500" />
                ) : (
-                 <XCircle className="w-6 h-6 text-red-500" />
+                                   <XCircle className="w-6 h-6 text-student-500" />
                )}
              </div>
            )}
@@ -247,6 +250,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
       <div className="flex items-center justify-between">
         <Button
           variant="outline"
+          colorScheme="student"
           icon={ArrowLeft}
           onClick={handlePrevious}
           disabled={flashcardState.currentCardIndex === 0}
@@ -259,11 +263,12 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               icon={XCircle}
               onClick={() => handleMarkDifficulty('difficult')}
               className={`${
                 currentCardStatus === 'difficult' 
-                  ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-600 text-red-600 dark:text-red-400' 
+                  ? 'bg-student-50 dark:bg-student-900/20 border-student-300 dark:border-student-600 text-student-600 dark:text-student-400' 
                   : ''
               }`}
             >
@@ -272,11 +277,12 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               icon={CheckCircle}
               onClick={() => handleMarkDifficulty('easy')}
               className={`${
                 currentCardStatus === 'easy' 
-                  ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-600 text-green-600 dark:text-green-400' 
+                  ? 'bg-student-50 dark:bg-student-900/20 border-student-300 dark:border-student-600 text-student-600 dark:text-student-400' 
                   : ''
               }`}
             >
@@ -287,6 +293,7 @@ export const FlashcardViewer: React.FC<FlashcardViewerProps> = ({ deck, onExit }
         
         <Button
           variant="primary"
+          colorScheme="student"
           icon={ArrowRight}
           onClick={handleNext}
           disabled={flashcardState.currentCardIndex === totalCards - 1}

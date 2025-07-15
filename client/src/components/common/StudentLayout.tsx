@@ -58,8 +58,12 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       `}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg">
-              <GraduationCap className="w-6 h-6 text-white" />
+            <div className="p-2 bg-student-500 rounded-lg">
+              <img 
+                src="/logo_white.png" 
+                alt="Logo" 
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <span className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('auth.studentPanel')}
@@ -83,7 +87,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
                 className={`
                   flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors
                   ${isActive 
-                    ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' 
+                    ? 'bg-student-500/10 text-student-500 dark:bg-student-500/20 dark:text-student-500' 
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }
                 `}
@@ -97,7 +101,7 @@ export const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-student-500 flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
             <div>

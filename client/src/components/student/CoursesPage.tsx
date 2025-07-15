@@ -65,6 +65,7 @@ export const CoursesPage: React.FC = () => {
           <div className="flex gap-2">
             <Button
               variant={selectedLevel === null ? 'primary' : 'outline'}
+              colorScheme="student"
               onClick={() => setSelectedLevel(null)}
             >
               All Levels
@@ -73,6 +74,7 @@ export const CoursesPage: React.FC = () => {
               <Button
                 key={level.id}
                 variant={selectedLevel === level.id ? 'primary' : 'outline'}
+                colorScheme="student"
                 onClick={() => setSelectedLevel(level.id)}
               >
                 {level.name}
@@ -91,15 +93,15 @@ export const CoursesPage: React.FC = () => {
           return (
             <Card key={course.id} hover className="group">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                  <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                              <div className="p-3 bg-student-100 dark:bg-student-900/20 rounded-lg">
+                <BookOpen className="w-6 h-6 text-student-600 dark:text-student-400" />
                 </div>
                 <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                   {course.level?.name}
                 </span>
               </div>
               
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-student-600 dark:group-hover:text-student-400 transition-colors">
                 {course.name}
               </h3>
               
@@ -123,6 +125,7 @@ export const CoursesPage: React.FC = () => {
                   <Button
                     variant="primary"
                     size="sm"
+                    colorScheme="student"
                     icon={Play}
                     onClick={() => window.location.href = `/student/quiz/${course.id}`}
                     className="flex-1"
@@ -134,6 +137,7 @@ export const CoursesPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
+                    colorScheme="student"
                     icon={FileText}
                     onClick={() => window.location.href = `/student/flashcards/${course.id}`}
                     className="flex-1"

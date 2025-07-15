@@ -222,7 +222,8 @@ export const translations = {
       noQuizzesAvailable: 'No Quizzes Available',
       noQuizzesDescription: 'There are no quizzes available for this course yet.',
       flashcardsTitle: 'Flashcards',
-      quizzesTitle: 'Quizzes'
+      quizzesTitle: 'Quizzes',
+      quizzes: 'Quizzes'
     },
     
     // Library
@@ -639,7 +640,8 @@ export const translations = {
       noQuizzesAvailable: 'لا توجد اختبارات متاحة',
       noQuizzesDescription: 'لا توجد اختبارات متاحة لهذا المقرر بعد.',
       flashcardsTitle: 'البطاقات التعليمية',
-      quizzesTitle: 'الاختبارات'
+      quizzesTitle: 'الاختبارات',
+      quizzes: 'الاختبارات'
     },
     
     // Library

@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { DivideIcon as LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -21,7 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     ${Icon ? 'pl-10 rtl:pr-10 rtl:pl-3' : ''}
     ${error 
       ? 'border-red-300 focus:border-red-500 focus:ring-red-500 text-red-900 placeholder-red-300' 
-      : 'border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500'
+      : 'border-gray-300 dark:border-gray-600 focus:border-main-500 focus:ring-main-500'
     }
     bg-white dark:bg-gray-800 text-gray-900 dark:text-white
     focus:outline-none focus:ring-2 focus:ring-offset-0

@@ -118,8 +118,8 @@ export const LibraryPage: React.FC = () => {
                 <div className="flex items-center justify-between text-sm">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     isAvailable 
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                      : 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                                ? 'bg-student-100 dark:bg-student-900/20 text-student-600 dark:text-student-400'
+          : 'bg-student-100 dark:bg-student-900/20 text-student-600 dark:text-student-400'
                   }`}>
                     {isAvailable ? t('library.available') : t('library.unavailable')}
                   </span>

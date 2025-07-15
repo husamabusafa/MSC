@@ -261,7 +261,7 @@ export const QuizQuestionEditor: React.FC<QuizQuestionEditorProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2 py-1 rounded text-sm font-medium">
+                      <span className="bg-admin-secondary-100 dark:bg-admin-secondary-900/20 text-admin-secondary-600 dark:text-admin-secondary-400 px-2 py-1 rounded text-sm font-medium">
                         Question {index + 1}
                       </span>
                       {question.image && (
@@ -271,7 +271,7 @@ export const QuizQuestionEditor: React.FC<QuizQuestionEditorProps> = ({
                         </span>
                       )}
                       {question.explanation && (
-                        <span className="bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 px-2 py-1 rounded text-sm font-medium">
+                        <span className="bg-admin-100 dark:bg-admin-900/20 text-admin-600 dark:text-admin-400 px-2 py-1 rounded text-sm font-medium">
                           <FileText className="w-3 h-3 inline mr-1" />
                           Has Explanation
                         </span>

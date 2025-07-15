@@ -139,6 +139,7 @@ export const RegisterForm: React.FC = () => {
         type="submit"
         variant="primary"
         size="lg"
+        colorScheme="student"
         isLoading={isLoading}
         className="w-full"
       >
@@ -149,7 +150,7 @@ export const RegisterForm: React.FC = () => {
         <button
           type="button"
           onClick={() => window.location.href = '/login'}
-          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-sm text-student-600 hover:text-student-800 dark:text-student-400 dark:hover:text-student-300"
         >
           {t('auth.loginTitle')}
         </button>

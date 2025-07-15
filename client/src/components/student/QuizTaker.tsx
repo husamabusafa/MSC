@@ -118,10 +118,10 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
 
   const getScoreMessage = () => {
     const percentage = (quizState.score / totalQuestions) * 100;
-    if (percentage >= 90) return { message: 'Excellent work!', color: 'text-green-600' };
-    if (percentage >= 70) return { message: 'Good job!', color: 'text-blue-600' };
-    if (percentage >= 50) return { message: 'Not bad, keep practicing!', color: 'text-yellow-600' };
-    return { message: 'You can do better next time!', color: 'text-red-600' };
+          if (percentage >= 90) return { message: 'Excellent work!', color: 'text-student-600' };
+      if (percentage >= 70) return { message: 'Good job!', color: 'text-student-600' };
+      if (percentage >= 50) return { message: 'Not bad, keep practicing!', color: 'text-student-600' };
+      return { message: 'You can do better next time!', color: 'text-student-600' };
   };
 
   const handleRetakeQuiz = () => {
@@ -145,7 +145,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
       <div className="space-y-6">
         <Card className="text-center">
           <div className="mb-6">
-            <Award className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
+            <Award className="w-16 h-16 mx-auto mb-4 text-student-500" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Quiz Completed!
             </h2>
@@ -155,25 +155,25 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-              <Target className="w-8 h-8 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
-              <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                    <div className="bg-student-50 dark:bg-student-900/20 p-4 rounded-lg">
+          <Target className="w-8 h-8 text-student-600 dark:text-student-400 mx-auto mb-2" />
+          <p className="text-lg font-semibold text-student-600 dark:text-student-400">
                 {quizState.score}/{totalQuestions}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Score</p>
             </div>
             
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
-              <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                          <div className="bg-student-50 dark:bg-student-900/20 p-4 rounded-lg">
+                <CheckCircle className="w-8 h-8 text-student-600 dark:text-student-400 mx-auto mb-2" />
+                <p className="text-lg font-semibold text-student-600 dark:text-student-400">
                 {percentage.toFixed(1)}%
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Percentage</p>
             </div>
             
-            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-              <Timer className="w-8 h-8 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
-              <p className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                          <div className="bg-student-50 dark:bg-student-900/20 p-4 rounded-lg">
+                <Timer className="w-8 h-8 text-student-600 dark:text-student-400 mx-auto mb-2" />
+                <p className="text-lg font-semibold text-student-600 dark:text-student-400">
                 {formatTime(quizState.timeElapsed)}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Time</p>
@@ -187,6 +187,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
           <div className="flex gap-4 justify-center">
             <Button
               variant="outline"
+              colorScheme="student"
               icon={RefreshCw}
               onClick={handleRetakeQuiz}
             >
@@ -194,6 +195,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
             </Button>
             <Button
               variant="primary"
+              colorScheme="student"
               onClick={onExit}
             >
               Back to Course
@@ -226,6 +228,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
             <Button
               variant="outline"
               size="sm"
+              colorScheme="student"
               onClick={() => setShowExitModal(true)}
             >
               Exit Quiz
@@ -236,7 +239,7 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className="bg-student-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -268,14 +271,14 @@ export const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, onComplete, onExit }
               onClick={() => handleAnswerSelect(answer.id)}
               className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${
                 selectedAnswer === answer.id
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  ? 'border-student-500 bg-student-50 dark:bg-student-900/20'
                   : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-500'
               }`}
             >
               <div className="flex items-center gap-3">
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                   selectedAnswer === answer.id
-                    ? 'border-blue-500 bg-blue-500'
+                    ? 'border-student-500 bg-student-500'
                     : 'border-gray-300 dark:border-gray-600'
                 }`}>
                   {selectedAnswer === answer.id && (

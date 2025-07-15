@@ -104,7 +104,7 @@ export const StorePage: React.FC = () => {
         >
           {t('store.cart')}
           {getCartItemCount() > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          <span className="absolute -top-2 -right-2 bg-student-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {getCartItemCount()}
             </span>
           )}
@@ -160,7 +160,7 @@ export const StorePage: React.FC = () => {
               )}
               
               {product.isSpecialOffer && (
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                <div className="absolute top-2 left-2 bg-student-500 text-white text-xs px-2 py-1 rounded">
                   <Tag className="w-3 h-3 inline mr-1" />
                   {t('store.specialOffer')}
                 </div>
@@ -172,7 +172,7 @@ export const StorePage: React.FC = () => {
                 <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                   {product.category?.name}
                 </span>
-                <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                                  <span className="text-lg font-bold text-student-600 dark:text-student-400">
                   ${product.price}
                 </span>
               </div>

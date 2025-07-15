@@ -25,8 +25,8 @@ export const AdminDashboard: React.FC = () => {
       title: t('dashboard.totalUsers'),
       value: data.users.length,
       icon: Users,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
+      color: 'text-admin-secondary-600 dark:text-admin-secondary-400',
+      bgColor: 'bg-admin-secondary-100 dark:bg-admin-secondary-900/20',
       trend: '+12%'
     },
     {
@@ -41,8 +41,8 @@ export const AdminDashboard: React.FC = () => {
       title: t('dashboard.totalBooks'),
       value: data.books.length,
       icon: Library,
-      color: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
+      color: 'text-admin-600 dark:text-admin-400',
+      bgColor: 'bg-admin-100 dark:bg-admin-900/20',
       trend: '+15%'
     },
     {
@@ -82,7 +82,7 @@ export const AdminDashboard: React.FC = () => {
       description: 'Add, edit, or remove users',
       icon: Users,
       href: '/admin/users',
-      color: 'text-blue-600 dark:text-blue-400'
+      color: 'text-admin-secondary-600 dark:text-admin-secondary-400'
     },
     {
       title: 'Add Course',
@@ -96,7 +96,7 @@ export const AdminDashboard: React.FC = () => {
       description: 'Add new books to library',
       icon: Library,
       href: '/admin/books',
-      color: 'text-purple-600 dark:text-purple-400'
+      color: 'text-admin-600 dark:text-admin-400'
     },
     {
       title: 'Manage Store',
@@ -110,13 +110,13 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <Card className="bg-gradient-to-r from-purple-500 to-pink-600 text-white border-none">
+      <Card className="bg-gradient-to-r from-admin-500 to-admin-secondary-500 text-white border-none">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold mb-2">
               {t('dashboard.welcome')}, {user?.name}!
             </h2>
-            <p className="text-purple-100">
+            <p className="text-admin-100">
               {t('common.manageEfficiently')}
             </p>
           </div>
@@ -216,7 +216,7 @@ export const AdminDashboard: React.FC = () => {
             { action: 'Quiz created: CS Fundamentals', time: '2 days ago', type: 'academic' }
           ].map((activity, index) => (
             <div key={index} className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-admin-500 rounded-full"></div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {activity.action}

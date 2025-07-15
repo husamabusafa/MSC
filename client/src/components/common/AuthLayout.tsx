@@ -1,7 +1,7 @@
 import React from 'react';
 import { useI18n } from '../../contexts/I18nContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { GraduationCap, Moon, Sun, Globe } from 'lucide-react';
+import { Moon, Sun, Globe } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-student-50 to-student-100 dark:from-gray-900 dark:to-student-900 flex items-center justify-center p-4">
       <div className="absolute top-4 right-4 flex items-center space-x-2 rtl:space-x-reverse">
         <button
           onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
@@ -37,8 +37,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full">
-              <GraduationCap className="w-12 h-12 text-white" />
+            <div className="p-3 bg-student-500 rounded-full">
+              <img 
+                src="/logo_white.png" 
+                alt="Logo" 
+                className="w-12 h-12 object-contain"
+              />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

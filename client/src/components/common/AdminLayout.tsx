@@ -98,8 +98,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       `}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="p-2 bg-admin-500 rounded-lg">
+              <img 
+                src="/logo_white.png" 
+                alt="Logo" 
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <span className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('auth.adminPanel')}
@@ -126,7 +130,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   className={`
                     w-full flex items-center justify-between space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors
                     ${isActive 
-                      ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' 
+                      ? 'bg-admin-500/10 text-admin-500 dark:bg-admin-500/20 dark:text-admin-500' 
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }
                   `}
@@ -155,7 +159,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                           className={`
                             flex items-center space-x-3 rtl:space-x-reverse px-3 py-2 rounded-lg text-sm font-medium transition-colors
                             ${isSubActive 
-                              ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' 
+                              ? 'bg-admin-500/10 text-admin-500 dark:bg-admin-500/20 dark:text-admin-500' 
                               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                             }
                           `}
@@ -174,7 +178,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 rtl:space-x-reverse mb-4">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-admin-500 flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
             <div>

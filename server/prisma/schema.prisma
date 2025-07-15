@@ -1,0 +1,292 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String
+  role         String   @default("STUDENT")
+  universityId String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  bookOrders BookOrder[]
+  orders     Order[]
+  quizAttempts QuizAttempt[]
+
+  @@map("users")
+}
+
+model PreRegisteredStudent {
+  id           String  @id @default(cuid())
+  fullName     String
+  universityId String  @unique
+  isUsed       Boolean @default(false)
+  createdAt    DateTime @default(now())
+
+  @@map("pre_registered_students")
+}
+
+model Level {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  order       Int      @unique
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  courses Course[]
+
+  @@map("levels")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  levelId     String
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  level         Level           @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  flashcardDecks FlashcardDeck[]
+  quizzes       Quiz[]
+
+  @@map("courses")
+}
+
+model FlashcardDeck {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  courseId    String
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  course Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  cards  Flashcard[]
+
+  @@map("flashcard_decks")
+}
+
+model Flashcard {
+  id       String @id @default(cuid())
+  question String
+  answer   String
+  deckId   String
+  order    Int
+
+  // Relations
+  deck FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@map("flashcards")
+}
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  courseId    String
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  course    Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id                String @id @default(cuid())
+  text              String
+  image             String?
+  explanation       String?
+  explanationImage  String?
+  quizId            String
+  order             Int
+
+  // Relations
+  quiz    Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers Answer[]
+
+  @@map("questions")
+}
+
+model Answer {
+  id         String  @id @default(cuid())
+  text       String
+  questionId String
+  isCorrect  Boolean @default(false)
+  order      Int
+
+  // Relations
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
+
+model GpaSubject {
+  id          String @id @default(cuid())
+  yearName    String
+  subjectName String
+  creditHours Int
+  order       Int    @unique
+
+  @@map("gpa_subjects")
+}
+
+model Book {
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  author           String
+  coverImage       String?
+  description      String
+  totalCopies      Int      @default(1)
+  availableCopies  Int      @default(1)
+  isVisible        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  bookOrders BookOrder[]
+
+  @@map("books")
+}
+
+model BookOrder {
+  id           String           @id @default(cuid())
+  studentId    String
+  bookId       String
+  status       String           @default("PENDING")
+  studentNotes String?
+  adminNotes   String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Relations
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  book    Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@map("book_orders")
+}
+
+model ProductCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String
+  image          String?
+  price          Float
+  categoryId     String
+  isVisible      Boolean  @default(true)
+  isSpecialOffer Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  category  ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  studentId    String
+  total        Float
+  status       String      @default("PENDING")
+  studentNotes String?
+  adminNotes   String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  // Relations
+  student User        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  items   OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model QuizAttempt {
+  id              String   @id @default(cuid())
+  quizId          String
+  studentId       String
+  score           Int
+  totalQuestions  Int
+  completedAt     DateTime @default(now())
+
+  // Relations
+  quiz    Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers QuizAnswer[]
+
+  @@map("quiz_attempts")
+}
+
+model QuizAnswer {
+  id           String @id @default(cuid())
+  attemptId    String
+  questionId   String
+  answerId     String
+  isCorrect    Boolean
+
+  // Relations
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_answers")
+}
+
+// Note: SQLite doesn't support enums, so we use string fields with default values
+// Valid roles: "STUDENT", "ADMIN"
+// Valid book order statuses: "PENDING", "APPROVED", "RETURNED", "CANCELLED"
+// Valid order statuses: "PENDING", "COMPLETED", "CANCELLED" 

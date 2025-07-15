@@ -164,7 +164,7 @@ export const ProfileSettings: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as 'profile' | 'password')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    ? 'border-student-500 text-student-600 dark:text-student-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
                 }`}
               >
@@ -259,14 +259,14 @@ export const ProfileSettings: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+            <div className="bg-student-50 dark:bg-student-900/20 p-4 rounded-lg">
               <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                <AlertCircle className="w-5 h-5 text-student-600 dark:text-student-400" />
                 <div>
-                  <h4 className="font-medium text-yellow-800 dark:text-yellow-300">
+                  <h4 className="font-medium text-student-800 dark:text-student-300">
                     Password Requirements
                   </h4>
-                  <ul className="text-sm text-yellow-700 dark:text-yellow-400 mt-1 space-y-1">
+                  <ul className="text-sm text-student-700 dark:text-student-400 mt-1 space-y-1">
                     <li>• At least 6 characters long</li>
                     <li>• Include a mix of letters and numbers</li>
                     <li>• Use a unique password you don't use elsewhere</li>

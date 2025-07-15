@@ -118,8 +118,8 @@ export const UsersPage: React.FC = () => {
       render: (user: User) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
           user.role === 'admin' 
-            ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
-            : 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+            ? 'bg-admin-100 dark:bg-admin-900/20 text-admin-600 dark:text-admin-400'
+            : 'bg-admin-secondary-100 dark:bg-admin-secondary-900/20 text-admin-secondary-600 dark:text-admin-secondary-400'
         }`}>
           {t(`users.${user.role}`)}
         </span>
