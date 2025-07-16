@@ -10,6 +10,7 @@ import {
   CreateNotificationInput,
   UpdateNotificationInput,
   NotificationsFilterInput,
+  NotificationsCountResponse,
 } from './dto/notifications.dto';
 
 @Resolver()
@@ -24,7 +25,8 @@ export class NotificationsResolver {
     filters: NotificationsFilterInput = {},
     @CurrentUser() user: User,
   ): Promise<NotificationsResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -40,13 +42,25 @@ export class NotificationsResolver {
     };
   }
 
+  @Query(() => NotificationsCountResponse)
+  @UseGuards(JwtAuthGuard)
+  async notificationsCount(@CurrentUser() user: User): Promise<NotificationsCountResponse> {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
+    }
+
+    return this.notificationsService.getNotificationsCount();
+  }
+
   @Query(() => NotificationResponse)
   @UseGuards(JwtAuthGuard)
   async notification(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<NotificationResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -92,7 +106,8 @@ export class NotificationsResolver {
     @Args('createNotificationInput') createNotificationInput: CreateNotificationInput,
     @CurrentUser() user: User,
   ): Promise<NotificationResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -112,7 +127,8 @@ export class NotificationsResolver {
     @Args('updateNotificationInput') updateNotificationInput: UpdateNotificationInput,
     @CurrentUser() user: User,
   ): Promise<NotificationResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -131,7 +147,8 @@ export class NotificationsResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 

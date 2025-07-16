@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'STUDENT' | 'ADMIN';
+  role: 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN';
   universityId?: string;
   createdAt: string;
   isActive: boolean;
@@ -178,7 +178,6 @@ export interface OrderItem {
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, universityId: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }

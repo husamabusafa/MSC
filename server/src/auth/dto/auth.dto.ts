@@ -1,5 +1,5 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { Field, InputType, ObjectType, Int } from '@nestjs/graphql';
+import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
 
 @InputType()
 export class LoginInput {
@@ -35,6 +35,52 @@ export class RegisterInput {
   universityId?: string;
 }
 
+@InputType()
+export class CreateRegistrationRequestInput {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  @IsString()
+  @MinLength(8)
+  password: string;
+
+  @Field()
+  @IsString()
+  @MinLength(1)
+  name: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  universityId?: string;
+}
+
+@InputType()
+export class ApproveRegistrationRequestInput {
+  @Field()
+  @IsString()
+  requestId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  adminNotes?: string;
+}
+
+@InputType()
+export class RejectRegistrationRequestInput {
+  @Field()
+  @IsString()
+  requestId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  adminNotes?: string;
+}
+
 @ObjectType()
 export class AuthUserResponse {
   @Field()
@@ -66,4 +112,49 @@ export class AuthResponse {
 
   @Field()
   user: AuthUserResponse;
+}
+
+@ObjectType()
+export class RegistrationRequestResponse {
+  @Field()
+  id: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  name: string;
+
+  @Field({ nullable: true })
+  universityId?: string;
+
+  @Field()
+  status: string;
+
+  @Field({ nullable: true })
+  adminNotes?: string;
+
+  @Field()
+  createdAt: string;
+
+  @Field()
+  updatedAt: string;
+}
+
+@ObjectType()
+export class RegistrationRequestSubmissionResponse {
+  @Field()
+  message: string;
+
+  @Field()
+  success: boolean;
+}
+
+@ObjectType()
+export class RegistrationRequestsCountResponse {
+  @Field(() => Int)
+  pending: number;
+
+  @Field(() => Int)
+  total: number;
 } 

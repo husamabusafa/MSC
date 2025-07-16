@@ -29,7 +29,8 @@ export class UsersResolver {
     @Args('filters', { type: () => UsersFilterInput, nullable: true }) filters: UsersFilterInput = {},
     @CurrentUser() user: User,
   ): Promise<UsersResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -56,7 +57,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<UserResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -84,7 +86,8 @@ export class UsersResolver {
     @Args('createUserInput') createUserInput: CreateUserInput,
     @CurrentUser() user: User,
   ): Promise<UserResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -109,7 +112,8 @@ export class UsersResolver {
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
     @CurrentUser() user: User,
   ): Promise<UserResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -133,7 +137,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -151,7 +156,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<UserResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -175,7 +181,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<UserResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -226,7 +233,8 @@ export class UsersResolver {
     @Args('filters', { type: () => PreRegisteredStudentsFilterInput, nullable: true }) filters: PreRegisteredStudentsFilterInput = {},
     @CurrentUser() user: User,
   ): Promise<PreRegisteredStudentsResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -250,7 +258,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<PreRegisteredStudentResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -275,7 +284,8 @@ export class UsersResolver {
     @Args('createPreRegisteredStudentInput') createPreRegisteredStudentInput: CreatePreRegisteredStudentInput,
     @CurrentUser() user: User,
   ): Promise<PreRegisteredStudentResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -297,7 +307,8 @@ export class UsersResolver {
     @Args('updatePreRegisteredStudentInput') updatePreRegisteredStudentInput: UpdatePreRegisteredStudentInput,
     @CurrentUser() user: User,
   ): Promise<PreRegisteredStudentResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -318,7 +329,8 @@ export class UsersResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 

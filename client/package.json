@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
+    "@hookform/resolvers": "^5.1.1",
     "graphql": "^16.11.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.60.0",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

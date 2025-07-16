@@ -36,6 +36,7 @@ import {
   CreateGpaSubjectInput,
   UpdateGpaSubjectInput,
 } from './dto/academic.dto';
+import { ForbiddenException } from '@nestjs/common';
 
 @Resolver()
 export class AcademicResolver {
@@ -68,8 +69,9 @@ export class AcademicResolver {
     @Args('createLevelInput') createLevelInput: CreateLevelInput,
     @CurrentUser() user: User,
   ): Promise<LevelResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create levels');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const level = await this.academicService.createLevel(createLevelInput);
@@ -112,8 +114,9 @@ export class AcademicResolver {
     @Args('updateLevelInput') updateLevelInput: UpdateLevelInput,
     @CurrentUser() user: User,
   ): Promise<LevelResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update levels');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const level = await this.academicService.updateLevel(id, updateLevelInput);
@@ -145,8 +148,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete levels');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteLevel(id);
@@ -235,8 +239,9 @@ export class AcademicResolver {
     @Args('createCourseInput') createCourseInput: CreateCourseInput,
     @CurrentUser() user: User,
   ): Promise<CourseResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create courses');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const course = await this.academicService.createCourse(createCourseInput);
@@ -269,8 +274,9 @@ export class AcademicResolver {
     @Args('updateCourseInput') updateCourseInput: UpdateCourseInput,
     @CurrentUser() user: User,
   ): Promise<CourseResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update courses');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const course = await this.academicService.updateCourse(id, updateCourseInput);
@@ -302,8 +308,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete courses');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteCourse(id);
@@ -377,8 +384,9 @@ export class AcademicResolver {
     @Args('createFlashcardDeckInput') createFlashcardDeckInput: CreateFlashcardDeckInput,
     @CurrentUser() user: User,
   ): Promise<FlashcardDeckResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create flashcard decks');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const deck = await this.academicService.createFlashcardDeck(createFlashcardDeckInput);
@@ -406,8 +414,9 @@ export class AcademicResolver {
     @Args('updateFlashcardDeckInput') updateFlashcardDeckInput: UpdateFlashcardDeckInput,
     @CurrentUser() user: User,
   ): Promise<FlashcardDeckResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update flashcard decks');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const deck = await this.academicService.updateFlashcardDeck(id, updateFlashcardDeckInput);
@@ -434,8 +443,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete flashcard decks');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteFlashcardDeck(id);
@@ -509,8 +519,9 @@ export class AcademicResolver {
     @Args('createQuizInput') createQuizInput: CreateQuizInput,
     @CurrentUser() user: User,
   ): Promise<QuizResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create quizzes');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const quiz = await this.academicService.createQuiz(createQuizInput);
@@ -538,8 +549,9 @@ export class AcademicResolver {
     @Args('updateQuizInput') updateQuizInput: UpdateQuizInput,
     @CurrentUser() user: User,
   ): Promise<QuizResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update quizzes');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const quiz = await this.academicService.updateQuiz(id, updateQuizInput);
@@ -566,8 +578,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete quizzes');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteQuiz(id);
@@ -601,8 +614,9 @@ export class AcademicResolver {
     @Args('createQuizQuestionInput') createQuizQuestionInput: CreateQuizQuestionInput,
     @CurrentUser() user: User,
   ): Promise<QuizQuestionResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create quiz questions');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const question = await this.academicService.createQuizQuestion(createQuizQuestionInput);
@@ -620,8 +634,9 @@ export class AcademicResolver {
     @Args('updateQuizQuestionInput') updateQuizQuestionInput: UpdateQuizQuestionInput,
     @CurrentUser() user: User,
   ): Promise<QuizQuestionResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update quiz questions');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const question = await this.academicService.updateQuizQuestion(id, updateQuizQuestionInput);
@@ -638,8 +653,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete quiz questions');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteQuizQuestion(id);
@@ -749,8 +765,9 @@ export class AcademicResolver {
     @Args('createFlashcardInput') createFlashcardInput: CreateFlashcardInput,
     @CurrentUser() user: User,
   ): Promise<FlashcardResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create flashcards');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const flashcard = await this.academicService.createFlashcard(createFlashcardInput);
@@ -768,8 +785,9 @@ export class AcademicResolver {
     @Args('updateFlashcardInput', { type: () => UpdateFlashcardInput }) updateFlashcardInput: UpdateFlashcardInput,
     @CurrentUser() user: User,
   ): Promise<FlashcardResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update flashcards');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const flashcard = await this.academicService.updateFlashcard(id, updateFlashcardInput);
@@ -786,8 +804,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete flashcards');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteFlashcard(id);
@@ -821,8 +840,9 @@ export class AcademicResolver {
     @Args('createGpaSubjectInput') createGpaSubjectInput: CreateGpaSubjectInput,
     @CurrentUser() user: User,
   ): Promise<GpaSubjectResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create GPA subjects');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const subject = await this.academicService.createGpaSubject(createGpaSubjectInput);
@@ -840,8 +860,9 @@ export class AcademicResolver {
     @Args('updateGpaSubjectInput') updateGpaSubjectInput: UpdateGpaSubjectInput,
     @CurrentUser() user: User,
   ): Promise<GpaSubjectResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update GPA subjects');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     const subject = await this.academicService.updateGpaSubject(id, updateGpaSubjectInput);
@@ -858,8 +879,9 @@ export class AcademicResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete GPA subjects');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
 
     await this.academicService.deleteGpaSubject(id);

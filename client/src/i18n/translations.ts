@@ -10,6 +10,7 @@ export const translations = {
       delete: 'Delete',
       edit: 'Edit',
       add: 'Add',
+      create: 'Create',
       search: 'Search',
       filter: 'Filter',
       refresh: 'Refresh',
@@ -50,6 +51,7 @@ export const translations = {
       active: 'Active',
       inactive: 'Inactive',
       // Common UI elements
+      or: 'or',
       order: 'Order',
       orderNumber: 'Order #',
       orderId: 'Order ID',
@@ -57,6 +59,7 @@ export const translations = {
       total: 'Total',
       allTypes: 'All Types',
       allStatus: 'All Status',
+      all: 'All',
       books: 'Books',
       products: 'Products',
       viewDetails: 'View Details',
@@ -106,6 +109,7 @@ export const translations = {
       each: 'each',
       item: 'item',
       items: 'items',
+      pendingItems: 'pending items',
       notFound: 'Not Found',
       notFoundDescription: 'The item you\'re looking for doesn\'t exist or has been removed.',
       managementDescription: 'Manage system users and their permissions',
@@ -135,6 +139,15 @@ export const translations = {
       ]
     },
     
+    // Roles
+    roles: {
+      SUPER_ADMIN: 'Super Admin',
+      ACADEMIC_ADMIN: 'Academic Admin',
+      LIBRARY_ADMIN: 'Library Admin',
+      STORE_ADMIN: 'Store Admin',
+      STUDENT: 'Student'
+    },
+    
     // Auth
     auth: {
       login: 'Login',
@@ -154,7 +167,24 @@ export const translations = {
       accountCreated: 'Account created successfully',
       loggedOut: 'Logged out successfully',
       studentPanel: 'Student Panel',
-      adminPanel: 'Admin Panel'
+      adminPanel: 'Admin Panel',
+      // Registration Request
+      registrationRequestSubmitted: 'Registration Request Submitted',
+      registrationRequestMessage: 'Your registration request has been submitted successfully. Please wait for admin approval before you can log in.',
+      backToLogin: 'Back to Login',
+      submitRegistrationRequest: 'Submit Registration Request',
+      alreadyHaveAccount: 'Already have an account?',
+      registrationNote: 'Note:',
+      registrationReviewMessage: 'Your registration request will be reviewed by an admin before you can log in.',
+      registrationAccessMessage: 'You\'ll receive access once your request is approved.',
+      // Error messages
+      networkError: 'Network error. Please check your connection and try again.',
+      serverError: 'Server error. Please try again later.',
+      accessDenied: 'Access denied. Please contact support.',
+      unexpectedError: 'An unexpected error occurred. Please try again.',
+      unauthorized: 'Unauthorized',
+      pleaseLogin: 'Please login to access this page',
+      noPermission: 'You do not have permission to access this page'
     },
     
     // Navigation
@@ -177,9 +207,8 @@ export const translations = {
       productCategories: 'Product Categories',
       products: 'Products',
       orders: 'Orders',
-      preRegistered: 'Pre-registered Students',
-      preRegisteredStudents: 'Pre-registered Students',
-      notifications: 'Notifications'
+      notifications: 'Notifications',
+      registrationRequests: 'Registration Requests'
     },
     
     // Dashboard
@@ -195,14 +224,78 @@ export const translations = {
       totalBooks: 'Total Books',
       totalOrders: 'Total Orders',
       pendingOrders: 'Pending Orders',
+      pendingItems: 'Pending Items',
       availableBooks: 'Available Books',
+      online: 'Online',
+      systemStatus: 'System Status',
       browseCourses: 'Browse Courses',
       visitLibrary: 'Visit Library',
       shopStore: 'Shop Store',
       enrolledCourses: 'Enrolled Courses',
       borrowedBooks: 'Borrowed Books',
       recentOrders: 'Recent Orders',
-      completedQuizzes: 'Completed Quizzes'
+      completedQuizzes: 'Completed Quizzes',
+      superAdminWelcome: 'Manage all aspects of the system with full administrative access',
+      academicAdminWelcome: 'Manage courses, quizzes, flashcards, and academic content',
+      libraryAdminWelcome: 'Manage books, book orders, and library operations',
+      storeAdminWelcome: 'Manage products, orders, and store operations',
+      
+      // Stats titles
+      academicLevels: 'Academic Levels',
+      flashcardDecks: 'Flashcard Decks',
+      productCategories: 'Product Categories',
+      
+      // Pending items
+      bookOrders: 'Book Orders',
+      productOrders: 'Product Orders',
+      registrationRequests: 'Registration Requests',
+      
+      // Quick actions
+      manageUsers: 'Manage Users',
+      manageUsersDescription: 'Add, edit, or remove users',
+      manageLevels: 'Manage Levels',
+      manageLevelsDescription: 'Create and manage academic levels',
+      addCourse: 'Add Course',
+      addCourseDescription: 'Create new course content',
+      manageFlashcards: 'Manage Flashcards',
+      manageFlashcardsDescription: 'Create and manage flashcard decks',
+      manageQuizzes: 'Manage Quizzes',
+      manageQuizzesDescription: 'Create and manage quizzes',
+      addBook: 'Add Book',
+      addBookDescription: 'Add new books to library',
+      manageBookOrders: 'Book Orders',
+      manageBookOrdersDescription: 'Manage book orders',
+      manageProductCategories: 'Product Categories',
+      manageProductCategoriesDescription: 'Manage product categories',
+      manageProducts: 'Manage Products',
+      manageProductsDescription: 'Add and manage products',
+      manageStoreOrders: 'Store Orders',
+      manageStoreOrdersDescription: 'Manage store orders',
+      manageRegistrationRequests: 'Registration Requests',
+      manageRegistrationRequestsDescription: 'Approve or reject registrations',
+      manageNotifications: 'Notifications',
+      manageNotificationsDescription: 'Send and manage notifications',
+      
+      // Recent activity
+      newUserRegistration: 'New user registration',
+      bookOrderApproved: 'Book order approved',
+      newProductAdded: 'New product added',
+      quizCreated: 'Quiz created',
+      levelCreated: 'Level created',
+      flashcardDeckUpdated: 'Flashcard deck updated',
+      registrationRequestApproved: 'Registration request approved',
+      notificationSent: 'Notification sent to all students',
+      
+      // Time references
+      hoursAgo: 'hours ago',
+      dayAgo: 'day ago',
+      daysAgo: 'days ago',
+      weekAgo: 'week ago',
+      weeksAgo: 'weeks ago',
+      
+      // Empty state
+      welcomeToDashboard: 'Welcome to your dashboard',
+      roleSpecificContent: 'Your role-specific content will appear here as you gain access to different sections.'
     },
     
     // Academic
@@ -468,7 +561,10 @@ export const translations = {
       student: 'Student',
       admin: 'Admin',
       STUDENT: 'Student',
-      ADMIN: 'Admin',
+      SUPER_ADMIN: 'Super Admin',
+      ACADEMIC_ADMIN: 'Academic Admin',
+      LIBRARY_ADMIN: 'Library Admin',
+      STORE_ADMIN: 'Store Admin',
       status: 'Status',
       active: 'Active',
       inactive: 'Inactive',
@@ -512,12 +608,38 @@ export const translations = {
       managementDescription: 'Create and manage notifications for students'
     },
     
-    // Pre-registered Students
-    preRegisteredStudents: {
-      createStudent: 'Create Student',
-      unused: 'Unused'
-    },
-    
+    // Registration Requests
+    registrationRequests: {
+      title: 'Registration Requests',
+      reviewRequest: 'Review Registration Request',
+      adminNotes: 'Admin Notes (Optional)',
+      adminNotesPlaceholder: 'Add any notes about this decision...',
+      approve: 'Approve',
+      reject: 'Reject',
+      approveRequest: 'Approve Request',
+      rejectRequest: 'Reject Request',
+      approveSuccess: 'Registration request approved successfully',
+      rejectSuccess: 'Registration request rejected',
+      approveFailed: 'Failed to approve request',
+      rejectFailed: 'Failed to reject request',
+      pending: 'Pending',
+      processed: 'Processed',
+      pendingRequests: 'Pending Requests',
+      processedRequests: 'Processed Requests',
+      review: 'Review',
+      noPendingRequests: 'No Pending Requests',
+      allProcessedMessage: 'All registration requests have been processed.',
+      managementDescription: 'Review and manage student registration requests',
+      // Status translations
+      PENDING: 'Pending',
+      APPROVED: 'Approved',
+      REJECTED: 'Rejected',
+      CANCELLED: 'Cancelled',
+      // Modal
+      requestDetails: 'Request Details',
+      submittedOn: 'Submitted on'
+        },
+
     // Settings
     settings: {
       language: 'Language',
@@ -553,7 +675,18 @@ export const translations = {
       descriptionRequired: 'Description is required',
       priceRequired: 'Price is required',
       categoryRequired: 'Category is required',
-      invalidPrice: 'Please enter a valid price'
+      invalidPrice: 'Please enter a valid price',
+      // Auth specific
+      emailRequired: 'Email is required',
+      passwordRequired: 'Password is required',
+      fullNameRequired: 'Full name is required',
+      confirmPasswordRequired: 'Please confirm your password',
+      nameMinLength: 'Name must be at least 2 characters long',
+      nameMaxLength: 'Name must be less than 50 characters',
+      passwordMinLength: 'Password must be at least 8 characters long',
+      passwordLowercase: 'Password must contain at least one lowercase letter',
+      passwordUppercase: 'Password must contain at least one uppercase letter',
+      passwordNumber: 'Password must contain at least one number'
     },
     
     // Success Messages
@@ -632,6 +765,7 @@ export const translations = {
       delete: 'حذف',
       edit: 'تعديل',
       add: 'إضافة',
+      create: 'إنشاء',
       search: 'بحث',
       filter: 'تصفية',
       refresh: 'تحديث',
@@ -672,6 +806,7 @@ export const translations = {
       active: 'نشط',
       inactive: 'غير نشط',
       // Common UI elements
+      or: 'أو',
       order: 'ترتيب',
       orderNumber: 'رقم الطلب',
       orderId: 'رقم الطلب',
@@ -679,6 +814,7 @@ export const translations = {
       total: 'الإجمالي',
       allTypes: 'جميع الأنواع',
       allStatus: 'جميع الحالات',
+      all: 'الكل',
       books: 'الكتب',
       products: 'المنتجات',
       viewDetails: 'عرض التفاصيل',
@@ -728,6 +864,7 @@ export const translations = {
       each: 'للواحد',
       item: 'عنصر',
       items: 'عناصر',
+      pendingItems: 'عناصر معلقة',
       notFound: 'غير موجود',
       notFoundDescription: 'العنصر الذي تبحث عنه غير موجود أو تم حذفه.',
       managementDescription: 'إدارة مستخدمي النظام وصلاحياتهم',
@@ -757,6 +894,15 @@ export const translations = {
       ]
     },
     
+    // Roles
+    roles: {
+      SUPER_ADMIN: 'مدير عام',
+      ACADEMIC_ADMIN: 'مدير أكاديمي',
+      LIBRARY_ADMIN: 'مدير المكتبة',
+      STORE_ADMIN: 'مدير المتجر',
+      STUDENT: 'طالب'
+    },
+    
     // Auth
     auth: {
       login: 'تسجيل الدخول',
@@ -776,7 +922,24 @@ export const translations = {
       accountCreated: 'تم إنشاء الحساب بنجاح',
       loggedOut: 'تم تسجيل الخروج بنجاح',
       studentPanel: 'لوحة الطالب',
-      adminPanel: 'لوحة الإدارة'
+      adminPanel: 'لوحة الإدارة',
+      // Registration Request
+      registrationRequestSubmitted: 'تم إرسال طلب التسجيل',
+      registrationRequestMessage: 'تم إرسال طلب التسجيل بنجاح. يرجى الانتظار حتى يتم الموافقة عليه من قبل المدير قبل أن تتمكن من تسجيل الدخول.',
+      backToLogin: 'العودة لتسجيل الدخول',
+      submitRegistrationRequest: 'إرسال طلب التسجيل',
+      alreadyHaveAccount: 'هل لديك حساب بالفعل؟',
+      registrationNote: 'ملاحظة:',
+      registrationReviewMessage: 'سيتم مراجعة طلب التسجيل الخاص بك من قبل المدير قبل أن تتمكن من تسجيل الدخول.',
+      registrationAccessMessage: 'سيتم إرسال الوصول عندما يتم الموافقة على طلبك.',
+      // Error messages
+      networkError: 'خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى',
+      serverError: 'خطأ في الخادم. يرجى المحاولة لاحقاً',
+      accessDenied: 'تم رفض الوصول. يرجى الاتصال بالدعم',
+      unexpectedError: 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى',
+      unauthorized: 'غير مخول',
+      pleaseLogin: 'يرجى تسجيل الدخول للوصول إلى هذه الصفحة',
+      noPermission: 'ليس لديك صلاحية للوصول إلى هذه الصفحة'
     },
     
     // Navigation
@@ -799,9 +962,8 @@ export const translations = {
       productCategories: 'فئات المنتجات',
       products: 'المنتجات',
       orders: 'الطلبات',
-      preRegistered: 'الطلاب المسجلين مسبقاً',
-      preRegisteredStudents: 'الطلاب المسجلين مسبقاً',
-      notifications: 'الإشعارات'
+      notifications: 'الإشعارات',
+      registrationRequests: 'طلبات التسجيل'
     },
     
     // Dashboard
@@ -817,14 +979,78 @@ export const translations = {
       totalBooks: 'إجمالي الكتب',
       totalOrders: 'إجمالي الطلبات',
       pendingOrders: 'الطلبات المعلقة',
+      pendingItems: 'العناصر المعلقة',
       availableBooks: 'الكتب المتاحة',
+      online: 'متصل',
+      systemStatus: 'حالة النظام',
       browseCourses: 'تصفح المقررات',
       visitLibrary: 'زيارة المكتبة',
       shopStore: 'تسوق في المتجر',
       enrolledCourses: 'المقررات المسجلة',
       borrowedBooks: 'الكتب المستعارة',
       recentOrders: 'الطلبات الأخيرة',
-      completedQuizzes: 'الاختبارات المكتملة'
+      completedQuizzes: 'الاختبارات المكتملة',
+      superAdminWelcome: 'إدارة جميع جوانب النظام بصلاحيات إدارية كاملة',
+      academicAdminWelcome: 'إدارة المقررات والاختبارات والبطاقات التعليمية والمحتوى الأكاديمي',
+      libraryAdminWelcome: 'إدارة الكتب وطلبات الكتب وعمليات المكتبة',
+      storeAdminWelcome: 'إدارة المنتجات والطلبات وعمليات المتجر',
+      
+      // Stats titles
+      academicLevels: 'المستويات الأكاديمية',
+      flashcardDecks: 'بطاقات التعليمية',
+      productCategories: 'فئات المنتجات',
+      
+      // Pending items
+      bookOrders: 'طلبات الكتب',
+      productOrders: 'طلبات المنتجات',
+      registrationRequests: 'طلبات التسجيل',
+      
+      // Quick actions
+      manageUsers: 'إدارة المستخدمين',
+      manageUsersDescription: 'إضافة، تعديل، أو حذف المستخدمين',
+      manageLevels: 'إدارة المستويات الأكاديمية',
+      manageLevelsDescription: 'إنشاء وإدارة المستويات الأكاديمية',
+      addCourse: 'إضافة مقرر',
+      addCourseDescription: 'إنشاء محتوى مقرر جديد',
+      manageFlashcards: 'إدارة البطاقات التعليمية',
+      manageFlashcardsDescription: 'إنشاء وإدارة مجموعات البطاقات التعليمية',
+      manageQuizzes: 'إدارة الاختبارات',
+      manageQuizzesDescription: 'إنشاء وإدارة الاختبارات',
+      addBook: 'إضافة كتاب',
+      addBookDescription: 'إضافة كتب جديدة إلى المكتبة',
+      manageBookOrders: 'إدارة طلبات الكتب',
+      manageBookOrdersDescription: 'إدارة طلبات الكتب',
+      manageProductCategories: 'إدارة فئات المنتجات',
+      manageProductCategoriesDescription: 'إدارة فئات المنتجات',
+      manageProducts: 'إدارة المنتجات',
+      manageProductsDescription: 'إضافة وإدارة المنتجات',
+      manageStoreOrders: 'إدارة طلبات المتجر',
+      manageStoreOrdersDescription: 'إدارة طلبات المتجر',
+      manageRegistrationRequests: 'إدارة طلبات التسجيل',
+      manageRegistrationRequestsDescription: 'موافقة أو رفض طلبات التسجيل',
+      manageNotifications: 'إدارة الإشعارات',
+      manageNotificationsDescription: 'إرسال وإدارة الإشعارات',
+      
+      // Recent activity
+      newUserRegistration: 'تسجيل مستخدم جديد',
+      bookOrderApproved: 'طلب الكتاب موافق',
+      newProductAdded: 'منتج جديد إضاف',
+      quizCreated: 'اختبار جديد إنشاء',
+      levelCreated: 'مستوى جديد إنشاء',
+      flashcardDeckUpdated: 'بطاقات التعليمية تحديث',
+      registrationRequestApproved: 'طلب التسجيل موافق',
+      notificationSent: 'إشعار إرسال لجميع الطلاب',
+      
+      // Time references
+      hoursAgo: 'ساعات مضت',
+      dayAgo: 'يوم مضى',
+      daysAgo: 'أيام مضى',
+      weekAgo: 'أسبوع مضى',
+      weeksAgo: 'أسابيع مضى',
+      
+      // Empty state
+      welcomeToDashboard: 'مرحباً بك في لوحة التحكم',
+      roleSpecificContent: 'سيظهر المحتوى المخصص لدورك هنا عند حصولك على وصول لأقسام مختلفة.'
     },
     
     // Academic
@@ -1100,7 +1326,10 @@ export const translations = {
       student: 'طالب',
       admin: 'مدير',
       STUDENT: 'طالب',
-      ADMIN: 'مدير',
+      SUPER_ADMIN: 'مدير عام',
+      ACADEMIC_ADMIN: 'مدير أكاديمي',
+      LIBRARY_ADMIN: 'مدير المكتبة',
+      STORE_ADMIN: 'مدير المتجر',
       status: 'الحالة',
       active: 'نشط',
       inactive: 'غير نشط',
@@ -1144,12 +1373,38 @@ export const translations = {
       managementDescription: 'إنشاء وإدارة الإشعارات للطلاب'
     },
     
-    // Pre-registered Students
-    preRegisteredStudents: {
-      createStudent: 'إنشاء طالب',
-      unused: 'غير مستخدم'
-    },
-    
+    // Registration Requests
+    registrationRequests: {
+      title: 'طلبات التسجيل',
+      reviewRequest: 'مراجعة طلب التسجيل',
+      adminNotes: 'ملاحظات الإدارة (اختيارية)',
+      adminNotesPlaceholder: 'أضف أي ملاحظات حول هذه القرار...',
+      approve: 'موافقة',
+      reject: 'رفض',
+      approveRequest: 'موافقة على الطلب',
+      rejectRequest: 'رفض الطلب',
+      approveSuccess: 'تمت موافقة طلب التسجيل بنجاح',
+      rejectSuccess: 'تم رفض طلب التسجيل',
+      approveFailed: 'فشل في موافقة طلب التسجيل',
+      rejectFailed: 'فشل في رفض طلب التسجيل',
+      pending: 'معلق',
+      processed: 'معالج',
+      pendingRequests: 'طلبات معلقة',
+      processedRequests: 'طلبات معالجة',
+      review: 'مراجعة',
+      noPendingRequests: 'لا توجد طلبات معلقة',
+      allProcessedMessage: 'جميع طلبات التسجيل تمت معالجتها.',
+      managementDescription: 'مراجعة وإدارة طلبات التسجيل للطلاب',
+      // Status translations
+      PENDING: 'معلق',
+      APPROVED: 'موافق عليه',
+      REJECTED: 'مرفوض',
+      CANCELLED: 'ملغي',
+      // Modal
+      requestDetails: 'تفاصيل الطلب',
+      submittedOn: 'تاريخ الإرسال'
+        },
+
     // Settings
     settings: {
       language: 'اللغة',
@@ -1185,7 +1440,18 @@ export const translations = {
       descriptionRequired: 'الوصف مطلوب',
       priceRequired: 'السعر مطلوب',
       categoryRequired: 'الفئة مطلوبة',
-      invalidPrice: 'يرجى إدخال سعر صحيح'
+      invalidPrice: 'يرجى إدخال سعر صحيح',
+      // Auth specific
+      emailRequired: 'البريد الإلكتروني مطلوب',
+      passwordRequired: 'كلمة المرور مطلوبة',
+      fullNameRequired: 'الاسم الكامل مطلوب',
+      confirmPasswordRequired: 'يرجى تأكيد كلمة المرور',
+      nameMinLength: 'الاسم يجب أن يكون حرفين على الأقل',
+      nameMaxLength: 'الاسم يجب أن يكون أقل من 50 حرفاً',
+      passwordMinLength: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
+      passwordLowercase: 'كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل',
+      passwordUppercase: 'كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل',
+      passwordNumber: 'كلمة المرور يجب أن تحتوي على رقم واحد على الأقل'
     },
     
     // Success Messages

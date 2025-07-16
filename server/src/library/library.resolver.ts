@@ -111,7 +111,8 @@ export class LibraryResolver {
     @Args('createBookInput') createBookInput: CreateBookInput,
     @CurrentUser() user: User,
   ): Promise<BookResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -139,7 +140,8 @@ export class LibraryResolver {
     @Args('updateBookInput') updateBookInput: UpdateBookInput,
     @CurrentUser() user: User,
   ): Promise<BookResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -166,7 +168,8 @@ export class LibraryResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -407,7 +410,8 @@ export class LibraryResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 
@@ -420,7 +424,8 @@ export class LibraryResolver {
   async libraryStats(
     @CurrentUser() user: User,
   ): Promise<LibraryStatsResponse> {
-    if (user.role !== 'ADMIN') {
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
       throw new ForbiddenException('Admin access required');
     }
 

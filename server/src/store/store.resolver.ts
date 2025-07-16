@@ -23,6 +23,7 @@ import {
   StoreStatsResponse,
   CartResponse,
 } from './dto/store.dto';
+import { ForbiddenException } from '@nestjs/common';
 
 @Resolver()
 export class StoreResolver {
@@ -51,8 +52,9 @@ export class StoreResolver {
     @Args('input') input: CreateProductCategoryInput,
     @CurrentUser() user: any,
   ): Promise<ProductCategoryResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create product categories');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.createProductCategory(input);
   }
@@ -64,8 +66,9 @@ export class StoreResolver {
     @Args('input') input: UpdateProductCategoryInput,
     @CurrentUser() user: any,
   ): Promise<ProductCategoryResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update product categories');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.updateProductCategory(id, input);
   }
@@ -76,8 +79,9 @@ export class StoreResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: any,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete product categories');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.deleteProductCategory(id);
   }
@@ -112,8 +116,9 @@ export class StoreResolver {
     @Args('input') input: CreateProductInput,
     @CurrentUser() user: any,
   ): Promise<ProductResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can create products');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.createProduct(input);
   }
@@ -125,8 +130,9 @@ export class StoreResolver {
     @Args('input') input: UpdateProductInput,
     @CurrentUser() user: any,
   ): Promise<ProductResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can update products');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.updateProduct(id, input);
   }
@@ -137,8 +143,9 @@ export class StoreResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: any,
   ): Promise<boolean> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can delete products');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.deleteProduct(id);
   }
@@ -212,8 +219,9 @@ export class StoreResolver {
   async storeStats(
     @CurrentUser() user: any,
   ): Promise<StoreStatsResponse> {
-    if (user.role !== 'ADMIN') {
-      throw new Error('Only admins can access store statistics');
+    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+    if (!isAdmin) {
+      throw new ForbiddenException('Admin access required');
     }
     return this.storeService.getStoreStats();
   }

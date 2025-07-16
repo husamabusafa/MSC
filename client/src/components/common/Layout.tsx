@@ -24,7 +24,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return <AuthLayout>{children}</AuthLayout>;
   }
 
-  if (user.role === 'ADMIN') {
+  const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+  
+  if (isAdmin) {
     return <AdminLayout>{children}</AdminLayout>;
   }
 

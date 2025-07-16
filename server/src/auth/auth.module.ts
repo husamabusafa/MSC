@@ -7,6 +7,7 @@ import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from '../users/users.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UsersModule } from '../users/users.module';
       inject: [ConfigService],
     }),
     UsersModule,
+    PrismaModule,
   ],
   providers: [AuthService, AuthResolver, JwtStrategy, LocalStrategy],
   exports: [AuthService],

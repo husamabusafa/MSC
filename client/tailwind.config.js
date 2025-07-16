@@ -166,6 +166,20 @@ export default {
         'slide-in': 'slide-in 0.3s ease-out',
         'bounce-in': 'bounce-in 0.6s ease-out',
       },
+      animationDelay: {
+        '100': '100ms',
+        '200': '200ms',
+        '300': '300ms',
+        '400': '400ms',
+        '500': '500ms',
+        '600': '600ms',
+        '700': '700ms',
+        '800': '800ms',
+        '900': '900ms',
+        '1000': '1000ms',
+        '1500': '1500ms',
+        '2000': '2000ms',
+      },
       keyframes: {
         'fade-in': {
           '0%': { opacity: '0', transform: 'translateY(10px)' },

@@ -14,4 +14,5 @@ export { AuthLayout } from './AuthLayout';
 export { Layout } from './Layout';
 export { StudentLayout } from './StudentLayout';
 export { ToastComponent, ToastContainer } from './Toast';
-export type { Toast, Toast as ToastType } from './Toast'; 
+export type { Toast, Toast as ToastType } from './Toast';
+export { ProtectedRoute } from './ProtectedRoute'; 

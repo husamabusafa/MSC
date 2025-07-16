@@ -3,8 +3,11 @@ import { IsEmail, IsString, MinLength, IsOptional, IsBoolean, IsEnum } from 'cla
 
 // Enums
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  STUDENT = 'STUDENT'
+  STUDENT = 'STUDENT',
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ACADEMIC_ADMIN = 'ACADEMIC_ADMIN',
+  LIBRARY_ADMIN = 'LIBRARY_ADMIN',
+  STORE_ADMIN = 'STORE_ADMIN'
 }
 
 // Common reference types

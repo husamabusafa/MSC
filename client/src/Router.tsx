@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { StudentDashboardPage } from './pages/student/StudentDashboardPage';
@@ -13,7 +14,6 @@ import { FlashcardsPage } from './pages/student/FlashcardsPage';
 import { OrderHistoryPage } from './pages/student/OrderHistoryPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
-import { AdminPreRegisteredPage } from './pages/admin/AdminPreRegisteredPage';
 import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AdminBooksPage } from './pages/admin/AdminBooksPage';
 import { AdminLevelsPage } from './pages/admin/AdminLevelsPage';
@@ -28,6 +28,7 @@ import { AdminQuizCreatePage } from './pages/admin/AdminQuizCreatePage';
 import { AdminQuizEditPage } from './pages/admin/AdminQuizEditPage';
 import { AdminQuizQuestionsPage } from './pages/admin/AdminQuizQuestionsPage';
 import { AdminGpaSubjectsPage } from './pages/admin/AdminGpaSubjectsPage';
+import { AdminRegistrationRequestsPage } from './pages/admin/AdminRegistrationRequestsPage';
 import { GpaCalculatorPage } from './pages/student/GpaCalculatorPage';
 
 export const Router: React.FC = () => {
@@ -100,49 +101,50 @@ export const Router: React.FC = () => {
   }
 
   // Admin routes
-  if (user.role === 'ADMIN') {
+  const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
+  if (isAdmin) {
     switch (currentPath) {
       case '/admin/users':
-        return <AdminUsersPage />;
-      case '/admin/pre-registered':
-        return <AdminPreRegisteredPage />;
+        return <ProtectedRoute permission="users"><AdminUsersPage /></ProtectedRoute>;
       case '/admin/notifications':
-        return <AdminNotificationsPage />;
+        return <ProtectedRoute permission="notifications"><AdminNotificationsPage /></ProtectedRoute>;
       case '/admin/levels':
-        return <AdminLevelsPage />;
+        return <ProtectedRoute permission="academic.levels"><AdminLevelsPage /></ProtectedRoute>;
       case '/admin/courses':
-        return <AdminCoursesPage />;
+        return <ProtectedRoute permission="academic.courses"><AdminCoursesPage /></ProtectedRoute>;
       case '/admin/books':
-        return <AdminBooksPage />;
+        return <ProtectedRoute permission="library.books"><AdminBooksPage /></ProtectedRoute>;
       case '/admin/book-orders':
-        return <AdminBookOrdersPage />;
+        return <ProtectedRoute permission="library.bookOrders"><AdminBookOrdersPage /></ProtectedRoute>;
       case '/admin/product-categories':
-        return <AdminProductCategoriesPage />;
+        return <ProtectedRoute permission="store.productCategories"><AdminProductCategoriesPage /></ProtectedRoute>;
       case '/admin/products':
-        return <AdminProductsPage />;
+        return <ProtectedRoute permission="store.products"><AdminProductsPage /></ProtectedRoute>;
       case '/admin/orders':
-        return <AdminOrdersPage />;
+        return <ProtectedRoute permission="store.orders"><AdminOrdersPage /></ProtectedRoute>;
       case '/admin/flashcards':
-        return <AdminFlashcardsPage />;
+        return <ProtectedRoute permission="academic.flashcards"><AdminFlashcardsPage /></ProtectedRoute>;
       case '/admin/quizzes':
-        return <AdminQuizzesPage />;
+        return <ProtectedRoute permission="academic.quizzes"><AdminQuizzesPage /></ProtectedRoute>;
       case '/admin/quizzes/create':
-        return <AdminQuizCreatePage />;
+        return <ProtectedRoute permission="academic.quizzes"><AdminQuizCreatePage /></ProtectedRoute>;
       case '/admin/gpa-subjects':
-        return <AdminGpaSubjectsPage />;
+        return <ProtectedRoute permission="academic.gpaSubjects"><AdminGpaSubjectsPage /></ProtectedRoute>;
+      case '/admin/registration-requests':
+        return <ProtectedRoute permission="registrationRequests"><AdminRegistrationRequestsPage /></ProtectedRoute>;
       default:
         // Handle dynamic routes
         if (currentPath.startsWith('/admin/quizzes/') && currentPath.endsWith('/edit')) {
           const quizId = currentPath.split('/')[3];
-          return <AdminQuizEditPage quizId={quizId} />;
+          return <ProtectedRoute permission="academic.quizzes"><AdminQuizEditPage quizId={quizId} /></ProtectedRoute>;
         }
         if (currentPath.startsWith('/admin/quizzes/') && currentPath.includes('/questions')) {
           const quizId = currentPath.split('/')[3];
           if (currentPath.endsWith('/questions')) {
-            return <AdminQuizQuestionsPage quizId={quizId} />;
+            return <ProtectedRoute permission="academic.quizzes"><AdminQuizQuestionsPage quizId={quizId} /></ProtectedRoute>;
           }
         }
-        return <AdminDashboardPage />;
+        return <ProtectedRoute permission="dashboard"><AdminDashboardPage /></ProtectedRoute>;
     }
   }
 

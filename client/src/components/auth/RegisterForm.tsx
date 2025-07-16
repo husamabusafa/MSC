@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useMutation } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
-import { Mail, Lock, User, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { 
+  CREATE_REGISTRATION_REQUEST_MUTATION, 
+  CreateRegistrationRequestInput, 
+  RegistrationRequestSubmissionResponse 
+} from '../../lib/graphql/auth';
 
 // Helper function to navigate without page refresh
 const navigateToPath = (path: string) => {
@@ -11,226 +19,280 @@ const navigateToPath = (path: string) => {
   window.dispatchEvent(new PopStateEvent('popstate'));
 };
 
-// Helper function to extract meaningful error messages
-const getErrorMessage = (error: any, fallback: string): string => {
-  if (error?.graphQLErrors && error.graphQLErrors.length > 0) {
-    return error.graphQLErrors[0].message;
-  }
-  if (error?.networkError) {
-    return 'Network error. Please check your connection and try again.';
-  }
-  if (error?.message) {
-    return error.message;
-  }
-  return fallback;
-};
+// Zod validation schema - will be created inside component to access translations
+const createRegisterSchema = (t: any) => z.object({
+  name: z
+    .string()
+    .min(1, t('validation.fullNameRequired'))
+    .min(2, t('validation.nameMinLength'))
+    .max(50, t('validation.nameMaxLength')),
+  universityId: z
+    .string()
+    .optional(),
+  email: z
+    .string()
+    .min(1, t('validation.emailRequired'))
+    .email(t('validation.invalidEmail')),
+  password: z
+    .string()
+    .min(1, t('validation.passwordRequired'))
+    .min(8, t('validation.passwordMinLength'))
+    .regex(/[a-z]/, t('validation.passwordLowercase'))
+    .regex(/[A-Z]/, t('validation.passwordUppercase')),
+  confirmPassword: z
+    .string()
+    .min(1, t('validation.confirmPasswordRequired')),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: t('validation.passwordsDoNotMatch'),
+  path: ['confirmPassword'],
+});
+
+type RegisterFormData = z.infer<ReturnType<typeof createRegisterSchema>>;
 
 export const RegisterForm: React.FC = () => {
-  const { register } = useAuth();
   const { t } = useI18n();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    name: '',
-    universityId: ''
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [serverError, setServerError] = React.useState<string | null>(null);
+
+  const registerSchema = createRegisterSchema(t);
+
+  const [createRegistrationRequest, { loading: isSubmitting }] = useMutation<
+    { createRegistrationRequest: RegistrationRequestSubmissionResponse },
+    { input: CreateRegistrationRequestInput }
+  >(CREATE_REGISTRATION_REQUEST_MUTATION);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onChange',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // Client-side validation
-    if (!formData.name.trim()) {
-      setError('Please enter your full name');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!formData.universityId.trim()) {
-      setError('Please enter your university ID');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setError('Please enter your email address');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address');
-      setIsLoading(false);
-      return;
-    }
-
-    if (!formData.password.trim()) {
-      setError('Please enter a password');
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
+  const onSubmit = async (data: RegisterFormData) => {
+    setServerError(null);
+    
     try {
-      await register(formData.email, formData.password, formData.name, formData.universityId);
-      // Registration successful - no need to navigate, the AuthContext will handle user state
-    } catch (err: any) {
-      const errorMessage = getErrorMessage(err, t('common.error'));
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const { data: response } = await createRegistrationRequest({
+        variables: {
+          input: {
+            email: data.email,
+            password: data.password,
+            name: data.name,
+            universityId: data.universityId || undefined,
+          },
+        },
+      });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+      if (response?.createRegistrationRequest.success) {
+        setIsSuccess(true);
+        reset();
+      }
+    } catch (error: any) {
+      setServerError(error.message || 'An error occurred while submitting your registration request');
+    }
   };
 
   const handleNavigateToLogin = () => {
     navigateToPath('/login');
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">
-          <div className="flex items-center">
-            <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            <span>{error}</span>
+  if (isSuccess) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+            </div>
           </div>
+          <div className="space-y-3">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {t('auth.registrationRequestSubmitted')}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              {t('auth.registrationRequestMessage')}
+            </p>
+          </div>
+          <Button
+            onClick={handleNavigateToLogin}
+            variant="primary"
+            size="lg"
+            colorScheme="student"
+            className="w-full"
+          >
+            {t('auth.backToLogin')}
+          </Button>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      <Input
-        type="text"
-        name="name"
-        label={t('auth.fullName')}
-        icon={User}
-        value={formData.name}
-        onChange={handleChange}
-        required
-        placeholder="Ahmed Hassan"
-        disabled={isLoading}
-      />
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Server Error */}
+        {serverError && (
+          <div className="p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">
+            <div className="flex items-center">
+              <AlertCircle className="w-4 h-4 me-2 flex-shrink-0" />
+              <span>{serverError}</span>
+            </div>
+          </div>
+        )}
 
-      <Input
-        type="text"
-        name="universityId"
-        label={t('auth.universityId')}
-        icon={CreditCard}
-        value={formData.universityId}
-        onChange={handleChange}
-        required
-        placeholder="ST002"
-        disabled={isLoading}
-      />
+        {/* Name Field */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              type="text"
+              label={t('auth.fullName')}
+              {...register('name')}
+              placeholder="Ahmed Hassan"
+              disabled={isSubmitting}
+              className={errors.name ? 'border-red-500 focus:border-red-500' : ''}
+            />
+          </div>
+          {errors.name && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertCircle className="w-4 h-4 me-1 flex-shrink-0" />
+              {errors.name.message}
+            </p>
+          )}
+        </div>
 
-      <Input
-        type="email"
-        name="email"
-        label={t('auth.email')}
-        icon={Mail}
-        value={formData.email}
-        onChange={handleChange}
-        required
-        placeholder="student@example.com"
-        disabled={isLoading}
-      />
+        {/* University ID Field */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              type="text"
+              label={t('auth.universityId')}
+              {...register('universityId')}
+              placeholder="ST002 (Optional)"
+              disabled={isSubmitting}
+              className={errors.universityId ? 'border-red-500 focus:border-red-500' : ''}
+            />
+          </div>
+          {errors.universityId && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertCircle className="w-4 h-4 me-1 flex-shrink-0" />
+              {errors.universityId.message}
+            </p>
+          )}
+        </div>
 
-      <div className="relative">
-        <Input
-          type={showPassword ? 'text' : 'password'}
-          name="password"
-          label={t('auth.password')}
-          icon={Lock}
-          value={formData.password}
-          onChange={handleChange}
-          required
-          placeholder="••••••••"
-          disabled={isLoading}
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 rtl:left-3 rtl:right-auto top-8 text-gray-400 hover:text-gray-600 disabled:opacity-50"
-          disabled={isLoading}
+        {/* Email Field */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              type="email"
+              label={t('auth.email')}
+              {...register('email')}
+              placeholder="student@example.com"
+              disabled={isSubmitting}
+              className={errors.email ? 'border-red-500 focus:border-red-500' : ''}
+            />
+          </div>
+          {errors.email && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertCircle className="w-4 h-4 me-1 flex-shrink-0" />
+              {errors.email.message}
+            </p>
+          )}
+        </div>
+
+        {/* Password Field */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              label={t('auth.password')}
+              {...register('password')}
+              placeholder="••••••••"
+              disabled={isSubmitting}
+              className={errors.password ? 'border-red-500 focus:border-red-500' : ''}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute end-3 top-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertCircle className="w-4 h-4 me-1 flex-shrink-0" />
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* Confirm Password Field */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              type={showConfirmPassword ? 'text' : 'password'}
+              label={t('auth.confirmPassword')}
+              {...register('confirmPassword')}
+              placeholder="••••••••"
+              disabled={isSubmitting}
+              className={errors.confirmPassword ? 'border-red-500 focus:border-red-500' : ''}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute end-3 top-8 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          {errors.confirmPassword && (
+            <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+              <AlertCircle className="w-4 h-4 me-1 flex-shrink-0" />
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          colorScheme="student"
+          isLoading={isSubmitting}
+          className="w-full"
+          disabled={isSubmitting}
         >
-          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-        </button>
-      </div>
+          {t('auth.submitRegistrationRequest')}
+        </Button>
 
-      <div className="relative">
-        <Input
-          type={showConfirmPassword ? 'text' : 'password'}
-          name="confirmPassword"
-          label={t('auth.confirmPassword')}
-          icon={Lock}
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          required
-          placeholder="••••••••"
-          disabled={isLoading}
-        />
-        <button
-          type="button"
-          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 rtl:left-3 rtl:right-auto top-8 text-gray-400 hover:text-gray-600 disabled:opacity-50"
-          disabled={isLoading}
-        >
-          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-        </button>
-      </div>
+        {/* Navigation to Login */}
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={handleNavigateToLogin}
+            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50"
+            disabled={isSubmitting}
+          >
+            {t('auth.alreadyHaveAccount')} {t('auth.loginTitle')}
+          </button>
+        </div>
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        colorScheme="student"
-        isLoading={isLoading}
-        className="w-full"
-        disabled={isLoading}
-      >
-        {t('auth.register')}
-      </Button>
-
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={handleNavigateToLogin}
-          className="text-sm text-student-600 hover:text-student-800 dark:text-student-400 dark:hover:text-student-300 disabled:opacity-50"
-          disabled={isLoading}
-        >
-          {t('auth.loginTitle')}
-        </button>
-      </div>
-
-      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-        <p><strong>{t('common.usePreRegistered')}</strong></p>
-        <p>ST002 (Omar Al-Rashid)</p>
-        <p>ST003 (Fatima Ibrahim)</p>
-      </div>
-    </form>
+        {/* Info Message */}
+        <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <p className="font-medium">{t('auth.registrationNote')}</p>
+          <p>{t('auth.registrationReviewMessage')}</p>
+          <p>{t('auth.registrationAccessMessage')}</p>
+        </div>
+      </form>
+    </div>
   );
 };

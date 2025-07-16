@@ -15,7 +15,7 @@ model User {
   email        String   @unique
   password     String
   name         String
-  role         String   @default("STUDENT")
+  role         String   @default("STUDENT") // STUDENT, SUPER_ADMIN, ACADEMIC_ADMIN, LIBRARY_ADMIN, STORE_ADMIN
   universityId String?
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -27,6 +27,20 @@ model User {
   quizAttempts QuizAttempt[]
 
   @@map("users")
+}
+
+model RegistrationRequest {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String
+  universityId String?
+  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  adminNotes   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("registration_requests")
 }
 
 model PreRegisteredStudent {

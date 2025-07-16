@@ -54,6 +54,17 @@ export class NotificationsService {
     };
   }
 
+  async getNotificationsCount(): Promise<{ active: number; total: number }> {
+    const [active, total] = await Promise.all([
+      this.prisma.notification.count({
+        where: { isActive: true },
+      }),
+      this.prisma.notification.count(),
+    ]);
+
+    return { active, total };
+  }
+
   async getNotificationById(id: string) {
     const notification = await this.prisma.notification.findUnique({
       where: { id },

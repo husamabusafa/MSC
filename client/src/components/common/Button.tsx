@@ -2,12 +2,16 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'gradient';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   colorScheme?: 'main' | 'student' | 'admin';
   icon?: LucideIcon;
+  iconPosition?: 'left' | 'right';
   isLoading?: boolean;
+  loadingText?: string;
   children: React.ReactNode;
+  fullWidth?: boolean;
+  rounded?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -15,45 +19,142 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'md',
   colorScheme = 'main',
   icon: Icon,
+  iconPosition = 'left',
   isLoading = false,
+  loadingText,
   children,
   className = '',
   disabled,
+  fullWidth = false,
+  rounded = 'lg',
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseClasses = `
+    inline-flex items-center justify-center font-medium 
+    transition-colors duration-200
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900
+    disabled:opacity-50 disabled:cursor-not-allowed
+    ${fullWidth ? 'w-full' : ''}
+  `;
+
+  const roundedClasses = {
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    full: 'rounded-full'
+  };
+
   const getColorClasses = (colorScheme: string) => {
-    const colorPrefix = colorScheme === 'main' ? 'main' : colorScheme;
+    const colorPrefix = colorScheme === 'main' ? 'blue' : 'blue';
     return {
-      primary: `bg-${colorPrefix}-500 hover:bg-${colorPrefix}-600 text-white focus:ring-${colorPrefix}-500 shadow-sm hover:shadow-md`,
-      secondary: 'bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 shadow-sm hover:shadow-md',
-      outline: `border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 focus:ring-${colorPrefix}-500`,
-      ghost: 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 focus:ring-gray-500',
-      danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm hover:shadow-md'
+      primary: `
+        bg-${colorPrefix}-600 
+        hover:bg-${colorPrefix}-700 
+        text-white 
+        shadow-sm 
+        hover:shadow-md
+        focus:ring-${colorPrefix}-500
+      `,
+      gradient: `
+        bg-${colorPrefix}-600 
+        hover:bg-${colorPrefix}-700 
+        text-white 
+        shadow-sm 
+        hover:shadow-md
+        focus:ring-${colorPrefix}-500
+      `,
+      secondary: `
+        bg-gray-600 
+        hover:bg-gray-700 
+        text-white 
+        shadow-sm 
+        hover:shadow-md
+        focus:ring-gray-500
+      `,
+      outline: `
+        border-2 border-gray-300 dark:border-gray-600 
+        bg-white dark:bg-gray-800 
+        hover:bg-gray-50 dark:hover:bg-gray-700 
+        hover:border-${colorPrefix}-500 dark:hover:border-${colorPrefix}-400
+        text-gray-700 dark:text-gray-300 
+        hover:text-${colorPrefix}-600 dark:hover:text-${colorPrefix}-400
+        shadow-sm hover:shadow-md
+        focus:ring-${colorPrefix}-500
+        focus:border-${colorPrefix}-500 dark:focus:border-${colorPrefix}-400
+      `,
+      ghost: `
+        hover:bg-gray-100 dark:hover:bg-gray-700 
+        text-gray-700 dark:text-gray-300 
+        hover:text-${colorPrefix}-600 dark:hover:text-${colorPrefix}-400
+        focus:ring-gray-500
+      `,
+      danger: `
+        bg-red-600 
+        hover:bg-red-700 
+        text-white 
+        shadow-sm 
+        hover:shadow-md
+        focus:ring-red-500
+      `
     };
   };
 
   const variants = getColorClasses(colorScheme);
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base'
+    xs: 'px-2 py-1 text-xs gap-1',
+    sm: 'px-3 py-1.5 text-sm gap-1.5',
+    md: 'px-4 py-2 text-sm gap-2',
+    lg: 'px-6 py-3 text-base gap-2',
+    xl: 'px-8 py-4 text-lg gap-3'
   };
+
+  const iconSizes = {
+    xs: 'w-3 h-3',
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-5 h-5',
+    xl: 'w-6 h-6'
+  };
+
+  const LoadingSpinner = ({ size }: { size: string }) => (
+    <div className={`${iconSizes[size as keyof typeof iconSizes]} relative`}>
+      <div className="absolute inset-0 border-2 border-current border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  const buttonContent = (
+    <>
+      {isLoading ? (
+        <LoadingSpinner size={size} />
+      ) : Icon && iconPosition === 'left' ? (
+        <Icon className={`${iconSizes[size]} flex-shrink-0`} />
+      ) : null}
+      
+      <span className={`${isLoading ? 'opacity-70' : ''}`}>
+        {isLoading && loadingText ? loadingText : children}
+      </span>
+      
+      {!isLoading && Icon && iconPosition === 'right' ? (
+        <Icon className={`${iconSizes[size]} flex-shrink-0`} />
+      ) : null}
+    </>
+  );
 
   return (
     <button
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`
+        ${baseClasses} 
+        ${variants[variant]} 
+        ${sizes[size]} 
+        ${roundedClasses[rounded]}
+        ${className}
+      `}
       disabled={disabled || isLoading}
       {...props}
     >
-      {isLoading ? (
-        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-      ) : Icon ? (
-        <Icon className="w-5 h-5 mr-2 rtl:ml-2 rtl:mr-0" />
-      ) : null}
-      {children}
+      {buttonContent}
     </button>
   );
 };

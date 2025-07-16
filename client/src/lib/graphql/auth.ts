@@ -34,6 +34,60 @@ export const REGISTER_MUTATION = gql`
   }
 `;
 
+export const CREATE_REGISTRATION_REQUEST_MUTATION = gql`
+  mutation CreateRegistrationRequest($input: CreateRegistrationRequestInput!) {
+    createRegistrationRequest(input: $input) {
+      message
+      success
+    }
+  }
+`;
+
+export const GET_ALL_REGISTRATION_REQUESTS_QUERY = gql`
+  query GetAllRegistrationRequests {
+    getAllRegistrationRequests {
+      id
+      email
+      name
+      universityId
+      status
+      adminNotes
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const APPROVE_REGISTRATION_REQUEST_MUTATION = gql`
+  mutation ApproveRegistrationRequest($input: ApproveRegistrationRequestInput!) {
+    approveRegistrationRequest(input: $input) {
+      id
+      email
+      name
+      universityId
+      status
+      adminNotes
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const REJECT_REGISTRATION_REQUEST_MUTATION = gql`
+  mutation RejectRegistrationRequest($input: RejectRegistrationRequestInput!) {
+    rejectRegistrationRequest(input: $input) {
+      id
+      email
+      name
+      universityId
+      status
+      adminNotes
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const GET_ME_QUERY = gql`
   query GetMe {
     me {
@@ -44,6 +98,15 @@ export const GET_ME_QUERY = gql`
       universityId
       isActive
       createdAt
+    }
+  }
+`;
+
+export const GET_REGISTRATION_REQUESTS_COUNT_QUERY = gql`
+  query GetRegistrationRequestsCount {
+    registrationRequestsCount {
+      pending
+      total
     }
   }
 `;
@@ -59,6 +122,23 @@ export interface RegisterInput {
   password: string;
   name: string;
   universityId: string;
+}
+
+export interface CreateRegistrationRequestInput {
+  email: string;
+  password: string;
+  name: string;
+  universityId?: string;
+}
+
+export interface ApproveRegistrationRequestInput {
+  requestId: string;
+  adminNotes?: string;
+}
+
+export interface RejectRegistrationRequestInput {
+  requestId: string;
+  adminNotes?: string;
 }
 
 export interface AuthResponse {
@@ -82,4 +162,25 @@ export interface UserResponse {
   universityId?: string;
   isActive: boolean;
   createdAt: string;
+}
+
+export interface RegistrationRequestResponse {
+  id: string;
+  email: string;
+  name: string;
+  universityId?: string;
+  status: string;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegistrationRequestSubmissionResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface RegistrationRequestsCountResponse {
+  pending: number;
+  total: number;
 } 

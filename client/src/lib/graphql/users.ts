@@ -35,7 +35,7 @@ export interface CreateUserInput {
   password: string;
   name: string;
   universityId?: string;
-  role: 'ADMIN' | 'STUDENT';
+  role: 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN';
   isActive: boolean;
 }
 
@@ -44,7 +44,7 @@ export interface UpdateUserInput {
   password?: string;
   name?: string;
   universityId?: string;
-  role?: 'ADMIN' | 'STUDENT';
+  role?: 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN';
   isActive?: boolean;
 }
 
@@ -56,7 +56,7 @@ export interface UpdateProfileInput {
 
 export interface UsersFilterInput {
   search?: string;
-  role?: 'ADMIN' | 'STUDENT';
+  role?: 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN';
   isActive?: boolean;
 }
 

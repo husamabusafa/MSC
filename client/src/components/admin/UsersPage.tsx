@@ -7,7 +7,6 @@ import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
 import { ConfirmationModal } from '../common/ConfirmationModal';
-import { DynamicFilter, FilterField } from '../common/DynamicFilter';
 import { DataTable } from '../common/DataTable';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { 
@@ -39,11 +38,12 @@ export const UsersPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [filters, setFilters] = useState<UsersFilterInput>({});
+  const [activeTab, setActiveTab] = useState('all');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'STUDENT' as 'STUDENT' | 'ADMIN',
+    role: 'STUDENT' as 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN',
     universityId: '',
     isActive: true
   });
@@ -88,6 +88,53 @@ export const UsersPage: React.FC = () => {
     }
   });
 
+  // Tab configuration
+  const tabs = [
+    {
+      id: 'all',
+      label: t('common.all'),
+      filters: {}
+    },
+    {
+      id: 'activeStudents',
+      label: t('users.activeStudents'),
+      filters: { role: 'STUDENT' as const, isActive: true }
+    },
+    {
+      id: 'superAdmin',
+      label: t('users.SUPER_ADMIN'),
+      filters: { role: 'SUPER_ADMIN' as const }
+    },
+    {
+      id: 'academicAdmin',
+      label: t('users.ACADEMIC_ADMIN'),
+      filters: { role: 'ACADEMIC_ADMIN' as const }
+    },
+    {
+      id: 'libraryAdmin',
+      label: t('users.LIBRARY_ADMIN'),
+      filters: { role: 'LIBRARY_ADMIN' as const }
+    },
+    {
+      id: 'storeAdmin',
+      label: t('users.STORE_ADMIN'),
+      filters: { role: 'STORE_ADMIN' as const }
+    },
+    {
+      id: 'recentUsers',
+      label: t('users.recentUsers'),
+      filters: {}
+    }
+  ];
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    const selectedTab = tabs.find(tab => tab.id === tabId);
+    if (selectedTab) {
+      setFilters(selectedTab.filters);
+    }
+  };
+
   const handleCreateUser = () => {
     setSelectedUser(null);
     setFormData({
@@ -107,7 +154,7 @@ export const UsersPage: React.FC = () => {
       name: user.name,
       email: user.email,
       password: '',
-      role: user.role as 'STUDENT' | 'ADMIN',
+      role: user.role as 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN',
       universityId: user.universityId || '',
       isActive: user.isActive
     });
@@ -196,15 +243,23 @@ export const UsersPage: React.FC = () => {
       key: 'role',
       label: t('users.role'),
       sortable: true,
-      render: (user: User) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          user.role === 'ADMIN' 
-            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
-            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-        }`}>
-          {t(`users.${user.role}`)}
-        </span>
-      )
+      render: (user: User) => {
+        const roleColors = {
+          'STUDENT': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+          'SUPER_ADMIN': 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
+          'ACADEMIC_ADMIN': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+          'LIBRARY_ADMIN': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+          'STORE_ADMIN': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        };
+        
+        return (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            roleColors[user.role as keyof typeof roleColors] || roleColors['STUDENT']
+          }`}>
+            {t(`users.${user.role}`)}
+          </span>
+        );
+      }
     },
     {
       key: 'universityId',
@@ -251,96 +306,6 @@ export const UsersPage: React.FC = () => {
     }
   ];
 
-  // Define filter fields for the dynamic filter
-  const filterFields: FilterField[] = [
-    {
-      key: 'search',
-      label: t('common.search'),
-      type: 'search',
-      placeholder: t('common.searchByNameOrEmail'),
-      width: 'half'
-    },
-    {
-      key: 'role',
-      label: t('users.role'),
-      type: 'select',
-      options: [
-        { value: 'STUDENT', label: t('users.STUDENT') },
-        { value: 'ADMIN', label: t('users.ADMIN') }
-      ],
-      width: 'quarter'
-    },
-    {
-      key: 'isActive',
-      label: t('users.status'),
-      type: 'select',
-      options: [
-        { value: true, label: t('users.active') },
-        { value: false, label: t('users.inactive') }
-      ],
-      width: 'quarter'
-    },
-    {
-      key: 'createdDateRange',
-      label: t('users.createdDateRange'),
-      type: 'dateRange',
-      width: 'half',
-      transform: (value: { from?: string; to?: string }) => ({
-        createdAfter: value.from,
-        createdBefore: value.to
-      })
-    }
-  ];
-
-  // Filter presets
-  const filterPresets = [
-    {
-      name: t('users.activeStudents'),
-      filters: { role: 'STUDENT', isActive: true }
-    },
-    {
-      name: t('users.admins'),
-      filters: { role: 'ADMIN' }
-    },
-    {
-      name: t('users.recentUsers'),
-      filters: { 
-        createdDateRange: { 
-          from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        }
-      }
-    }
-  ];
-
-  const handleFiltersChange = (newFilters: any) => {
-    // Transform date range filter if it exists
-    const graphQLFilters: UsersFilterInput = {};
-    
-    if (newFilters.search) {
-      graphQLFilters.search = newFilters.search;
-    }
-    
-    if (newFilters.role) {
-      graphQLFilters.role = newFilters.role;
-    }
-    
-    if (newFilters.isActive !== undefined) {
-      graphQLFilters.isActive = newFilters.isActive;
-    }
-
-    // Handle date range transformation - commented out until server supports it
-    // if (newFilters.createdDateRange) {
-    //   if (newFilters.createdDateRange.from) {
-    //     graphQLFilters.createdAfter = newFilters.createdDateRange.from;
-    //   }
-    //   if (newFilters.createdDateRange.to) {
-    //     graphQLFilters.createdBefore = newFilters.createdDateRange.to;
-    //   }
-    // }
-    
-    setFilters(graphQLFilters);
-  };
-
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500">Error: {error.message}</div>;
 
@@ -366,18 +331,24 @@ export const UsersPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Dynamic Filters */}
-      <DynamicFilter
-        fields={filterFields}
-        onFiltersChange={handleFiltersChange}
-        theme="admin"
-        collapsible={true}
-        layout="grid"
-        showPresets={true}
-        presets={filterPresets}
-        showActiveCount={true}
-        showClearAll={true}
-      />
+      {/* Tabs */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="flex space-x-8 rtl:space-x-reverse" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`${
+                activeTab === tab.id
+                  ? 'border-admin-500 text-admin-600 dark:text-admin-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-admin-500 focus:ring-offset-2 transition-colors`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       {/* Users Table */}
       <Card padding="sm">
@@ -456,11 +427,14 @@ export const UsersPage: React.FC = () => {
             </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'STUDENT' | 'ADMIN' }))}
+              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'STUDENT' | 'SUPER_ADMIN' | 'ACADEMIC_ADMIN' | 'LIBRARY_ADMIN' | 'STORE_ADMIN' }))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-admin-500"
             >
               <option value="STUDENT">{t('users.STUDENT')}</option>
-              <option value="ADMIN">{t('users.ADMIN')}</option>
+              <option value="SUPER_ADMIN">{t('users.SUPER_ADMIN')}</option>
+              <option value="ACADEMIC_ADMIN">{t('users.ACADEMIC_ADMIN')}</option>
+              <option value="LIBRARY_ADMIN">{t('users.LIBRARY_ADMIN')}</option>
+              <option value="STORE_ADMIN">{t('users.STORE_ADMIN')}</option>
             </select>
           </div>
 
@@ -474,17 +448,28 @@ export const UsersPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isActive"
-              checked={formData.isActive}
-              onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-              className="w-4 h-4 text-admin-600 border-gray-300 rounded focus:ring-admin-500"
-            />
-            <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">
-              {t('users.active')}
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('users.status')}
             </label>
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {t('users.inactive')}
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-300 dark:peer-focus:ring-admin-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-admin-600"></div>
+              </label>
+              <span className="text-sm text-gray-900 dark:text-white font-medium">
+                {t('users.active')}
+              </span>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 rtl:space-x-reverse pt-4">

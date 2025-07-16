@@ -98,4 +98,13 @@ export class NotificationsFilterInput {
   @IsString()
   @IsOptional()
   search?: string;
+}
+
+@ObjectType()
+export class NotificationsCountResponse {
+  @Field(() => Int)
+  active: number;
+
+  @Field(() => Int)
+  total: number;
 } 

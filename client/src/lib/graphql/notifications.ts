@@ -85,6 +85,15 @@ export const DELETE_NOTIFICATION = gql`
   }
 `;
 
+export const GET_NOTIFICATIONS_COUNT = gql`
+  query GetNotificationsCount {
+    notificationsCount {
+      active
+      total
+    }
+  }
+`;
+
 // =============== TYPES ===============
 export interface Notification {
   id: string;
@@ -120,4 +129,9 @@ export interface NotificationsFilterInput {
   levelId?: string;
   isActive?: boolean;
   search?: string;
+}
+
+export interface NotificationsCountResponse {
+  active: number;
+  total: number;
 } 
