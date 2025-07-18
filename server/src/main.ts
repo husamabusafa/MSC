@@ -16,16 +16,20 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  // Enable CORS for frontend
+  // Enable CORS for frontend - handle multiple origins
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5900';
+  const origins = frontendUrl.split(',').map(url => url.trim());
+  
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: origins,
     credentials: true,
   });
 
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3900;
   await app.listen(port);
   console.log(`🚀 Server running on http://localhost:${port}`);
   console.log(`📊 GraphQL Playground: http://localhost:${port}/graphql`);
+  console.log(`🌐 CORS enabled for origins: ${origins.join(', ')}`);
 }
 
 bootstrap(); 
