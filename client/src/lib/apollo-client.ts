@@ -4,7 +4,8 @@ import { onError } from '@apollo/client/link/error';
 import { getToken, removeToken } from './jwt';
 
 // Create HTTP link to the GraphQL server
-const graphqlUri = import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3001/graphql';
+const serverPort = import.meta.env.VITE_SERVER_PORT || '3900';
+const graphqlUri = import.meta.env.VITE_GRAPHQL_URL || `http://localhost:${serverPort}/graphql`;
 console.log('🔗 Apollo Client connecting to:', graphqlUri);
 
 const httpLink = createHttpLink({
