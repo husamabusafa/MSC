@@ -16,12 +16,9 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  // Enable CORS for frontend - handle multiple origins
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5900';
-  const origins = frontendUrl.split(',').map(url => url.trim());
-  
+  // Enable CORS for all origins
   app.enableCors({
-    origin: origins,
+    origin: true,
     credentials: true,
   });
 
@@ -29,7 +26,7 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`🚀 Server running on http://localhost:${port}`);
   console.log(`📊 GraphQL Playground: http://localhost:${port}/graphql`);
-  console.log(`🌐 CORS enabled for origins: ${origins.join(', ')}`);
+  console.log(`🌐 CORS enabled for all origins`);
 }
 
 bootstrap(); 
