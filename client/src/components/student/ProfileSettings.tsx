@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useNotification } from '../../contexts/NotificationContext';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { Modal } from '../common/Modal';
+import { UPDATE_PROFILE } from '../../lib/graphql/users';
+import { getLabelClasses } from '../common';
 import { 
   User, 
   Mail, 
@@ -30,7 +34,8 @@ interface PasswordFormData {
 
 export const ProfileSettings: React.FC = () => {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, dir } = useI18n();
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -191,7 +196,7 @@ export const ProfileSettings: React.FC = () => {
           <form onSubmit={handleProfileSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className={getLabelClasses(dir, false, 'mb-2')}>
                   {t('auth.fullName')}
                 </label>
                 <Input
@@ -204,7 +209,7 @@ export const ProfileSettings: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className={getLabelClasses(dir, false, 'mb-2')}>
                   {t('auth.email')}
                 </label>
                 <Input

@@ -183,7 +183,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         ${Icon && iconPosition === 'left' ? iconAdjustedPosition : ''}
       `;
     }
-    return `block text-sm font-medium ${error ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'} mb-2`;
+    
+    // For non-floating labels, align text based on direction
+    const textAlignment = dir === 'rtl' ? 'text-right' : 'text-left';
+    return `block text-sm font-medium ${error ? 'text-red-600 dark:text-red-400' : 'text-gray-700 dark:text-gray-300'} mb-2 ${textAlignment}`;
   };
 
   const getIconClasses = () => {

@@ -8,12 +8,7 @@ export interface User {
   isActive: boolean;
 }
 
-export interface PreRegisteredStudent {
-  id: string;
-  fullName: string;
-  universityId: string;
-  isUsed: boolean;
-}
+
 
 export interface Level {
   id: string;

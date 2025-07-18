@@ -14,6 +14,43 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   rounded?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
 }
 
+// List of directional icons that need RTL support
+const directionalIcons = [
+  'ArrowLeft',
+  'ArrowRight',
+  'ChevronLeft',
+  'ChevronRight',
+  'ArrowLeftCircle',
+  'ArrowRightCircle',
+  'ArrowLeftSquare',
+  'ArrowRightSquare',
+  'ArrowLeftFromLine',
+  'ArrowRightFromLine',
+  'ArrowLeftToLine',
+  'ArrowRightToLine',
+  'ChevronLeftCircle',
+  'ChevronRightCircle',
+  'ChevronLeftSquare',
+  'ChevronRightSquare',
+  'ChevronFirst',
+  'ChevronLast',
+  'ChevronsLeft',
+  'ChevronsRight',
+  'ChevronsLeftRight',
+  'ChevronsRightLeft',
+  'FastForward',
+  'Forward',
+  'SkipBack',
+  'SkipForward',
+  'StepBack',
+  'StepForward',
+];
+
+// Helper function to check if an icon is directional
+const isDirectionalIcon = (icon: LucideIcon): boolean => {
+  return directionalIcons.includes(icon.displayName || '');
+};
+
 export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
@@ -118,6 +155,15 @@ export const Button: React.FC<ButtonProps> = ({
     xl: 'w-6 h-6'
   };
 
+  // Get icon classes with RTL support for directional icons
+  const getIconClasses = (icon: LucideIcon) => {
+    const baseIconClasses = `${iconSizes[size]} flex-shrink-0`;
+    if (isDirectionalIcon(icon)) {
+      return `${baseIconClasses} rtl:rotate-180`;
+    }
+    return baseIconClasses;
+  };
+
   const LoadingSpinner = ({ size }: { size: string }) => (
     <div className={`${iconSizes[size as keyof typeof iconSizes]} relative`}>
       <div className="absolute inset-0 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -129,7 +175,7 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         <LoadingSpinner size={size} />
       ) : Icon && iconPosition === 'left' ? (
-        <Icon className={`${iconSizes[size]} flex-shrink-0`} />
+        <Icon className={getIconClasses(Icon)} />
       ) : null}
       
       <span className={`${isLoading ? 'opacity-70' : ''}`}>
@@ -137,7 +183,7 @@ export const Button: React.FC<ButtonProps> = ({
       </span>
       
       {!isLoading && Icon && iconPosition === 'right' ? (
-        <Icon className={`${iconSizes[size]} flex-shrink-0`} />
+        <Icon className={getIconClasses(Icon)} />
       ) : null}
     </>
   );

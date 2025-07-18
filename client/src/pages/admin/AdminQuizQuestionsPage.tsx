@@ -231,7 +231,7 @@ export const AdminQuizQuestionsPage: React.FC<AdminQuizQuestionsPageProps> = ({ 
             onClick={handleBack}
             className="flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
             <span>{t('common.back')}</span>
           </Button>
           <div>

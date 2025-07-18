@@ -130,46 +130,7 @@ export class UsersFilterInput {
   isActive?: boolean;
 }
 
-@InputType()
-export class CreatePreRegisteredStudentInput {
-  @Field()
-  @IsString()
-  @MinLength(1)
-  fullName: string;
 
-  @Field()
-  @IsString()
-  @MinLength(1)
-  universityId: string;
-}
-
-@InputType()
-export class UpdatePreRegisteredStudentInput {
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  fullName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  universityId?: string;
-}
-
-@InputType()
-export class PreRegisteredStudentsFilterInput {
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  search?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsBoolean()
-  isUsed?: boolean;
-}
 
 // Output DTOs
 @ObjectType()
@@ -200,36 +161,9 @@ export class UserResponse {
 }
 
 @ObjectType()
-export class PreRegisteredStudentResponse {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  fullName: string;
-
-  @Field()
-  universityId: string;
-
-  @Field()
-  isUsed: boolean;
-
-  @Field()
-  createdAt: string;
-}
-
-@ObjectType()
 export class UsersResponse {
   @Field(() => [UserResponse])
   users: UserResponse[];
-
-  @Field()
-  total: number;
-}
-
-@ObjectType()
-export class PreRegisteredStudentsResponse {
-  @Field(() => [PreRegisteredStudentResponse])
-  preRegisteredStudents: PreRegisteredStudentResponse[];
 
   @Field()
   total: number;

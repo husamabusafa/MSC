@@ -1,15 +1,12 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { User, PreRegisteredStudent, Prisma } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { 
   CreateUserInput, 
   UpdateUserInput, 
   UpdateProfileInput, 
-  UsersFilterInput,
-  CreatePreRegisteredStudentInput,
-  UpdatePreRegisteredStudentInput,
-  PreRegisteredStudentsFilterInput
+  UsersFilterInput
 } from './dto/user.dto';
 
 @Injectable()
@@ -42,18 +39,7 @@ export class UsersService {
     });
   }
 
-  async findPreRegisteredStudent(universityId: string): Promise<PreRegisteredStudent | null> {
-    return this.prisma.preRegisteredStudent.findUnique({
-      where: { universityId },
-    });
-  }
 
-  async markPreRegisteredStudentAsUsed(universityId: string): Promise<PreRegisteredStudent> {
-    return this.prisma.preRegisteredStudent.update({
-      where: { universityId },
-      data: { isUsed: true },
-    });
-  }
 
   async findAllUsers(): Promise<User[]> {
     return this.prisma.user.findMany({
@@ -85,16 +71,7 @@ export class UsersService {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Check if university ID is provided and if it's pre-registered (for students)
-    if (universityId && role === 'STUDENT') {
-      const preRegistered = await this.findPreRegisteredStudent(universityId);
-      if (!preRegistered) {
-        throw new BadRequestException('University ID not found in pre-registered students');
-      }
-      if (preRegistered.isUsed) {
-        throw new ConflictException('University ID has already been used');
-      }
-    }
+
 
     // Hash password
     const hashedPassword = await hash(password, 10);
@@ -109,10 +86,7 @@ export class UsersService {
       isActive,
     });
 
-    // Mark pre-registered student as used if applicable
-    if (universityId && role === 'STUDENT') {
-      await this.markPreRegisteredStudentAsUsed(universityId);
-    }
+
 
     return user;
   }
@@ -133,16 +107,7 @@ export class UsersService {
       }
     }
 
-    // Check university ID constraints if being updated
-    if (universityId && universityId !== user.universityId) {
-      const preRegistered = await this.findPreRegisteredStudent(universityId);
-      if (!preRegistered) {
-        throw new BadRequestException('University ID not found in pre-registered students');
-      }
-      if (preRegistered.isUsed) {
-        throw new ConflictException('University ID has already been used');
-      }
-    }
+
 
     // Hash password if provided
     const hashedPassword = password ? await hash(password, 10) : undefined;
@@ -156,10 +121,7 @@ export class UsersService {
       isActive,
     });
 
-    // Mark pre-registered student as used if university ID was changed
-    if (universityId && universityId !== user.universityId) {
-      await this.markPreRegisteredStudentAsUsed(universityId);
-    }
+
 
     return updatedUser;
   }
@@ -235,104 +197,5 @@ export class UsersService {
     });
   }
 
-  // Pre-registered student management methods
-  async createPreRegisteredStudent(createInput: CreatePreRegisteredStudentInput): Promise<PreRegisteredStudent> {
-    const { fullName, universityId } = createInput;
 
-    // Check if university ID already exists
-    const existing = await this.findPreRegisteredStudent(universityId);
-    if (existing) {
-      throw new ConflictException('University ID already exists');
-    }
-
-    return this.prisma.preRegisteredStudent.create({
-      data: {
-        fullName,
-        universityId,
-      },
-    });
-  }
-
-  async updatePreRegisteredStudent(id: string, updateInput: UpdatePreRegisteredStudentInput): Promise<PreRegisteredStudent> {
-    const student = await this.prisma.preRegisteredStudent.findUnique({
-      where: { id },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Pre-registered student not found');
-    }
-
-    const { fullName, universityId } = updateInput;
-
-    // Check if university ID is being changed and if it's already taken
-    if (universityId && universityId !== student.universityId) {
-      const existing = await this.findPreRegisteredStudent(universityId);
-      if (existing) {
-        throw new ConflictException('University ID already exists');
-      }
-    }
-
-    return this.prisma.preRegisteredStudent.update({
-      where: { id },
-      data: {
-        fullName,
-        universityId,
-      },
-    });
-  }
-
-  async deletePreRegisteredStudent(id: string): Promise<boolean> {
-    const student = await this.prisma.preRegisteredStudent.findUnique({
-      where: { id },
-    });
-
-    if (!student) {
-      throw new NotFoundException('Pre-registered student not found');
-    }
-
-    await this.prisma.preRegisteredStudent.delete({
-      where: { id },
-    });
-
-    return true;
-  }
-
-  async getPreRegisteredStudentsWithFilters(filters: PreRegisteredStudentsFilterInput): Promise<{ preRegisteredStudents: PreRegisteredStudent[]; total: number }> {
-    const { search, isUsed } = filters;
-
-    const where: Prisma.PreRegisteredStudentWhereInput = {};
-
-    if (search) {
-      where.OR = [
-        { fullName: { contains: search } },
-        { universityId: { contains: search } },
-      ];
-    }
-
-    if (isUsed !== undefined) {
-      where.isUsed = isUsed;
-    }
-
-    const [preRegisteredStudents, total] = await Promise.all([
-      this.prisma.preRegisteredStudent.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.preRegisteredStudent.count({ where }),
-    ]);
-
-    return { preRegisteredStudents, total };
-  }
-
-  async getPreRegisteredStudentById(id: string): Promise<PreRegisteredStudent | null> {
-    return this.prisma.preRegisteredStudent.findUnique({
-      where: { id },
-    });
-  }
-
-  async getAllPreRegisteredStudents(): Promise<PreRegisteredStudent[]> {
-    return this.prisma.preRegisteredStudent.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-  }
 } 

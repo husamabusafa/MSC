@@ -1,7 +1,9 @@
 import React from 'react';
+import { useQuery } from '@apollo/client';
 import { useI18n } from '../../contexts/I18nContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { Card } from '../common/Card';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { hasPermission } from '../../utils/rolePermissions';
 import { 
   Users, 
@@ -18,18 +20,86 @@ import {
   Settings,
   Shield
 } from 'lucide-react';
-import { getRelatedData } from '../../data/mockData';
+import { GET_USERS } from '../../lib/graphql/users';
+import { GET_LEVELS, GET_COURSES, GET_FLASHCARD_DECKS } from '../../lib/graphql/academic';
+import { GET_BOOKS, GET_BOOK_ORDERS } from '../../lib/graphql/library';
+import { GET_PRODUCTS, GET_PRODUCT_CATEGORIES, GET_ORDERS } from '../../lib/graphql/store';
 
 export const AdminDashboard: React.FC = () => {
   const { t } = useI18n();
   const { user } = useAuth();
-  const data = getRelatedData();
+
+  // GraphQL queries
+  const { data: usersData, loading: usersLoading } = useQuery(GET_USERS, {
+    variables: { filters: {} },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: levelsData, loading: levelsLoading } = useQuery(GET_LEVELS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: coursesData, loading: coursesLoading } = useQuery(GET_COURSES, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: booksData, loading: booksLoading } = useQuery(GET_BOOKS, {
+    variables: { filters: {} },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: bookOrdersData, loading: bookOrdersLoading } = useQuery(GET_BOOK_ORDERS, {
+    variables: { filters: {} },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: productsData, loading: productsLoading } = useQuery(GET_PRODUCTS, {
+    variables: { filter: {} },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: categoriesData, loading: categoriesLoading } = useQuery(GET_PRODUCT_CATEGORIES, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: ordersData, loading: ordersLoading } = useQuery(GET_ORDERS, {
+    variables: { filter: {} },
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: flashcardDecksData, loading: flashcardDecksLoading } = useQuery(GET_FLASHCARD_DECKS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  // Extract data from queries
+  const users = usersData?.users?.users || [];
+  const levels = levelsData?.levels || [];
+  const courses = coursesData?.courses || [];
+  const books = booksData?.books?.books || [];
+  const bookOrders = bookOrdersData?.bookOrders?.bookOrders || [];
+  const products = productsData?.products?.products || [];
+  const productCategories = categoriesData?.productCategories?.categories || [];
+  const orders = ordersData?.orders?.orders || [];
+  const flashcardDecks = flashcardDecksData?.flashcardDecks || [];
+
+  // Show loading spinner while data is loading
+  const isLoading = usersLoading || levelsLoading || coursesLoading || booksLoading || 
+                    bookOrdersLoading || productsLoading || categoriesLoading || 
+                    ordersLoading || flashcardDecksLoading;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   // Role-specific stats
   const getAllStats = () => [
     {
       title: t('dashboard.totalUsers'),
-      value: data.users.length,
+      value: users.length,
       icon: Users,
       color: 'text-admin-secondary-600 dark:text-admin-secondary-400',
       bgColor: 'bg-admin-secondary-100 dark:bg-admin-secondary-900/20',
@@ -38,7 +108,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.totalCourses'),
-      value: data.courses.length,
+      value: courses.length,
       icon: BookOpen,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-100 dark:bg-green-900/20',
@@ -47,7 +117,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.totalBooks'),
-      value: data.books.length,
+      value: books.length,
       icon: Library,
       color: 'text-admin-600 dark:text-admin-400',
       bgColor: 'bg-admin-100 dark:bg-admin-900/20',
@@ -56,7 +126,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.totalOrders'),
-      value: data.orders.length,
+      value: orders.length,
       icon: ShoppingBag,
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-100 dark:bg-orange-900/20',
@@ -65,7 +135,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.academicLevels'),
-      value: data.levels.length,
+      value: levels.length,
       icon: GraduationCap,
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'bg-purple-100 dark:bg-purple-900/20',
@@ -74,7 +144,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.flashcardDecks'),
-      value: data.flashcardDecks.length,
+      value: flashcardDecks.length,
       icon: Package,
       color: 'text-indigo-600 dark:text-indigo-400',
       bgColor: 'bg-indigo-100 dark:bg-indigo-900/20',
@@ -83,7 +153,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('dashboard.productCategories'),
-      value: data.productCategories.length,
+      value: productCategories.length,
       icon: Package,
       color: 'text-teal-600 dark:text-teal-400',
       bgColor: 'bg-teal-100 dark:bg-teal-900/20',
@@ -92,7 +162,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       title: t('nav.products'),
-      value: data.products.length,
+      value: products.length,
       icon: ShoppingBag,
       color: 'text-pink-600 dark:text-pink-400',
       bgColor: 'bg-pink-100 dark:bg-pink-900/20',
@@ -105,21 +175,21 @@ export const AdminDashboard: React.FC = () => {
   const getAllPendingItems = () => [
     {
       title: t('dashboard.bookOrders'),
-      count: data.bookOrders.filter(o => o.status === 'pending').length,
+      count: bookOrders.filter((o: any) => o.status === 'PENDING').length,
       icon: Library,
       href: '/admin/book-orders',
       permission: 'library.bookOrders'
     },
     {
       title: t('dashboard.productOrders'),
-      count: data.orders.filter(o => o.status === 'pending').length,
+      count: orders.filter((o: any) => o.status === 'PENDING').length,
       icon: ShoppingBag,
       href: '/admin/orders',
       permission: 'store.orders'
     },
     {
       title: t('dashboard.registrationRequests'),
-      count: 3, // Mock count
+      count: 3, // TODO: Replace with real data when pre-registration system is implemented
       icon: FileText,
       href: '/admin/registration-requests',
       permission: 'registrationRequests'

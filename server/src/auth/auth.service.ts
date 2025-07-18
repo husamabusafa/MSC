@@ -71,16 +71,7 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Check if university ID is provided and if it's pre-registered
-    if (universityId) {
-      const preRegistered = await this.usersService.findPreRegisteredStudent(universityId);
-      if (!preRegistered) {
-        throw new UnauthorizedException('University ID not found in pre-registered students');
-      }
-      if (preRegistered.isUsed) {
-        throw new ConflictException('University ID has already been used');
-      }
-    }
+
 
     // Hash password
     const hashedPassword = await hash(password, 10);
@@ -94,10 +85,7 @@ export class AuthService {
       role: 'STUDENT',
     });
 
-    // Mark pre-registered student as used if applicable
-    if (universityId) {
-      await this.usersService.markPreRegisteredStudentAsUsed(universityId);
-    }
+
 
     // Generate JWT token
     const payload = { sub: user.id, email: user.email, role: user.role };

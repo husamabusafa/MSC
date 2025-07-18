@@ -12,21 +12,8 @@ export interface User {
   updatedAt: string;
 }
 
-export interface PreRegisteredStudent {
-  id: string;
-  fullName: string;
-  universityId: string;
-  isUsed: boolean;
-  createdAt: string;
-}
-
 export interface UsersResponse {
   users: User[];
-  total: number;
-}
-
-export interface PreRegisteredStudentsResponse {
-  preRegisteredStudents: PreRegisteredStudent[];
   total: number;
 }
 
@@ -60,20 +47,7 @@ export interface UsersFilterInput {
   isActive?: boolean;
 }
 
-export interface CreatePreRegisteredStudentInput {
-  fullName: string;
-  universityId: string;
-}
 
-export interface UpdatePreRegisteredStudentInput {
-  fullName?: string;
-  universityId?: string;
-}
-
-export interface PreRegisteredStudentsFilterInput {
-  search?: string;
-  isUsed?: boolean;
-}
 
 // User Management Queries
 export const GET_USERS = gql`
@@ -191,61 +165,4 @@ export const UPDATE_PROFILE = gql`
   }
 `;
 
-// Pre-registered Student Management Queries
-export const GET_PRE_REGISTERED_STUDENTS = gql`
-  query GetPreRegisteredStudents($filters: PreRegisteredStudentsFilterInput) {
-    preRegisteredStudents(filters: $filters) {
-      preRegisteredStudents {
-        id
-        fullName
-        universityId
-        isUsed
-        createdAt
-      }
-      total
-    }
-  }
-`;
-
-export const GET_PRE_REGISTERED_STUDENT = gql`
-  query GetPreRegisteredStudent($id: ID!) {
-    preRegisteredStudent(id: $id) {
-      id
-      fullName
-      universityId
-      isUsed
-      createdAt
-    }
-  }
-`;
-
-// Pre-registered Student Management Mutations
-export const CREATE_PRE_REGISTERED_STUDENT = gql`
-  mutation CreatePreRegisteredStudent($createPreRegisteredStudentInput: CreatePreRegisteredStudentInput!) {
-    createPreRegisteredStudent(createPreRegisteredStudentInput: $createPreRegisteredStudentInput) {
-      id
-      fullName
-      universityId
-      isUsed
-      createdAt
-    }
-  }
-`;
-
-export const UPDATE_PRE_REGISTERED_STUDENT = gql`
-  mutation UpdatePreRegisteredStudent($id: ID!, $updatePreRegisteredStudentInput: UpdatePreRegisteredStudentInput!) {
-    updatePreRegisteredStudent(id: $id, updatePreRegisteredStudentInput: $updatePreRegisteredStudentInput) {
-      id
-      fullName
-      universityId
-      isUsed
-      createdAt
-    }
-  }
-`;
-
-export const DELETE_PRE_REGISTERED_STUDENT = gql`
-  mutation DeletePreRegisteredStudent($id: ID!) {
-    deletePreRegisteredStudent(id: $id)
-  }
-`; 
+ 

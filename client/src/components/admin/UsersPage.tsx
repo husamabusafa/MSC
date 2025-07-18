@@ -9,6 +9,7 @@ import { Modal } from '../common/Modal';
 import { ConfirmationModal } from '../common/ConfirmationModal';
 import { DataTable } from '../common/DataTable';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { getLabelClasses } from '../common';
 import { 
   Users, 
   Plus, 
@@ -31,7 +32,7 @@ import {
 } from '../../lib/graphql/users';
 
 export const UsersPage: React.FC = () => {
-  const { t } = useI18n();
+  const { t, dir } = useI18n();
   const { showSuccess, showError } = useNotification();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -387,7 +388,7 @@ export const UsersPage: React.FC = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={getLabelClasses(dir)}>
               {t('users.name')}
             </label>
             <Input
@@ -398,7 +399,7 @@ export const UsersPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={getLabelClasses(dir)}>
               {t('users.email')}
             </label>
             <Input
@@ -410,7 +411,7 @@ export const UsersPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={getLabelClasses(dir)}>
               {t('users.password')} {selectedUser && '(leave blank to keep current)'}
             </label>
             <Input
@@ -422,7 +423,7 @@ export const UsersPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={getLabelClasses(dir)}>
               {t('users.role')}
             </label>
             <select
@@ -439,7 +440,7 @@ export const UsersPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className={getLabelClasses(dir)}>
               {t('users.universityId')}
             </label>
             <Input
@@ -464,7 +465,7 @@ export const UsersPage: React.FC = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-300 dark:peer-focus:ring-admin-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-admin-600"></div>
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-admin-300 dark:peer-focus:ring-admin-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] rtl:after:right-[2px] rtl:after:left-auto after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-admin-600"></div>
               </label>
               <span className="text-sm text-gray-900 dark:text-white font-medium">
                 {t('users.active')}

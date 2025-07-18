@@ -85,7 +85,7 @@ export const QuizPage: React.FC<QuizPageProps> = ({ courseId }) => {
             onClick={handleBackToQuizList}
             className="flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             <span>{t('common.back')}</span>
           </Button>
         </div>

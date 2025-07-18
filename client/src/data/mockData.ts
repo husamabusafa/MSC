@@ -1,11 +1,11 @@
-import { User, Level, Course, FlashcardDeck, Quiz, Question, Book, ProductCategory, Product, PreRegisteredStudent, GpaSubject, BookOrder, Order } from '../types';
+import { User, Level, Course, FlashcardDeck, Quiz, Question, Book, ProductCategory, Product, GpaSubject, BookOrder, Order } from '../types';
 
 export const mockUsers: User[] = [
   {
     id: '1',
     email: 'student@example.com',
     name: 'Ahmed Hassan',
-    role: 'student',
+    role: 'STUDENT',
     universityId: 'ST001',
     createdAt: '2024-01-15T10:00:00Z',
     isActive: true
@@ -14,26 +14,13 @@ export const mockUsers: User[] = [
     id: '2',
     email: 'admin@example.com',
     name: 'Dr. Sarah Johnson',
-    role: 'admin',
+    role: 'SUPER_ADMIN',
     createdAt: '2024-01-10T08:00:00Z',
     isActive: true
   }
 ];
 
-export const mockPreRegisteredStudents: PreRegisteredStudent[] = [
-  {
-    id: '1',
-    fullName: 'Omar Al-Rashid',
-    universityId: 'ST002',
-    isUsed: false
-  },
-  {
-    id: '2',
-    fullName: 'Fatima Ibrahim',
-    universityId: 'ST003',
-    isUsed: false
-  }
-];
+
 
 export const mockLevels: Level[] = [
   {
@@ -327,7 +314,7 @@ export const getRelatedData = () => {
 
   return {
     users: mockUsers,
-    preRegisteredStudents: mockPreRegisteredStudents,
+
     levels: mockLevels,
     courses: coursesWithLevels,
     flashcardDecks: flashcardDecksWithCourses,

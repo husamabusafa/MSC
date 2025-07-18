@@ -10,6 +10,7 @@ import { ConfirmationModal } from '../common/ConfirmationModal';
 import { FilterPanel, FilterOption } from '../common/FilterPanel';
 import { DataTable } from '../common/DataTable';
 import { LoadingSpinner } from '../common/LoadingSpinner';
+import { getLabelClasses } from '../common';
 import { 
   Bell, 
   Plus, 
@@ -36,7 +37,7 @@ import {
 import { GET_LEVELS, Level } from '../../lib/graphql/academic';
 
 export const NotificationsPage: React.FC = () => {
-  const { t } = useI18n();
+  const { t, dir } = useI18n();
   const { showSuccess, showError } = useNotification();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -323,7 +324,7 @@ export const NotificationsPage: React.FC = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="title" className={getLabelClasses(dir)}>
               {t('notifications.title')}
             </label>
             <Input
@@ -337,7 +338,7 @@ export const NotificationsPage: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="message" className={getLabelClasses(dir)}>
               {t('notifications.message')}
             </label>
             <textarea
@@ -352,7 +353,7 @@ export const NotificationsPage: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="levelId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label htmlFor="levelId" className={getLabelClasses(dir)}>
               {t('notifications.targetLevel')}
             </label>
             <select

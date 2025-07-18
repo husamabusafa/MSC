@@ -298,8 +298,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     )}
                   </div>
                   {!isCollapsed && hasSubItems && (
-                    <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''} ${isRTL ? 'rotate-180' : ''}`}>
-                      <ChevronRight className="w-4 h-4" />
+                    <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                      <ChevronRight className="w-4 h-4 rtl:rotate-180" />
                     </div>
                   )}
                   {isActive && (

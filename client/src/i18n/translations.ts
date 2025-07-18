@@ -114,7 +114,7 @@ export const translations = {
       notFoundDescription: 'The item you\'re looking for doesn\'t exist or has been removed.',
       managementDescription: 'Manage system users and their permissions',
       levelsManagementDescription: 'Manage academic levels and their order',
-      preRegisteredDescription: 'Manage pre-registered students who can create accounts',
+  
       orderHistoryDescription: 'View your book borrowing and product purchase history',
       readyToContinue: 'Ready to continue your learning journey today?',
       manageEfficiently: 'Manage your educational platform efficiently',
@@ -124,7 +124,7 @@ export const translations = {
       enterImageUrl: 'Enter image URL or upload...',
       enterQuestionHere: 'Enter your question here...',
       demoAccounts: 'Demo Accounts',
-      usePreRegistered: 'Use these pre-registered University IDs:',
+  
       // Empty states
       noOrdersFound: 'No Orders Found',
       tryAdjustingFilters: 'Try adjusting your filters or search terms',
@@ -731,7 +731,7 @@ export const translations = {
         subject: 'Are you sure you want to delete this subject?',
         product: 'Are you sure you want to delete this product?',
         category: 'Are you sure you want to delete this category?',
-        student: 'Are you sure you want to delete this pre-registered student?'
+  
       }
     },
     
@@ -869,7 +869,7 @@ export const translations = {
       notFoundDescription: 'العنصر الذي تبحث عنه غير موجود أو تم حذفه.',
       managementDescription: 'إدارة مستخدمي النظام وصلاحياتهم',
       levelsManagementDescription: 'إدارة المستويات الأكاديمية وترتيبها',
-      preRegisteredDescription: 'إدارة الطلاب المسجلين مسبقاً الذين يمكنهم إنشاء حسابات',
+  
       orderHistoryDescription: 'عرض سجل استعارة الكتب وشراء المنتجات',
       readyToContinue: 'مستعد لمواصلة رحلتك التعليمية اليوم؟',
       manageEfficiently: 'إدارة منصتك التعليمية بكفاءة',
@@ -879,7 +879,7 @@ export const translations = {
       enterImageUrl: 'أدخل رابط الصورة أو قم بالتحميل...',
       enterQuestionHere: 'أدخل سؤالك هنا...',
       demoAccounts: 'حسابات تجريبية',
-      usePreRegistered: 'استخدم هذه الأرقام الجامعية المسجلة مسبقاً:',
+  
       // Empty states
       noOrdersFound: 'لا توجد طلبات',
       tryAdjustingFilters: 'حاول تعديل المرشحات أو مصطلحات البحث',

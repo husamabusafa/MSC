@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@apollo/client';
 import { FlashcardViewer } from '../../components/student/FlashcardViewer';
 import { useI18n } from '../../contexts/I18nContext';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { getRelatedData } from '../../data/mockData';
+import { GET_FLASHCARD_DECKS } from '../../lib/graphql/academic';
 import { FlashcardDeck } from '../../types';
 import { ArrowLeft, Play, Brain, AlertCircle } from 'lucide-react';
 
@@ -15,15 +16,15 @@ interface FlashcardsPageProps {
 export const FlashcardsPage: React.FC<FlashcardsPageProps> = ({ courseId }) => {
   const { t } = useI18n();
   const [selectedDeck, setSelectedDeck] = useState<FlashcardDeck | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [availableDecks, setAvailableDecks] = useState<FlashcardDeck[]>([]);
 
-  useEffect(() => {
-    const data = getRelatedData();
-    const courseDecks = data.flashcardDecks.filter(deck => deck.courseId === courseId);
-    setAvailableDecks(courseDecks);
-    setLoading(false);
-  }, [courseId]);
+  const { data, loading, error } = useQuery(GET_FLASHCARD_DECKS, {
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const flashcardDecks = data?.flashcardDecks || [];
+  const availableDecks = flashcardDecks.filter((deck: any) => 
+    deck.courseId === courseId && deck.isVisible
+  );
 
   const handleBackToDeckList = () => {
     setSelectedDeck(null);
@@ -33,6 +34,22 @@ export const FlashcardsPage: React.FC<FlashcardsPageProps> = ({ courseId }) => {
     return (
       <div className="flex items-center justify-center py-12">
         <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Card className="p-8 text-center">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            {t('common.error')}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            {error.message}
+          </p>
+        </Card>
       </div>
     );
   }
@@ -47,11 +64,11 @@ export const FlashcardsPage: React.FC<FlashcardsPageProps> = ({ courseId }) => {
             onClick={handleBackToDeckList}
             className="flex items-center space-x-2 rtl:space-x-reverse"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
             <span>{t('common.back')}</span>
           </Button>
         </div>
-        <FlashcardViewer deck={selectedDeck} />
+        <FlashcardViewer deck={selectedDeck} onExit={handleBackToDeckList} />
       </div>
     );
   }
@@ -77,7 +94,7 @@ export const FlashcardsPage: React.FC<FlashcardsPageProps> = ({ courseId }) => {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {availableDecks.map((deck) => (
+          {availableDecks.map((deck: any) => (
             <Card key={deck.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -91,7 +108,7 @@ export const FlashcardsPage: React.FC<FlashcardsPageProps> = ({ courseId }) => {
               </div>
 
               <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span>{deck.cards.length} {t('academic.cards')}</span>
+                <span>{deck.cards?.length || 0} {t('academic.cards')}</span>
               </div>
 
               <Button

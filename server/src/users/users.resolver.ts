@@ -9,13 +9,8 @@ import {
   UpdateUserInput,
   UpdateProfileInput,
   UsersFilterInput,
-  CreatePreRegisteredStudentInput,
-  UpdatePreRegisteredStudentInput,
-  PreRegisteredStudentsFilterInput,
   UserResponse,
-  PreRegisteredStudentResponse,
   UsersResponse,
-  PreRegisteredStudentsResponse,
 } from './dto/user.dto';
 
 @Resolver()
@@ -226,114 +221,5 @@ export class UsersResolver {
     };
   }
 
-  // Pre-registered student management queries (Admin only)
-  @Query(() => PreRegisteredStudentsResponse)
-  @UseGuards(JwtAuthGuard)
-  async preRegisteredStudents(
-    @Args('filters', { type: () => PreRegisteredStudentsFilterInput, nullable: true }) filters: PreRegisteredStudentsFilterInput = {},
-    @CurrentUser() user: User,
-  ): Promise<PreRegisteredStudentsResponse> {
-    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
-    if (!isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
 
-    const { preRegisteredStudents, total } = await this.usersService.getPreRegisteredStudentsWithFilters(filters);
-
-    return {
-      preRegisteredStudents: preRegisteredStudents.map(student => ({
-        id: student.id,
-        fullName: student.fullName,
-        universityId: student.universityId,
-        isUsed: student.isUsed,
-        createdAt: student.createdAt.toISOString(),
-      })),
-      total,
-    };
-  }
-
-  @Query(() => PreRegisteredStudentResponse)
-  @UseGuards(JwtAuthGuard)
-  async preRegisteredStudent(
-    @Args('id', { type: () => ID }) id: string,
-    @CurrentUser() user: User,
-  ): Promise<PreRegisteredStudentResponse> {
-    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
-    if (!isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
-
-    const student = await this.usersService.getPreRegisteredStudentById(id);
-    if (!student) {
-      throw new Error('Pre-registered student not found');
-    }
-
-    return {
-      id: student.id,
-      fullName: student.fullName,
-      universityId: student.universityId,
-      isUsed: student.isUsed,
-      createdAt: student.createdAt.toISOString(),
-    };
-  }
-
-  // Pre-registered student management mutations (Admin only)
-  @Mutation(() => PreRegisteredStudentResponse)
-  @UseGuards(JwtAuthGuard)
-  async createPreRegisteredStudent(
-    @Args('createPreRegisteredStudentInput') createPreRegisteredStudentInput: CreatePreRegisteredStudentInput,
-    @CurrentUser() user: User,
-  ): Promise<PreRegisteredStudentResponse> {
-    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
-    if (!isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
-
-    const student = await this.usersService.createPreRegisteredStudent(createPreRegisteredStudentInput);
-
-    return {
-      id: student.id,
-      fullName: student.fullName,
-      universityId: student.universityId,
-      isUsed: student.isUsed,
-      createdAt: student.createdAt.toISOString(),
-    };
-  }
-
-  @Mutation(() => PreRegisteredStudentResponse)
-  @UseGuards(JwtAuthGuard)
-  async updatePreRegisteredStudent(
-    @Args('id', { type: () => ID }) id: string,
-    @Args('updatePreRegisteredStudentInput') updatePreRegisteredStudentInput: UpdatePreRegisteredStudentInput,
-    @CurrentUser() user: User,
-  ): Promise<PreRegisteredStudentResponse> {
-    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
-    if (!isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
-
-    const student = await this.usersService.updatePreRegisteredStudent(id, updatePreRegisteredStudentInput);
-
-    return {
-      id: student.id,
-      fullName: student.fullName,
-      universityId: student.universityId,
-      isUsed: student.isUsed,
-      createdAt: student.createdAt.toISOString(),
-    };
-  }
-
-  @Mutation(() => Boolean)
-  @UseGuards(JwtAuthGuard)
-  async deletePreRegisteredStudent(
-    @Args('id', { type: () => ID }) id: string,
-    @CurrentUser() user: User,
-  ): Promise<boolean> {
-    const isAdmin = ['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'LIBRARY_ADMIN', 'STORE_ADMIN'].includes(user.role);
-    if (!isAdmin) {
-      throw new ForbiddenException('Admin access required');
-    }
-
-    return this.usersService.deletePreRegisteredStudent(id);
-  }
 } 
